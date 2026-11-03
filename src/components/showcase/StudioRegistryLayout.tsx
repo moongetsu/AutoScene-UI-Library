@@ -21,6 +21,7 @@ import { Segmented } from "@/components/ui/segmented"
 import { Kbd } from "@/components/ui/kbd"
 import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
 import { TopNavbar } from "./TopNavbar"
+import { ShowcaseCommandPalette } from "./ShowcaseCommandPalette"
 import { toast } from "sonner"
 import { motion } from "motion/react"
 import { SPRING_FAST } from "@/lib/motion"
@@ -38,6 +39,7 @@ export function StudioRegistryLayout() {
   const [copied, setCopied] = React.useState(false)
   const [search, setSearch] = React.useState("")
   const [selectedCategory, setSelectedCategory] = React.useState("All")
+  const [paletteOpen, setPaletteOpen] = React.useState(false)
 
   // Interactive state for live demo components
   const [demoTab, setDemoTab] = React.useState("cast")
@@ -273,11 +275,18 @@ export function StudioRegistryLayout() {
 
   return (
     <div className="min-h-screen bg-[#070709] text-fg-1 flex flex-col font-sans selection:bg-accent/30 selection:text-white">
+      {/* Quick Search Palette */}
+      <ShowcaseCommandPalette
+        open={paletteOpen}
+        onOpenChange={setPaletteOpen}
+      />
+
       {/* Universal Top Navbar */}
       <TopNavbar
         activeView="registry"
         searchValue={search}
         onSearchChange={setSearch}
+        onOpenCommandPalette={() => setPaletteOpen(true)}
       />
 
       {/* Main 21st.dev Style Layout */}

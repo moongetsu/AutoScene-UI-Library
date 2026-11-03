@@ -1,6 +1,7 @@
 import * as React from "react"
 import { TopNavbar } from "./TopNavbar"
 import { ShowcaseNav, type ShowcaseSectionId } from "./ShowcaseNav"
+import { ShowcaseCommandPalette } from "./ShowcaseCommandPalette"
 import { ButtonsShowcase } from "./sections/ButtonsShowcase"
 import { BadgesShowcase } from "./sections/BadgesShowcase"
 import { InputsShowcase } from "./sections/InputsShowcase"
@@ -33,9 +34,17 @@ export function ShowcaseLayout() {
   const [active, setActive] = React.useState<ShowcaseSectionId>("buttons")
   const [search, setSearch] = React.useState("")
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false)
+  const [paletteOpen, setPaletteOpen] = React.useState(false)
 
   return (
     <div className="min-h-screen bg-[#070709] text-fg-1 flex flex-col font-sans selection:bg-accent/30 selection:text-white">
+      {/* Quick Search Palette */}
+      <ShowcaseCommandPalette
+        open={paletteOpen}
+        onOpenChange={setPaletteOpen}
+        onNavigateSection={(sec) => setActive(sec as ShowcaseSectionId)}
+      />
+
       {/* Top Navbar */}
       <TopNavbar
         activeView="showcase"
@@ -45,6 +54,7 @@ export function ShowcaseLayout() {
         searchPlaceholder="Filter studio showcase... (⌘K)"
         isMobileNavOpen={mobileNavOpen}
         onToggleMobileNav={() => setMobileNavOpen(!mobileNavOpen)}
+        onOpenCommandPalette={() => setPaletteOpen(true)}
       />
 
       {/* Main Content Area */}

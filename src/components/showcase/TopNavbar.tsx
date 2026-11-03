@@ -14,6 +14,7 @@ interface TopNavbarProps {
   searchPlaceholder?: string
   onToggleMobileNav?: () => void
   isMobileNavOpen?: boolean
+  onOpenCommandPalette?: () => void
 }
 
 export function TopNavbar({
@@ -24,6 +25,7 @@ export function TopNavbar({
   searchPlaceholder = "Search components, primitives... (⌘K)",
   onToggleMobileNav,
   isMobileNavOpen,
+  onOpenCommandPalette,
 }: TopNavbarProps) {
   const [copied, setCopied] = React.useState(false)
 
@@ -69,16 +71,20 @@ export function TopNavbar({
         )}
       </div>
 
-      {/* Middle: Universal Search Bar */}
-      <div className="relative w-72 lg:w-96 hidden md:block">
-        <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-3 pointer-events-none" />
+      {/* Middle: Universal Search Bar / Quick Palette Trigger */}
+      <div
+        onClick={onOpenCommandPalette}
+        className="relative w-72 lg:w-96 hidden md:block cursor-pointer group"
+      >
+        <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-3 pointer-events-none group-hover:text-white transition-colors" />
         <input
           value={searchValue || ""}
           onChange={(e) => onSearchChange?.(e.target.value)}
           placeholder={searchPlaceholder}
-          className="w-full h-9 rounded-full border border-white/[0.08] bg-white/[0.03] pl-10 pr-12 text-xs text-fg-1 placeholder:text-fg-3 focus:outline-none focus:border-accent/60 transition-colors"
+          readOnly={Boolean(onOpenCommandPalette)}
+          className="w-full h-9 rounded-full border border-white/[0.08] bg-white/[0.03] pl-10 pr-12 text-xs text-fg-1 placeholder:text-fg-3 focus:outline-none focus:border-accent/60 group-hover:border-white/20 transition-colors cursor-pointer"
         />
-        <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-fg-3 bg-white/[0.05] px-1.5 py-0.5 rounded border border-white/[0.08] pointer-events-none">
+        <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono text-fg-3 bg-white/[0.05] px-1.5 py-0.5 rounded border border-white/[0.08] pointer-events-none group-hover:text-white transition-colors">
           ⌘K
         </kbd>
       </div>
