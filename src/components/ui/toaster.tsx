@@ -50,53 +50,55 @@ export function CleanToastCapsule({
 
   return (
     <div
-      className={`group relative flex items-center gap-3 rounded-full border ${toneConfig.border} bg-[#0e0e13]/90 backdrop-blur-2xl py-2.5 pl-3.5 pr-2.5 text-xs text-white ${toneConfig.glow} transition-all duration-200 select-none max-w-[min(440px,calc(100vw-32px))]`}
+      className={`group relative flex items-center justify-between gap-3 rounded-full border ${toneConfig.border} bg-[#0e0e13]/90 backdrop-blur-2xl py-2.5 pl-3.5 pr-2.5 text-xs text-white ${toneConfig.glow} transition-all duration-200 select-none w-[380px] max-w-[calc(100vw-32px)]`}
     >
-      {/* Status Icon */}
-      <div className="relative flex items-center justify-center">
-        {toneConfig.icon}
+      {/* Left section: Icon + Text & Snippet */}
+      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+        <div className="relative flex items-center justify-center shrink-0">
+          {toneConfig.icon}
+        </div>
+
+        <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+          <span className="font-medium text-white truncate text-xs tracking-tight shrink-0">
+            {title}
+          </span>
+          {snippet ? (
+            <span className="font-mono text-[10px] text-fg-3 px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] truncate">
+              {snippet}
+            </span>
+          ) : description ? (
+            <span className="text-[11px] text-fg-3 truncate hidden sm:inline">
+              · {description}
+            </span>
+          ) : null}
+        </div>
       </div>
 
-      {/* Message and optional snippet inline */}
-      <div className="flex items-center gap-2 min-w-0 pr-1">
-        <span className="font-medium text-white truncate text-xs tracking-tight">
-          {title}
-        </span>
-        {snippet ? (
-          <span className="font-mono text-[10px] text-fg-3 px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] truncate max-w-[160px]">
-            {snippet}
-          </span>
-        ) : description ? (
-          <span className="text-[11px] text-fg-3 truncate max-w-[180px] hidden sm:inline">
-            · {description}
-          </span>
-        ) : null}
-      </div>
+      {/* Right section: Optional Action + Dismiss Button */}
+      <div className="flex items-center gap-1.5 shrink-0 pl-1">
+        {actionLabel && onAction && (
+          <button
+            type="button"
+            onClick={() => {
+              onAction()
+              sonnerToast.dismiss(id)
+            }}
+            className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-accent/15 border border-accent/30 text-[10px] font-semibold text-accent hover:bg-accent/25 transition-colors cursor-pointer"
+          >
+            <span>{actionLabel}</span>
+            <ArrowSquareOut className="size-3" />
+          </button>
+        )}
 
-      {/* Optional Quick Action Pill */}
-      {actionLabel && onAction && (
         <button
           type="button"
-          onClick={() => {
-            onAction()
-            sonnerToast.dismiss(id)
-          }}
-          className="ml-auto flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-accent/15 border border-accent/30 text-[10px] font-semibold text-accent hover:bg-accent/25 transition-colors cursor-pointer shrink-0"
+          onClick={() => sonnerToast.dismiss(id)}
+          className="size-5 rounded-full flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.1] transition-colors cursor-pointer"
+          title="Dismiss"
         >
-          <span>{actionLabel}</span>
-          <ArrowSquareOut className="size-3" />
+          <X className="size-3" />
         </button>
-      )}
-
-      {/* Dismiss Button */}
-      <button
-        type="button"
-        onClick={() => sonnerToast.dismiss(id)}
-        className="size-5 rounded-full flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.1] transition-colors cursor-pointer shrink-0 ml-auto"
-        title="Dismiss"
-      >
-        <X className="size-3" />
-      </button>
+      </div>
     </div>
   )
 }
