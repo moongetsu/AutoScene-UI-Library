@@ -9,21 +9,34 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
+import { ShowcasePageHeader } from "../ShowcasePageHeader"
+import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
 export function OverlaysShowcase() {
   return (
-    <div className="flex flex-col gap-10">
-      <div>
-        <h2 className="text-3xl font-bold text-fg-1">Overlays & Menus</h2>
-        <p className="text-fg-2 mt-1">
-          Floating tooltips, glass dropdown menus, and toast notifications.
-        </p>
-      </div>
+    <div className="flex flex-col gap-8">
+      <ShowcasePageHeader
+        title="Overlays & Menus"
+        description="Floating context tooltips, glass dropdown menus, and interactive toast notifications powered by Radix and Sonner."
+        importPath='import { Tooltip, DropdownMenu } from "@/components/ui/..."'
+      />
 
-      {/* Tooltips */}
-      <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold text-fg-1">Tooltips</h3>
-        <div className="rounded-2xl border border-white/[0.08] bg-canvas p-6 flex flex-wrap gap-6 items-center">
+      {/* 1. Tooltips */}
+      <ShowcaseSectionStage
+        title="Tooltips"
+        description="Delicate hovering hints with directional auto-alignment."
+        code={`import { Tooltip } from "@/components/ui/tooltip"
+import { Button } from "@/components/ui/button"
+
+<Tooltip label="Plays the source video at full resolution">
+  <Button variant="secondary">Hover for Tooltip</Button>
+</Tooltip>
+
+<Tooltip label="Accent-styled highlight information">
+  <Button variant="accent">Accent Button Tooltip</Button>
+</Tooltip>`}
+      >
+        <div className="flex flex-wrap gap-6 items-center justify-center">
           <Tooltip label="Plays the source video at full resolution">
             <Button variant="secondary">Hover for Tooltip</Button>
           </Tooltip>
@@ -32,12 +45,33 @@ export function OverlaysShowcase() {
             <Button variant="accent">Accent Button Tooltip</Button>
           </Tooltip>
         </div>
-      </section>
+      </ShowcaseSectionStage>
 
-      {/* Dropdown Menu */}
-      <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold text-fg-1">Dropdown Menus</h3>
-        <div className="rounded-2xl border border-white/[0.08] bg-canvas p-6 flex flex-wrap gap-6 items-center">
+      {/* 2. Dropdown Menus */}
+      <ShowcaseSectionStage
+        title="Dropdown Menus"
+        description="Frosted glass menus with icons, destructive items, and subtle separator hairlines."
+        code={`import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
+
+<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button variant="secondary">Actions Menu <DotsThree weight="bold" /></Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuItem><Play /> Watch source</DropdownMenuItem>
+    <DropdownMenuItem><FolderOpen /> Reveal in Folder</DropdownMenuItem>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem className="text-danger"><Trash /> Delete Export</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>`}
+      >
+        <div className="flex items-center justify-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary">
@@ -58,23 +92,39 @@ export function OverlaysShowcase() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </section>
+      </ShowcaseSectionStage>
 
-      {/* Toasts */}
-      <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold text-fg-1">Toasts (Sonner)</h3>
-        <div className="rounded-2xl border border-white/[0.08] bg-canvas p-6 flex flex-wrap gap-4 items-center">
-          <Button variant="secondary" onClick={() => toast("Project saved", { description: "AutoScene project saved locally." })}>
+      {/* 3. Toasts */}
+      <ShowcaseSectionStage
+        title="Toasts (Sonner)"
+        description="Lightweight glass notifications for success, status updates, and errors."
+        code={`import { toast } from "sonner"
+
+toast("Project saved", { description: "AutoScene project saved locally." })
+toast.success("Export finished", { description: "Filtered 42 vocal scenes." })
+toast.error("Export failed", { description: "Frame dropped during verification." })`}
+      >
+        <div className="flex flex-wrap gap-4 items-center justify-center">
+          <Button
+            variant="secondary"
+            onClick={() => toast("Project saved", { description: "AutoScene project saved locally." })}
+          >
             Trigger Standard Toast
           </Button>
-          <Button variant="accent" onClick={() => toast.success("Export finished", { description: "Filtered 42 vocal scenes." })}>
+          <Button
+            variant="accent"
+            onClick={() => toast.success("Export finished", { description: "Filtered 42 vocal scenes." })}
+          >
             Trigger Success Toast
           </Button>
-          <Button variant="danger" onClick={() => toast.error("Export failed", { description: "Frame dropped during verification." })}>
+          <Button
+            variant="danger"
+            onClick={() => toast.error("Export failed", { description: "Frame dropped during verification." })}
+          >
             Trigger Error Toast
           </Button>
         </div>
-      </section>
+      </ShowcaseSectionStage>
     </div>
   )
 }
