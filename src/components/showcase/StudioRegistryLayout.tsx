@@ -266,65 +266,59 @@ export function StudioRegistryLayout() {
             </div>
 
             {/* Authors Card - Clean Stacked Avatars Pill */}
-            <div className="flex items-center justify-between p-2.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] hover:border-white/20 transition-all">
-              <div className="flex items-center gap-3">
-                {/* Overlapping Avatar Stack */}
-                <div className="flex -space-x-2.5 items-center">
+            <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/[0.02] border border-white/[0.08] hover:border-white/20 transition-all">
+              {/* Overlapping Avatar Stack */}
+              <div className="flex -space-x-2.5 items-center">
+                <a
+                  href="https://github.com/moongetsu"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="relative z-10 block rounded-full ring-2 ring-[#0c0c0f] hover:z-30 transition-transform hover:scale-110"
+                  title="Moongetsu"
+                >
+                  <img
+                    src="https://avatars.githubusercontent.com/u/111883135?v=4"
+                    alt="Moongetsu"
+                    className="size-8 rounded-full object-cover"
+                  />
+                </a>
+                <a
+                  href="https://github.com/tcmmi"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="relative z-20 block rounded-full ring-2 ring-[#0c0c0f] hover:z-30 transition-transform hover:scale-110"
+                  title="tcmmi"
+                >
+                  <img
+                    src="https://avatars.githubusercontent.com/u/119017174?v=4"
+                    alt="tcmmi"
+                    className="size-8 rounded-full object-cover"
+                  />
+                </a>
+              </div>
+
+              <div className="flex flex-col text-xs leading-tight">
+                <span className="text-[10px] text-fg-3 uppercase font-mono tracking-wider">Created by</span>
+                <div className="flex items-center gap-1 font-semibold text-white pt-0.5">
                   <a
                     href="https://github.com/moongetsu"
                     target="_blank"
                     rel="noreferrer"
-                    className="relative z-10 block rounded-full ring-2 ring-[#0c0c0f] hover:z-30 transition-transform hover:scale-110"
-                    title="Moongetsu"
+                    className="hover:text-accent transition-colors"
                   >
-                    <img
-                      src="https://avatars.githubusercontent.com/u/111883135?v=4"
-                      alt="Moongetsu"
-                      className="size-8 rounded-full object-cover"
-                    />
+                    Moongetsu
                   </a>
+                  <span className="text-fg-3 font-normal">&</span>
                   <a
                     href="https://github.com/tcmmi"
                     target="_blank"
                     rel="noreferrer"
-                    className="relative z-20 block rounded-full ring-2 ring-[#0c0c0f] hover:z-30 transition-transform hover:scale-110"
-                    title="tcmmi"
+                    className="hover:text-accent transition-colors"
                   >
-                    <img
-                      src="https://avatars.githubusercontent.com/u/119017174?v=4"
-                      alt="tcmmi"
-                      className="size-8 rounded-full object-cover"
-                    />
+                    tcmmi
                   </a>
                 </div>
-
-                <div className="flex flex-col text-xs leading-tight">
-                  <span className="text-[10px] text-fg-3 uppercase font-mono tracking-wider">Created by</span>
-                  <div className="flex items-center gap-1 font-semibold text-white pt-0.5">
-                    <a
-                      href="https://github.com/moongetsu"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="hover:text-accent transition-colors"
-                    >
-                      Moongetsu
-                    </a>
-                    <span className="text-fg-3 font-normal">&</span>
-                    <a
-                      href="https://github.com/tcmmi"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="hover:text-accent transition-colors"
-                    >
-                      tcmmi
-                    </a>
-                  </div>
-                </div>
               </div>
-
-              <span className="text-[10px] font-mono text-accent bg-accent/10 px-2 py-0.5 rounded-full border border-accent/20">
-                Core
-              </span>
             </div>
 
             {/* Stats row */}
