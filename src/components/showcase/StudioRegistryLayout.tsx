@@ -10,6 +10,7 @@ import {
   DownloadSimple,
   FilmStrip,
   Plus,
+  Link as LinkIcon,
 } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -40,6 +41,12 @@ export function StudioRegistryLayout() {
     setCopied(true)
     toast.success("Copied install command to clipboard")
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const copyComponentLink = (id: string, title: string) => {
+    const url = `https://moongetsu.github.io/AutoScene-UI-Library/components/${id}/`
+    navigator.clipboard.writeText(url)
+    toast.success(`Copied link for ${title}`)
   }
 
   // Live component cards for the gallery grid
@@ -349,9 +356,22 @@ export function StudioRegistryLayout() {
                     <h3 className="text-sm font-semibold text-fg-1 group-hover:text-accent transition-colors">
                       {item.title}
                     </h3>
-                    <Badge tone="neutral" className="text-[10px] h-4 px-1.5">
-                      {item.category}
-                    </Badge>
+                    <div className="flex items-center gap-1.5">
+                      <Badge tone="neutral" className="text-[10px] h-4 px-1.5">
+                        {item.category}
+                      </Badge>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          copyComponentLink(item.id, item.title)
+                        }}
+                        className="size-5 rounded flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer"
+                        title="Copy direct component link"
+                      >
+                        <LinkIcon className="size-3" />
+                      </button>
+                    </div>
                   </div>
                   <p className="text-xs text-fg-3 line-clamp-1">{item.description}</p>
                 </div>
