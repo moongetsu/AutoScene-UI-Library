@@ -24,6 +24,7 @@ import { TopNavbar } from "./TopNavbar"
 import { toast } from "sonner"
 import { motion } from "motion/react"
 import { SPRING_FAST } from "@/lib/motion"
+import { cn } from "@/lib/utils"
 
 interface ComponentCardData {
   id: string
