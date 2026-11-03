@@ -1,10 +1,26 @@
 import * as React from "react"
 import * as Icons from "@/components/icons"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
-import { Select } from "@/components/ui/select"
+import { Segmented } from "@/components/ui/segmented"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu"
 import { notify } from "@/components/ui/toaster"
-import { MagnifyingGlass, Check } from "@phosphor-icons/react"
-import { motion } from "motion/react"
+import {
+  MagnifyingGlass,
+  Check,
+  Funnel,
+  ArrowsDownUp,
+  X,
+  SlidersHorizontal,
+} from "@phosphor-icons/react"
+import { motion, AnimatePresence } from "motion/react"
 
 // Category mapping for the 82 curated Phosphor icons in AutoScene
 const ICON_CATEGORIES: Record<string, string[]> = {
@@ -103,6 +119,7 @@ const ICON_CATEGORIES: Record<string, string[]> = {
 }
 
 type CopyFormat = "jsx" | "import" | "name"
+type SortMode = "az" | "za" | "category"
 
 // Filter out non-component exports like types or utils.
 // Phosphor icon components in React 18/19 are React.forward_ref objects or functions.
@@ -123,26 +140,49 @@ const ICON_LIST = Object.entries(Icons)
       Component: Component as React.ComponentType<{ className?: string; weight?: "regular" | "fill" }>,
     }
   })
-  .sort((a, b) => a.name.localeCompare(b.name))
 
 const CATEGORIES = ["All", "Media", "Navigation", "Actions", "Files", "Interface"] as const
 
 export function IconsShowcase() {
   const [search, setSearch] = React.useState("")
   const [selectedCategory, setSelectedCategory] = React.useState<string>("All")
+  const [sortMode, setSortMode] = React.useState<SortMode>("az")
   const [copyFormat, setCopyFormat] = React.useState<CopyFormat>("jsx")
   const [size, setSize] = React.useState<"sm" | "md" | "lg">("md")
   const [weight, setWeight] = React.useState<"regular" | "fill">("regular")
   const [copiedName, setCopiedName] = React.useState<string | null>(null)
 
+  const searchInputRef = React.useRef<HTMLInputElement>(null)
+
+  // Quick keyboard shortcut "/" to focus search
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "/" && document.activeElement !== searchInputRef.current) {
+        e.preventDefault()
+        searchInputRef.current?.focus()
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [])
+
   const filteredIcons = React.useMemo(() => {
     const q = search.trim().toLowerCase()
-    return ICON_LIST.filter((icon) => {
+    const list = ICON_LIST.filter((icon) => {
       const matchesSearch = !q || icon.name.toLowerCase().includes(q)
       const matchesCategory = selectedCategory === "All" || icon.category === selectedCategory
       return matchesSearch && matchesCategory
     })
-  }, [search, selectedCategory])
+
+    return list.sort((a, b) => {
+      if (sortMode === "za") return b.name.localeCompare(a.name)
+      if (sortMode === "category") {
+        const catCmp = a.category.localeCompare(b.category)
+        return catCmp !== 0 ? catCmp : a.name.localeCompare(b.name)
+      }
+      return a.name.localeCompare(b.name)
+    })
+  }, [search, selectedCategory, sortMode])
 
   const copyIconCode = (name: string) => {
     let textToCopy = ""
@@ -173,86 +213,221 @@ export function IconsShowcase() {
     lg: "size-6",
   }[size]
 
+  const hasActiveFilters = selectedCategory !== "All" || weight !== "regular" || search.trim().length > 0
+
+  const resetFilters = () => {
+    setSelectedCategory("All")
+    setWeight("regular")
+    setSearch("")
+  }
+
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <ShowcasePageHeader
         title="Icons"
         description="Phosphor icons used across the app, with regular line weight and fill variants."
         importPath='import { Play, Scissors, FilmStrip } from "@moongetsu/autoscene-ui/icons"'
       />
 
-      {/* Clean Single-Row Compact Control Toolbar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-2.5 sm:p-3 rounded-2xl border border-white/[0.08] bg-[#0c0c10]/85 backdrop-blur-xl shadow-xl">
-        {/* Search Input */}
-        <div className="relative flex-1 min-w-[200px] max-w-md">
-          <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-3 pointer-events-none" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search 82 icons..."
-            className="w-full h-8 rounded-lg border border-white/[0.08] bg-white/[0.03] pl-10 pr-4 text-xs text-white placeholder:text-fg-3 focus:outline-none focus:border-accent/60 transition-colors"
-          />
+      {/* Modern Filter & Sorting Command Bar */}
+      <div className="flex flex-col gap-3 p-3 rounded-2xl border border-white/[0.08] bg-[#0c0c10]/80 backdrop-blur-2xl shadow-2xl">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Search Input with Keyboard Shortcut Badge */}
+          <div className="relative flex-1 max-w-md">
+            <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-3 pointer-events-none" />
+            <input
+              ref={searchInputRef}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search icons... (press / to focus)"
+              className="w-full h-9 rounded-xl border border-white/[0.08] bg-white/[0.03] pl-10 pr-9 text-xs text-white placeholder:text-fg-3 focus:outline-none focus:border-accent/60 transition-colors"
+            />
+            {search ? (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-fg-3 hover:text-white cursor-pointer"
+              >
+                <X className="size-3.5" />
+              </button>
+            ) : (
+              <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex h-4 items-center justify-center rounded border border-white/10 bg-white/[0.05] px-1.5 font-mono text-[10px] text-fg-3 pointer-events-none">
+                /
+              </kbd>
+            )}
+          </div>
+
+          {/* Action Popover Controls (Filter, Sort, Format, Size) */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Filter Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={`inline-flex items-center gap-2 h-9 px-3 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+                    selectedCategory !== "All" || weight !== "regular"
+                      ? "border-accent/60 bg-accent/15 text-accent shadow-[0_0_12px_rgba(245,165,36,0.15)]"
+                      : "border-white/[0.08] bg-white/[0.04] text-fg-2 hover:bg-white/[0.07] hover:text-white"
+                  }`}
+                >
+                  <Funnel className="size-3.5" />
+                  <span>Filter</span>
+                  {(selectedCategory !== "All" || weight !== "regular") && (
+                    <span className="size-1.5 rounded-full bg-accent" />
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Category</DropdownMenuLabel>
+                <DropdownMenuRadioGroup value={selectedCategory} onValueChange={setSelectedCategory}>
+                  {CATEGORIES.map((cat) => (
+                    <DropdownMenuRadioItem key={cat} value={cat}>
+                      <span className="flex items-center justify-between w-full">
+                        <span>{cat}</span>
+                        <span className="text-[10px] font-mono opacity-60">
+                          {cat === "All" ? ICON_LIST.length : ICON_LIST.filter((i) => i.category === cat).length}
+                        </span>
+                      </span>
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuLabel>Weight</DropdownMenuLabel>
+                <DropdownMenuRadioGroup value={weight} onValueChange={(val) => setWeight(val as "regular" | "fill")}>
+                  <DropdownMenuRadioItem value="regular">Regular Line</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="fill">Solid Fill</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Sort Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={`inline-flex items-center gap-2 h-9 px-3 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
+                    sortMode !== "az"
+                      ? "border-accent/60 bg-accent/15 text-accent"
+                      : "border-white/[0.08] bg-white/[0.04] text-fg-2 hover:bg-white/[0.07] hover:text-white"
+                  }`}
+                >
+                  <ArrowsDownUp className="size-3.5" />
+                  <span>
+                    {sortMode === "az" ? "Name A–Z" : sortMode === "za" ? "Name Z–A" : "By Category"}
+                  </span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>Sort Order</DropdownMenuLabel>
+                <DropdownMenuRadioGroup value={sortMode} onValueChange={(val) => setSortMode(val as SortMode)}>
+                  <DropdownMenuRadioItem value="az">Name: A to Z</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="za">Name: Z to A</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="category">Grouped by Category</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* View Settings: Size Toggle */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-xs font-medium text-fg-2 hover:bg-white/[0.07] hover:text-white transition-all cursor-pointer"
+                  title="Icon display size"
+                >
+                  <SlidersHorizontal className="size-3.5" />
+                  <span className="font-mono text-[11px]">{size === "sm" ? "16px" : size === "md" ? "20px" : "24px"}</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuLabel>Display Size</DropdownMenuLabel>
+                <DropdownMenuRadioGroup value={size} onValueChange={(val) => setSize(val as "sm" | "md" | "lg")}>
+                  <DropdownMenuRadioItem value="sm">Small (16px)</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="md">Medium (20px)</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="lg">Large (24px)</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Copy Format Segmented Pill */}
+            <Segmented
+              value={copyFormat}
+              onChange={(val) => setCopyFormat(val as CopyFormat)}
+              options={[
+                { value: "jsx", label: "JSX" },
+                { value: "import", label: "Import" },
+                { value: "name", label: "Name" },
+              ]}
+            />
+          </div>
         </div>
 
-        {/* Clean Dropdown Controls */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-          {/* Category Dropdown */}
-          <Select
-            size="sm"
-            value={selectedCategory}
-            onChange={(val) => setSelectedCategory(val)}
-            className="h-8 text-xs min-w-[130px] rounded-lg border-white/[0.08] bg-white/[0.03]"
-            options={CATEGORIES.map((c) => ({
-              value: c,
-              label: c === "All" ? `All Categories (${ICON_LIST.length})` : `${c} (${ICON_LIST.filter((i) => i.category === c).length})`,
-            }))}
-            aria-label="Filter by category"
-          />
+        {/* Active Filter Chips with Smooth AnimatePresence */}
+        <AnimatePresence>
+          {hasActiveFilters && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 450, damping: 30 }}
+              className="flex items-center gap-2 pt-2 border-t border-white/[0.06] overflow-hidden flex-wrap"
+            >
+              <span className="text-[11px] font-mono text-fg-3">Active:</span>
 
-          {/* Copy Mode Dropdown */}
-          <Select
-            size="sm"
-            value={copyFormat}
-            onChange={(val) => setCopyFormat(val as CopyFormat)}
-            className="h-8 text-xs min-w-[110px] rounded-lg border-white/[0.08] bg-white/[0.03]"
-            options={[
-              { value: "jsx", label: "Copy: JSX" },
-              { value: "import", label: "Copy: Import" },
-              { value: "name", label: "Copy: Name" },
-            ]}
-            aria-label="Copy format"
-          />
+              {selectedCategory !== "All" && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-accent/15 text-accent border border-accent/30">
+                  Category: {selectedCategory}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory("All")}
+                    className="hover:opacity-75 cursor-pointer"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </span>
+              )}
 
-          {/* Size Dropdown */}
-          <Select
-            size="sm"
-            value={size}
-            onChange={(val) => setSize(val as "sm" | "md" | "lg")}
-            className="h-8 text-xs min-w-[85px] rounded-lg border-white/[0.08] bg-white/[0.03]"
-            options={[
-              { value: "sm", label: "16px" },
-              { value: "md", label: "20px" },
-              { value: "lg", label: "24px" },
-            ]}
-            aria-label="Icon size"
-          />
+              {weight !== "regular" && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-accent/15 text-accent border border-accent/30">
+                  Weight: Solid Fill
+                  <button
+                    type="button"
+                    onClick={() => setWeight("regular")}
+                    className="hover:opacity-75 cursor-pointer"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </span>
+              )}
 
-          {/* Weight Dropdown */}
-          <Select
-            size="sm"
-            value={weight}
-            onChange={(val) => setWeight(val as "regular" | "fill")}
-            className="h-8 text-xs min-w-[95px] rounded-lg border-white/[0.08] bg-white/[0.03]"
-            options={[
-              { value: "regular", label: "Regular" },
-              { value: "fill", label: "Fill" },
-            ]}
-            aria-label="Icon weight"
-          />
-        </div>
+              {search.trim() && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/[0.08] text-white border border-white/10">
+                  Query: "{search}"
+                  <button
+                    type="button"
+                    onClick={() => setSearch("")}
+                    className="hover:opacity-75 cursor-pointer"
+                  >
+                    <X className="size-3" />
+                  </button>
+                </span>
+              )}
+
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="text-[11px] font-mono text-fg-3 hover:text-accent ml-auto cursor-pointer transition-colors"
+              >
+                Reset all
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Counter bar */}
+      {/* Live Counter bar */}
       <div className="flex items-center justify-between px-1 text-xs text-fg-3 font-mono">
         <span>Showing {filteredIcons.length} of {ICON_LIST.length} icons</span>
         <span>Click icon to copy {copyFormat.toUpperCase()}</span>
