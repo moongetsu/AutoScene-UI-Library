@@ -19,6 +19,7 @@ import { Slider } from "@/components/ui/slider"
 import { Segmented } from "@/components/ui/segmented"
 import { Kbd } from "@/components/ui/kbd"
 import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
+import { TopNavbar } from "./TopNavbar"
 import { toast } from "sonner"
 
 interface ComponentCardData {
@@ -234,46 +235,12 @@ export function StudioRegistryLayout() {
 
   return (
     <div className="min-h-screen bg-[#070709] text-fg-1 flex flex-col font-sans selection:bg-accent/30 selection:text-white">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-50 h-16 border-b border-white/[0.08] bg-[#070709]/80 backdrop-blur-xl px-8 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <AutoSceneMark className="size-7" />
-          <span className="font-bold text-lg tracking-tight text-white flex items-center gap-1.5">
-            AutoScene <span className="text-xs px-2 py-0.5 rounded-full bg-accent/15 text-accent font-mono font-medium">UI</span>
-          </span>
-        </div>
-
-        {/* Global Search Bar */}
-        <div className="relative w-96 hidden md:block">
-          <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-3" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search components, blocks, primitives... (⌘K)"
-            className="w-full h-9 rounded-full border border-white/[0.08] bg-white/[0.03] pl-10 pr-4 text-xs text-fg-1 placeholder:text-fg-3 focus:outline-none focus:border-accent/60 transition-colors"
-          />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <a
-            href="#/showcase"
-            className="text-xs font-medium text-fg-2 hover:text-white transition-colors px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08]"
-          >
-            Showcase
-          </a>
-          <a
-            href="https://github.com/moongetsu/AutoScene-UI-Library"
-            target="_blank"
-            rel="noreferrer"
-            className="text-fg-3 hover:text-white transition-colors"
-          >
-            <GithubLogo className="size-5" />
-          </a>
-          <Button variant="primary" size="sm" onClick={copyCli}>
-            Get Started
-          </Button>
-        </div>
-      </header>
+      {/* Universal Top Navbar */}
+      <TopNavbar
+        activeView="registry"
+        searchValue={search}
+        onSearchChange={setSearch}
+      />
 
       {/* Main 21st.dev Style Layout */}
       <div className="flex-1 flex flex-col lg:flex-row">
