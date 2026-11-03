@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { FilterBar } from "@/components/ui/filter-bar"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Segmented } from "@/components/ui/segmented"
@@ -255,6 +256,36 @@ export function StudioRegistryLayout() {
           <Badge tone="danger">Failed</Badge>
           <Badge tone="outline">Outline</Badge>
           <Badge tone="media">Media Frost</Badge>
+        </div>
+      ),
+    },
+    {
+      id: "filter-bar",
+      title: "Filter & Sorting Bar",
+      category: "Inputs",
+      description: "Desktop command toolbar with shortcut (/), multi-group filters, and animated active chips.",
+      component: (
+        <div className="w-full max-w-sm scale-90 sm:scale-95 origin-center">
+          <FilterBar
+            searchPlaceholder="Search footage... (/)"
+            filterGroups={[
+              {
+                id: "status",
+                label: "Status",
+                options: [
+                  { value: "all", label: "All Items" },
+                  { value: "ready", label: "Ready", count: 12 },
+                  { value: "rendering", label: "Rendering", count: 4 },
+                ],
+              },
+            ]}
+            selectedFilters={{ status: "ready" }}
+            sortOptions={[
+              { value: "az", label: "Name A–Z" },
+              { value: "za", label: "Name Z–A" },
+            ]}
+            selectedSort="az"
+          />
         </div>
       ),
     },
