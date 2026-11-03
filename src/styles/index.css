@@ -189,12 +189,12 @@
     overflow-y: auto;
   }
 
-  /* Controls keep the arrow, as in native apps (the hand means "web link"). */
+  /* Clickable elements get cursor pointer on the web */
   a,
   button,
   [role="button"],
   [role="tab"] {
-    cursor: default;
+    cursor: pointer;
   }
 
   /* Pictures and links don't drag out as the browser's ghost (a link would show its URL). */

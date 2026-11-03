@@ -277,8 +277,8 @@ export function StudioRegistryLayout() {
 
       {/* Main 21st.dev Style Layout */}
       <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Left Hero Sidebar */}
-        <aside className="w-full lg:w-96 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.08] p-8 lg:p-10 flex flex-col justify-between">
+        {/* Left Hero Sidebar - Sticky on desktop */}
+        <aside className="w-full lg:w-96 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.08] p-8 lg:p-10 flex flex-col justify-between lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
           <div className="flex flex-col gap-6">
             <div className="flex items-center">
               <AutoSceneMark bare className="size-16" />
