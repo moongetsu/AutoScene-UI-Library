@@ -15,7 +15,7 @@ import { Tooltip, TooltipProvider } from "@/components/ui/tooltip"
 import { Artwork } from "@/components/ui/artwork"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ErrorState } from "@/components/ui/error-state"
-import { toast, notify } from "@/components/ui/toaster"
+import { toast, notify, CleanToastCapsule } from "@/components/ui/toaster"
 
 export interface ComponentCardData {
   id: string
@@ -160,24 +160,15 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
     </div>
   ),
   toaster: () => (
-    <div className="flex flex-col items-center gap-2.5">
-      <div className="flex items-center gap-3 px-3 py-2 rounded-xl border border-white/10 bg-[#0d0d12]/90 shadow-xl">
-        <div className="size-7 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-accent">
-          <Check className="size-3.5" weight="bold" />
-        </div>
-        <div className="text-left">
-          <div className="text-xs font-semibold text-fg-1">Export Completed</div>
-          <div className="text-[10px] text-fg-3">ProRes 422 HQ · 2.4 GB</div>
-        </div>
-      </div>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => notify.success("Render queue finished", { snippet: "ProRes 422 HQ" })}
-        className="text-xs text-accent hover:text-white"
-      >
-        Trigger Toast Notification
-      </Button>
+    <div className="w-full max-w-[340px] flex items-center justify-center">
+      <CleanToastCapsule
+        id="home-preview-toaster"
+        tone="accent"
+        title="Export Completed"
+        snippet="ProRes 422 HQ · 2.4 GB"
+        actionLabel="Open"
+        onAction={() => notify.success("Render queue finished", { snippet: "ProRes 422 HQ" })}
+      />
     </div>
   ),
   tooltip: () => (
