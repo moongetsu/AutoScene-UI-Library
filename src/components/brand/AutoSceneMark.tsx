@@ -4,10 +4,35 @@ type AutoSceneMarkProps = {
   className?: string
   /** Accessible name; omit for decorative */
   title?: string
+  /** If true, renders only the gold chevron & dot without the dark rounded background box */
+  bare?: boolean
 }
 
-/** Shared brand mark — same geometry as boot splash SVG. */
-export function AutoSceneMark({ className, title }: AutoSceneMarkProps) {
+/** Shared brand mark. */
+export function AutoSceneMark({ className, title, bare }: AutoSceneMarkProps) {
+  if (bare) {
+    return (
+      <svg
+        viewBox="10 8 28 28"
+        preserveAspectRatio="xMidYMid meet"
+        className={cn("block shrink-0", className)}
+        role={title ? "img" : "presentation"}
+        aria-hidden={title ? undefined : true}
+        aria-label={title}
+      >
+        <path
+          d="M14 32 L24 12 L34 32"
+          fill="none"
+          stroke="#e0b45c"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="24" cy="28" r="3" fill="#e0b45c" />
+      </svg>
+    )
+  }
+
   return (
     <svg
       viewBox="0 0 48 48"

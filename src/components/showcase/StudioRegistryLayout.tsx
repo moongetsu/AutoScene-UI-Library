@@ -274,34 +274,41 @@ export function StudioRegistryLayout() {
         {/* Left Hero Sidebar */}
         <aside className="w-full lg:w-96 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.08] p-8 lg:p-10 flex flex-col justify-between">
           <div className="flex flex-col gap-6">
-            <div className="size-16 rounded-2xl bg-panel border border-white/[0.1] shadow-2xl flex items-center justify-center p-3">
-              <AutoSceneMark className="size-full" />
+            <div className="flex items-center">
+              <AutoSceneMark bare className="size-16" />
             </div>
 
             <div>
               <h1 className="text-3xl font-extrabold text-white tracking-tight">AutoScene UI</h1>
               <p className="mt-3 text-sm text-fg-2 leading-relaxed">
-                A collection of cinematic shadcn/ui components, blocks, and templates for building modern, high-density video editing and creative tools. Built on Radix UI, CVA, and Framer Motion.
+                A collection of components, blocks, and templates for building clean video editing and creative tools. Built on Radix UI, CVA, and Tailwind CSS.
               </p>
             </div>
 
             {/* Author Credit */}
             <div className="flex items-center gap-3 pt-2">
               <img
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&fit=crop"
-                alt="Avatar"
-                className="size-8 rounded-full border border-white/20 object-cover"
+                src="https://avatars.githubusercontent.com/u/111883135?v=4"
+                alt="Moongetsu Avatar"
+                className="size-9 rounded-full border border-white/20 object-cover"
               />
               <div className="text-xs">
-                <span className="text-fg-3 block">Crafted by</span>
-                <span className="font-semibold text-white">Moongetsu</span>
+                <span className="text-fg-3 block">Created by</span>
+                <a
+                  href="https://github.com/moongetsu"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-semibold text-white hover:text-accent transition-colors"
+                >
+                  Moongetsu
+                </a>
               </div>
             </div>
 
             {/* Stats row */}
             <div className="flex items-center gap-6 text-xs text-fg-3 border-y border-white/[0.06] py-3.5">
               <div>
-                <span className="font-semibold text-fg-1">32+</span> Components
+                <span className="font-semibold text-fg-1">28</span> Components
               </div>
               <div>
                 <span className="font-semibold text-fg-1">100%</span> TypeScript
