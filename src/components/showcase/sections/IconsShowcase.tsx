@@ -6,9 +6,10 @@ import { notify } from "@/components/ui/toaster"
 import { MagnifyingGlass, Check, Copy } from "@phosphor-icons/react"
 import { motion } from "motion/react"
 
-// Filter out non-component exports like types or utils
+// Filter out non-component exports like types or utils.
+// Phosphor icon components in React 18/19 are React.forward_ref objects or functions.
 const ICON_LIST = Object.entries(Icons)
-  .filter(([key, val]) => typeof val === "function" && /^[A-Z]/.test(key))
+  .filter(([key, val]) => (typeof val === "function" || (typeof val === "object" && val !== null)) && /^[A-Z]/.test(key))
   .map(([name, Component]) => ({
     name,
     Component: Component as React.ComponentType<{ className?: string; weight?: "regular" | "fill" }>,
@@ -100,7 +101,7 @@ export function IconsShowcase() {
       {/* Grid of Icons */}
       {filteredIcons.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-12 rounded-2xl border border-white/[0.06] bg-white/[0.01] text-fg-3 text-xs">
-          <span>No icons matching "{search}"</span>
+          <span>{search.trim() ? `No icons matching "${search.trim()}"` : "No icons available"}</span>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
@@ -141,3 +142,4 @@ export function IconsShowcase() {
     </div>
   )
 }
+
