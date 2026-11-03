@@ -1,6 +1,6 @@
 import * as React from "react"
 import { toast as sonnerToast, Toaster as Sonner } from "sonner"
-import { CheckCircle, Info, Warning, XCircle, ArrowSquareOut, X } from "@phosphor-icons/react"
+import { Check, Info, Warning, XCircle, ArrowSquareOut, X } from "@phosphor-icons/react"
 
 interface CleanToastProps {
   id: string | number
@@ -23,59 +23,63 @@ export function CleanToastCapsule({
 }: CleanToastProps) {
   const toneConfig = {
     accent: {
-      border: "border-accent/30 hover:border-accent/50",
-      glow: "shadow-[0_12px_36px_rgba(0,0,0,0.6),0_0_20px_rgba(224,180,92,0.12),inset_0_1px_0_rgba(255,255,255,0.14)]",
-      icon: <CheckCircle weight="fill" className="size-4 text-accent shrink-0" />,
-      dot: "bg-accent shadow-[0_0_8px_rgba(224,180,92,0.8)]",
+      border: "border-accent/25 hover:border-accent/40",
+      glow: "shadow-[0_16px_40px_rgba(0,0,0,0.7),0_0_24px_rgba(224,180,92,0.12),inset_0_1px_0_rgba(255,255,255,0.14)]",
+      badgeBg: "bg-accent/[0.14] border-accent/35 text-accent shadow-[inset_0_1px_0_rgba(224,180,92,0.3)]",
+      icon: <Check weight="bold" className="size-4 text-accent" />,
     },
     info: {
-      border: "border-sky-500/30 hover:border-sky-500/50",
-      glow: "shadow-[0_12px_36px_rgba(0,0,0,0.6),0_0_20px_rgba(56,189,248,0.12),inset_0_1px_0_rgba(255,255,255,0.14)]",
-      icon: <Info weight="fill" className="size-4 text-sky-400 shrink-0" />,
-      dot: "bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.8)]",
+      border: "border-sky-500/25 hover:border-sky-500/40",
+      glow: "shadow-[0_16px_40px_rgba(0,0,0,0.7),0_0_24px_rgba(56,189,248,0.12),inset_0_1px_0_rgba(255,255,255,0.14)]",
+      badgeBg: "bg-sky-500/[0.14] border-sky-500/35 text-sky-400 shadow-[inset_0_1px_0_rgba(56,189,248,0.3)]",
+      icon: <Info weight="bold" className="size-4 text-sky-400" />,
     },
     warning: {
-      border: "border-amber-500/30 hover:border-amber-500/50",
-      glow: "shadow-[0_12px_36px_rgba(0,0,0,0.6),0_0_20px_rgba(251,191,36,0.12),inset_0_1px_0_rgba(255,255,255,0.14)]",
-      icon: <Warning weight="fill" className="size-4 text-amber-400 shrink-0" />,
-      dot: "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]",
+      border: "border-amber-500/25 hover:border-amber-500/40",
+      glow: "shadow-[0_16px_40px_rgba(0,0,0,0.7),0_0_24px_rgba(251,191,36,0.12),inset_0_1px_0_rgba(255,255,255,0.14)]",
+      badgeBg: "bg-amber-500/[0.14] border-amber-500/35 text-amber-400 shadow-[inset_0_1px_0_rgba(251,191,36,0.3)]",
+      icon: <Warning weight="bold" className="size-4 text-amber-400" />,
     },
     danger: {
-      border: "border-danger/30 hover:border-danger/50",
-      glow: "shadow-[0_12px_36px_rgba(0,0,0,0.6),0_0_20px_rgba(239,68,68,0.12),inset_0_1px_0_rgba(255,255,255,0.14)]",
-      icon: <XCircle weight="fill" className="size-4 text-danger shrink-0" />,
-      dot: "bg-danger shadow-[0_0_8px_rgba(239,68,68,0.8)]",
+      border: "border-danger/25 hover:border-danger/40",
+      glow: "shadow-[0_16px_40px_rgba(0,0,0,0.7),0_0_24px_rgba(239,68,68,0.12),inset_0_1px_0_rgba(255,255,255,0.14)]",
+      badgeBg: "bg-danger/[0.14] border-danger/35 text-danger shadow-[inset_0_1px_0_rgba(239,68,68,0.3)]",
+      icon: <XCircle weight="bold" className="size-4 text-danger" />,
     },
   }[tone]
 
   return (
     <div
-      className={`group relative flex items-center justify-between gap-3 rounded-full border ${toneConfig.border} bg-[#0e0e13]/90 backdrop-blur-2xl py-2.5 pl-3.5 pr-2.5 text-xs text-white ${toneConfig.glow} transition-all duration-200 select-none w-[380px] max-w-[calc(100vw-32px)]`}
+      className={`group relative flex items-center justify-between gap-3 rounded-full border ${toneConfig.border} bg-[#0c0c11]/92 backdrop-blur-2xl p-2 pr-3 text-xs text-white ${toneConfig.glow} transition-all duration-200 select-none w-[390px] max-w-[calc(100vw-32px)]`}
     >
-      {/* Left section: Icon + Text & Snippet */}
-      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-        <div className="relative flex items-center justify-center shrink-0">
+      {/* Left section: Prominent Darker Frosted Icon Avatar Orb + Title & Subtitle */}
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        {/* Dark Frosted Circular Icon Orb (similar to reference design) */}
+        <div
+          className={`size-9 rounded-full flex items-center justify-center shrink-0 border ${toneConfig.badgeBg}`}
+        >
           {toneConfig.icon}
         </div>
 
-        <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
-          <span className="font-medium text-white truncate text-xs tracking-tight shrink-0">
+        {/* Text Container with hierarchy */}
+        <div className="flex flex-col min-w-0 flex-1 overflow-hidden">
+          <span className="font-semibold text-white tracking-tight text-xs truncate">
             {title}
           </span>
           {snippet ? (
-            <span className="font-mono text-[10px] text-fg-3 px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] truncate">
+            <span className="font-mono text-[10px] text-fg-3 truncate mt-0.5">
               {snippet}
             </span>
           ) : description ? (
-            <span className="text-[11px] text-fg-3 truncate hidden sm:inline">
-              · {description}
+            <span className="text-[11px] text-fg-3 truncate mt-0.5">
+              {description}
             </span>
           ) : null}
         </div>
       </div>
 
-      {/* Right section: Optional Action + Dismiss Button */}
-      <div className="flex items-center gap-1.5 shrink-0 pl-1">
+      {/* Right section: Action Pill + Dismiss Button */}
+      <div className="flex items-center gap-2 shrink-0 pl-1">
         {actionLabel && onAction && (
           <button
             type="button"
@@ -83,7 +87,7 @@ export function CleanToastCapsule({
               onAction()
               sonnerToast.dismiss(id)
             }}
-            className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-accent/15 border border-accent/30 text-[10px] font-semibold text-accent hover:bg-accent/25 transition-colors cursor-pointer"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent/15 border border-accent/30 text-[10px] font-semibold text-accent hover:bg-accent/25 transition-colors cursor-pointer"
           >
             <span>{actionLabel}</span>
             <ArrowSquareOut className="size-3" />
@@ -93,10 +97,10 @@ export function CleanToastCapsule({
         <button
           type="button"
           onClick={() => sonnerToast.dismiss(id)}
-          className="size-5 rounded-full flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.1] transition-colors cursor-pointer"
+          className="size-6 rounded-full flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.1] transition-colors cursor-pointer"
           title="Dismiss"
         >
-          <X className="size-3" />
+          <X className="size-3.5" />
         </button>
       </div>
     </div>
