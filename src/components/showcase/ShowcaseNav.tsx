@@ -85,7 +85,7 @@ export function ShowcaseNav({ activeSection, onSelect, isOpen, onClose }: Showca
 
       <nav
         className={cn(
-          "shrink-0 border-r border-white/[0.08] bg-[#09090c] lg:bg-[#09090c]/80 backdrop-blur-xl flex flex-col justify-between select-none transition-transform duration-300 ease-out z-50",
+          "shrink-0 border-r border-white/[0.08] bg-[#09090c] lg:bg-[#09090c]/80 backdrop-blur-xl flex flex-col justify-between select-none transition-transform duration-300 ease-out z-30 lg:z-10",
           // Mobile: Off-canvas fixed drawer
           "fixed top-16 bottom-0 left-0 w-72 max-w-[85vw] overflow-y-auto lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:translate-x-0 scrollbar-thin scrollbar-thumb-white/10",
           isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"

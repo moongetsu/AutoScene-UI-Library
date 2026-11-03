@@ -122,7 +122,7 @@ export function ShowcaseCommandPalette({
   return (
     <AnimatePresence mode="popLayout">
       {open && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[14vh] px-4">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[14vh] px-4">
           {/* Animated Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -145,7 +145,7 @@ export function ShowcaseCommandPalette({
               damping: 32,
               mass: 0.8,
             }}
-            className="relative z-50 w-[min(580px,calc(100vw-32px))] rounded-2xl border border-white/10 bg-[#0d0d10] p-0 shadow-2xl focus:outline-none overflow-hidden"
+            className="relative z-10 w-[min(580px,calc(100vw-32px))] rounded-2xl border border-white/10 bg-[#0d0d10] p-0 shadow-2xl focus:outline-none overflow-hidden"
           >
             <Command
               shouldFilter={false}
