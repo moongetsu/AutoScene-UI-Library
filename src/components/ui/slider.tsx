@@ -1,6 +1,8 @@
 import { useState } from "react"
-import { Slider as S } from "radix-ui"
+import { Slider as S } from "@animate-ui/react/primitives/radix-ui"
+import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
+import { SPRING_FAST } from "@/lib/motion"
 
 /**
  * A slider in the app's glass, never the browser's range input: a quiet
@@ -61,15 +63,23 @@ export function Slider({
         onFocus={() => setFocus(true)}
         onBlur={() => setFocus(false)}
         className={cn(
-          "relative block size-3.5 rounded-full border border-white/40 bg-white shadow-[0_1px_4px_rgb(0_0_0/0.5)] outline-none",
+          "relative block size-3.5 rounded-full border border-white/40 bg-white shadow-[0_1px_4px_rgb(0_0_0/0.5)] outline-none cursor-grab active:cursor-grabbing",
           "transition-transform duration-[var(--dur-fast)] hover:scale-110 focus-visible:ring-4 focus-visible:ring-accent-subtle",
         )}
       >
-        {format && (hover || focus || drag) && (
-          <span className="glass-strong pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded-md px-1.5 py-0.5 text-2xs font-medium whitespace-nowrap text-fg-1">
-            {format(value)}
-          </span>
-        )}
+        <AnimatePresence>
+          {format && (hover || focus || drag) && (
+            <motion.span
+              initial={{ opacity: 0, y: 4, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 2, scale: 0.9 }}
+              transition={SPRING_FAST}
+              className="glass-strong pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded-md px-1.5 py-0.5 text-2xs font-medium whitespace-nowrap text-fg-1"
+            >
+              {format(value)}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </S.Thumb>
     </S.Root>
   )

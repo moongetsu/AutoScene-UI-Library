@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Dialog as D } from "radix-ui"
+import { Dialog as D } from "@animate-ui/react/primitives/radix-ui"
 import { X } from "@/components/icons"
 import { cn } from "@/lib/utils"
 
@@ -14,11 +14,11 @@ type SheetContentProps = Omit<React.ComponentProps<typeof D.Content>, "title"> &
 export function SheetContent({ title, actions, className, children, ...props }: SheetContentProps) {
   return (
     <D.Portal>
-      <D.Overlay className="fixed inset-0 top-[var(--topbar-h)] z-40 bg-scrim-soft data-[state=open]:animate-fade-in" />
+      <D.Overlay className="fixed inset-0 top-[var(--topbar-h)] z-40 bg-scrim-soft" />
       <D.Content
         className={cn(
           "glass-strong fixed top-[calc(var(--topbar-h)+8px)] right-3 bottom-3 z-40 flex w-[min(420px,calc(100vw-24px))] flex-col rounded-2xl",
-          "focus:outline-none data-[state=open]:animate-sheet-in",
+          "focus:outline-none",
           className,
         )}
         {...props}
