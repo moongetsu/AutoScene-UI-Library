@@ -138,7 +138,7 @@ export function StudioRegistryLayout() {
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">AutoScene UI</h1>
               <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm text-fg-2 leading-relaxed">
-                A collection of components, blocks, and templates for building clean video editing and creative tools. Built on Radix UI, CVA, and Tailwind CSS.
+                A standalone dark mode component library extracted from AutoScene for creative and video editing tools. Built on Radix UI, CVA, and Tailwind CSS.
               </p>
             </div>
 
@@ -224,10 +224,17 @@ export function StudioRegistryLayout() {
                 </span>
               </div>
             </div>
+            {/* Credits Section */}
+            <div className="flex flex-col gap-2 pt-2 border-t border-white/[0.06]">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-fg-3">Credits</span>
+              <p className="text-[11px] text-fg-3 leading-relaxed">
+                Derived from <a href="https://github.com/tcmmi/AutoScene" target="_blank" rel="noreferrer" className="text-fg-2 hover:text-accent transition-colors">AutoScene</a> by <a href="https://github.com/tcmmi" target="_blank" rel="noreferrer" className="text-fg-2 hover:text-accent transition-colors">tcmmi</a>. Inspired by <a href="https://21st.dev" target="_blank" rel="noreferrer" className="text-fg-2 hover:text-accent transition-colors">21st.dev</a> and <a href="https://github.com/animate-ui" target="_blank" rel="noreferrer" className="text-fg-2 hover:text-accent transition-colors">animate-ui</a>.
+              </p>
+            </div>
           </div>
 
-          <div className="pt-8 text-xs text-fg-3">
-            Derived with love from AutoScene open source.
+          <div className="pt-6 text-xs text-fg-3">
+            &copy; Copyright AutoScene UI (2026)
           </div>
         </aside>
 
