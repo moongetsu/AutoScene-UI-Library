@@ -2,6 +2,7 @@ import * as React from "react"
 import { Slot } from "radix-ui"
 import { cva, type VariantProps } from "class-variance-authority"
 import { CircleNotch } from "@phosphor-icons/react"
+import { motion, type HTMLMotionProps } from "motion/react"
 import { cn } from "@/lib/utils"
 
 /**
@@ -11,9 +12,9 @@ import { cn } from "@/lib/utils"
  */
 const buttonVariants = cva(
   [
-    "inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium",
-    "transition-[background-color,border-color,color,box-shadow,transform] duration-[var(--dur-fast)] ease-out",
-    "disabled:pointer-events-none disabled:opacity-40 active:scale-[0.97]",
+    "inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium cursor-pointer",
+    "transition-[background-color,border-color,color,box-shadow] duration-200 ease-out",
+    "disabled:pointer-events-none disabled:opacity-40",
     "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   ],
   {
@@ -61,16 +62,28 @@ export function Button({
   children,
   ...props
 }: ButtonProps) {
-  const Comp = asChild ? Slot.Root : "button"
+  if (asChild) {
+    return (
+      <Slot.Root
+        className={cn(buttonVariants({ variant, size }), className)}
+        {...props}
+      >
+        {children}
+      </Slot.Root>
+    )
+  }
+
   return (
-    <Comp
-      type={asChild ? undefined : type}
+    <motion.button
+      type={type}
       disabled={disabled || busy}
+      whileTap={{ scale: 0.96 }}
+      transition={{ type: "spring", stiffness: 500, damping: 28 }}
       className={cn(buttonVariants({ variant, size }), className)}
-      {...props}
+      {...(props as HTMLMotionProps<"button">)}
     >
       {busy && <CircleNotch className="size-4 animate-spin text-current" />}
       {children}
-    </Comp>
+    </motion.button>
   )
 }
