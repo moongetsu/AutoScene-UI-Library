@@ -183,82 +183,96 @@ export function IconsShowcase() {
 
       {/* Control Bar */}
       <div className="flex flex-col gap-4 p-4 rounded-2xl border border-white/[0.08] bg-[#0c0c10]/80 backdrop-blur-xl shadow-xl">
-        {/* Top row: Search & Format Switcher */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          {/* Search Bar */}
-          <div className="relative flex-1 max-w-md">
+        {/* Row 1: Search and Category Pills */}
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+          {/* Search Input */}
+          <div className="relative w-full lg:w-72 shrink-0">
             <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-3 pointer-events-none" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search icons by name..."
+              placeholder="Search 82 icons..."
               className="w-full h-9 rounded-xl border border-white/[0.08] bg-white/[0.03] pl-10 pr-4 text-xs text-white placeholder:text-fg-3 focus:outline-none focus:border-accent/60 transition-colors"
             />
           </div>
 
-          {/* Copy Format & Visual Controls */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Copy format toggle */}
-            <div className="flex items-center gap-1.5 text-xs text-fg-3">
-              <span className="text-[11px] font-mono text-fg-3 hidden sm:inline">Copy:</span>
+          {/* Category Tabs with Animated Pill indicator */}
+          <div className="relative flex items-center gap-1 overflow-x-auto pb-1 lg:pb-0 scrollbar-none">
+            {CATEGORIES.map((cat) => {
+              const count = cat === "All" ? ICON_LIST.length : ICON_LIST.filter((i) => i.category === cat).length
+              const isSelected = selectedCategory === cat
+
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors whitespace-nowrap cursor-pointer select-none ${
+                    isSelected ? "text-accent" : "text-fg-3 hover:text-white"
+                  }`}
+                >
+                  {isSelected && (
+                    <motion.div
+                      layoutId="activeCategoryPill"
+                      transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                      className="absolute inset-0 rounded-xl bg-accent/15 border border-accent/40 shadow-[0_0_12px_rgba(245,165,36,0.12)]"
+                    />
+                  )}
+                  <span className="relative z-10">{cat}</span>
+                  <span
+                    className={`relative z-10 text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                      isSelected ? "bg-accent/25 text-accent" : "bg-white/[0.04] text-fg-3"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Row 2: Secondary Controls (Copy Format, Size, Weight) */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/[0.06]">
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-fg-3">Copy mode</span>
+            <Segmented
+              value={copyFormat}
+              onChange={(val) => setCopyFormat(val as CopyFormat)}
+              options={[
+                { value: "jsx", label: "JSX" },
+                { value: "import", label: "Import" },
+                { value: "name", label: "Name" },
+              ]}
+            />
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-fg-3 hidden sm:inline">Size</span>
               <Segmented
-                value={copyFormat}
-                onChange={(val) => setCopyFormat(val as CopyFormat)}
+                value={size}
+                onChange={(val) => setSize(val as "sm" | "md" | "lg")}
                 options={[
-                  { value: "jsx", label: "JSX" },
-                  { value: "import", label: "Import" },
-                  { value: "name", label: "Name" },
+                  { value: "sm", label: "16px" },
+                  { value: "md", label: "20px" },
+                  { value: "lg", label: "24px" },
                 ]}
               />
             </div>
 
-            {/* Size segmented */}
-            <Segmented
-              value={size}
-              onChange={(val) => setSize(val as "sm" | "md" | "lg")}
-              options={[
-                { value: "sm", label: "16px" },
-                { value: "md", label: "20px" },
-                { value: "lg", label: "24px" },
-              ]}
-            />
-
-            {/* Weight segmented */}
-            <Segmented
-              value={weight}
-              onChange={(val) => setWeight(val as "regular" | "fill")}
-              options={[
-                { value: "regular", label: "Regular" },
-                { value: "fill", label: "Fill" },
-              ]}
-            />
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-fg-3 hidden sm:inline">Weight</span>
+              <Segmented
+                value={weight}
+                onChange={(val) => setWeight(val as "regular" | "fill")}
+                options={[
+                  { value: "regular", label: "Regular" },
+                  { value: "fill", label: "Fill" },
+                ]}
+              />
+            </div>
           </div>
-        </div>
-
-        {/* Bottom row: Category Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-none border-t border-white/[0.05]">
-          {CATEGORIES.map((cat) => {
-            const count = cat === "All" ? ICON_LIST.length : ICON_LIST.filter((i) => i.category === cat).length
-            const isSelected = selectedCategory === cat
-
-            return (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
-                  isSelected
-                    ? "bg-accent/20 text-accent border border-accent/40"
-                    : "bg-white/[0.02] text-fg-3 hover:text-white border border-white/[0.05] hover:bg-white/[0.05]"
-                }`}
-              >
-                <span>{cat}</span>
-                <span className={`text-[10px] font-mono ${isSelected ? "text-accent" : "text-fg-3"}`}>
-                  {count}
-                </span>
-              </button>
-            )
-          })}
         </div>
       </div>
 
@@ -268,22 +282,27 @@ export function IconsShowcase() {
         <span>Click icon to copy {copyFormat.toUpperCase()}</span>
       </div>
 
-      {/* Grid of Icons */}
+      {/* Grid of Icons with Animated Layout Transitions */}
       {filteredIcons.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-12 rounded-2xl border border-white/[0.06] bg-white/[0.01] text-fg-3 text-xs">
           <span>{search.trim() ? `No icons matching "${search.trim()}" in ${selectedCategory}` : "No icons available"}</span>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+        <motion.div
+          layout
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3"
+        >
           {filteredIcons.map(({ name, Component }) => {
             const isCopied = copiedName === name
 
             return (
               <motion.button
                 key={name}
+                layout="position"
                 type="button"
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.96 }}
+                whileHover={{ scale: 1.025, y: -2 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 500, damping: 28 }}
                 onClick={() => copyIconCode(name)}
                 className={`group relative flex flex-col items-center justify-center h-28 p-3 rounded-2xl border transition-all duration-200 cursor-pointer overflow-hidden ${
                   isCopied
@@ -298,6 +317,7 @@ export function IconsShowcase() {
                     <motion.div
                       initial={{ scale: 0.5, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 24 }}
                       className="size-11 rounded-xl bg-accent/20 border border-accent/40 flex items-center justify-center text-accent shadow-[0_0_12px_rgba(245,165,36,0.2)]"
                     >
                       <Check className="size-5" weight="bold" />
@@ -323,7 +343,7 @@ export function IconsShowcase() {
               </motion.button>
             )
           })}
-        </div>
+        </motion.div>
       )}
     </div>
   )
