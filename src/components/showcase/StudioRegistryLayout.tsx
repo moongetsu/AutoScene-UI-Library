@@ -26,6 +26,7 @@ import { toast, notify } from "@/components/ui/toaster"
 import { motion } from "motion/react"
 import { SPRING_FAST } from "@/lib/motion"
 import { cn } from "@/lib/utils"
+import { DISCOVERED_COMPONENTS, TOTAL_UI_COMPONENTS_COUNT } from "@/registry/discovery"
 
 interface ComponentCardData {
   id: string
@@ -371,7 +372,7 @@ export function StudioRegistryLayout() {
             {/* Stats row */}
             <div className="flex items-center gap-6 text-xs text-fg-3 border-y border-white/[0.06] py-3.5">
               <div>
-                <span className="font-semibold text-fg-1">{components.length}</span> Components
+                <span className="font-semibold text-fg-1">{TOTAL_UI_COMPONENTS_COUNT}</span> Components
               </div>
               <div>
                 <span className="font-semibold text-fg-1">100%</span> TypeScript

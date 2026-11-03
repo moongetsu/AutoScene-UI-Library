@@ -18,6 +18,7 @@ import {
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
 import { SPRING_FAST } from "@/lib/motion"
+import { TOTAL_UI_COMPONENTS_COUNT } from "@/registry/discovery"
 
 export type ShowcaseSectionId =
   | "buttons"
@@ -100,7 +101,7 @@ export function ShowcaseNav({ activeSection, onSelect, isOpen, onClose }: Showca
         {/* Simple Directory Header */}
         <div className="flex items-center justify-between px-1">
           <h2 className="text-sm font-semibold text-white tracking-tight">Components</h2>
-          <span className="text-[11px] font-mono text-fg-3">{totalComponentVariants} components</span>
+          <span className="text-[11px] font-mono text-fg-3">{TOTAL_UI_COMPONENTS_COUNT} components</span>
         </div>
 
         {/* Quick Filter Search */}
