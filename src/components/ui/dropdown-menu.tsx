@@ -1,5 +1,5 @@
 import type * as React from "react"
-import { DropdownMenu as M } from "radix-ui"
+import { DropdownMenu as M } from "@animate-ui/react/primitives/radix-ui"
 import { Check } from "@/components/icons"
 import { cn } from "@/lib/utils"
 import { MenuShortcut } from "./context-menu"
@@ -28,7 +28,7 @@ export function DropdownMenuContent({
           const active = document.activeElement
           if (active !== null && active !== document.body) e.preventDefault()
         }}
-        className={cn(menuSurface, "data-[state=open]:animate-pop-in", className)}
+        className={cn(menuSurface, className)}
         {...props}
       />
     </M.Portal>

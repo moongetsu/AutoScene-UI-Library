@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Dialog as D } from "radix-ui"
+import { Dialog as D } from "@animate-ui/react/primitives/radix-ui"
 import { X } from "@/components/icons"
 import { cn } from "@/lib/utils"
 
@@ -16,11 +16,11 @@ type ContentProps = Omit<React.ComponentProps<typeof D.Content>, "title"> & {
 export function DialogContent({ title, description, hideClose, className, children, ...props }: ContentProps) {
   return (
     <D.Portal>
-      <D.Overlay className="fixed inset-0 z-50 bg-scrim backdrop-blur-sm data-[state=open]:animate-fade-in" />
+      <D.Overlay className="fixed inset-0 z-50 bg-scrim backdrop-blur-sm" />
       <D.Content
         className={cn(
           "glass-strong fixed top-1/2 left-1/2 z-50 w-[min(540px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6",
-          "focus:outline-none data-[state=open]:animate-pop-in",
+          "focus:outline-none",
           className,
         )}
         {...props}

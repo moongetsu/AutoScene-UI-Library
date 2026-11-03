@@ -1,5 +1,5 @@
 import type * as React from "react"
-import { ContextMenu as M } from "radix-ui"
+import { ContextMenu as M } from "@animate-ui/react/primitives/radix-ui"
 import { Check } from "@/components/icons"
 import { isMac } from "@/lib/platform"
 import { cn } from "@/lib/utils"
@@ -22,7 +22,7 @@ export function ContextMenuContent({ className, ...props }: React.ComponentProps
         collisionPadding={8}
         className={cn(
           menuSurface,
-          "max-h-[var(--radix-context-menu-content-available-height)] origin-[var(--radix-context-menu-content-transform-origin)] overflow-y-auto data-[state=open]:animate-pop-in",
+          "max-h-[var(--radix-context-menu-content-available-height)] origin-[var(--radix-context-menu-content-transform-origin)] overflow-y-auto",
           className,
         )}
         {...props}
