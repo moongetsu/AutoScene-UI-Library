@@ -1,9 +1,9 @@
 import * as React from "react"
 import * as Icons from "@/components/icons"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
-import { Segmented } from "@/components/ui/segmented"
+import { Select } from "@/components/ui/select"
 import { notify } from "@/components/ui/toaster"
-import { MagnifyingGlass, Check, Copy } from "@phosphor-icons/react"
+import { MagnifyingGlass, Check } from "@phosphor-icons/react"
 import { motion } from "motion/react"
 
 // Category mapping for the 82 curated Phosphor icons in AutoScene
@@ -181,98 +181,74 @@ export function IconsShowcase() {
         importPath='import { Play, Scissors, FilmStrip } from "@moongetsu/autoscene-ui/icons"'
       />
 
-      {/* Control Bar */}
-      <div className="flex flex-col gap-4 p-4 rounded-2xl border border-white/[0.08] bg-[#0c0c10]/80 backdrop-blur-xl shadow-xl">
-        {/* Row 1: Search and Category Pills */}
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-          {/* Search Input */}
-          <div className="relative w-full lg:w-72 shrink-0">
-            <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-3 pointer-events-none" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search 82 icons..."
-              className="w-full h-9 rounded-xl border border-white/[0.08] bg-white/[0.03] pl-10 pr-4 text-xs text-white placeholder:text-fg-3 focus:outline-none focus:border-accent/60 transition-colors"
-            />
-          </div>
-
-          {/* Category Tabs with Animated Pill indicator */}
-          <div className="relative flex items-center gap-1 overflow-x-auto pb-1 lg:pb-0 scrollbar-none">
-            {CATEGORIES.map((cat) => {
-              const count = cat === "All" ? ICON_LIST.length : ICON_LIST.filter((i) => i.category === cat).length
-              const isSelected = selectedCategory === cat
-
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors whitespace-nowrap cursor-pointer select-none ${
-                    isSelected ? "text-accent" : "text-fg-3 hover:text-white"
-                  }`}
-                >
-                  {isSelected && (
-                    <motion.div
-                      layoutId="activeCategoryPill"
-                      transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                      className="absolute inset-0 rounded-xl bg-accent/15 border border-accent/40 shadow-[0_0_12px_rgba(245,165,36,0.12)]"
-                    />
-                  )}
-                  <span className="relative z-10">{cat}</span>
-                  <span
-                    className={`relative z-10 text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
-                      isSelected ? "bg-accent/25 text-accent" : "bg-white/[0.04] text-fg-3"
-                    }`}
-                  >
-                    {count}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
+      {/* Clean Single-Row Compact Control Toolbar */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-2.5 sm:p-3 rounded-2xl border border-white/[0.08] bg-[#0c0c10]/85 backdrop-blur-xl shadow-xl">
+        {/* Search Input */}
+        <div className="relative flex-1 min-w-[200px] max-w-md">
+          <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-3 pointer-events-none" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search 82 icons..."
+            className="w-full h-8 rounded-lg border border-white/[0.08] bg-white/[0.03] pl-10 pr-4 text-xs text-white placeholder:text-fg-3 focus:outline-none focus:border-accent/60 transition-colors"
+          />
         </div>
 
-        {/* Row 2: Secondary Controls (Copy Format, Size, Weight) */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/[0.06]">
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-mono uppercase tracking-wider text-fg-3">Copy mode</span>
-            <Segmented
-              value={copyFormat}
-              onChange={(val) => setCopyFormat(val as CopyFormat)}
-              options={[
-                { value: "jsx", label: "JSX" },
-                { value: "import", label: "Import" },
-                { value: "name", label: "Name" },
-              ]}
-            />
-          </div>
+        {/* Clean Dropdown Controls */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+          {/* Category Dropdown */}
+          <Select
+            size="sm"
+            value={selectedCategory}
+            onChange={(val) => setSelectedCategory(val)}
+            className="h-8 text-xs min-w-[130px] rounded-lg border-white/[0.08] bg-white/[0.03]"
+            options={CATEGORIES.map((c) => ({
+              value: c,
+              label: c === "All" ? `All Categories (${ICON_LIST.length})` : `${c} (${ICON_LIST.filter((i) => i.category === c).length})`,
+            }))}
+            aria-label="Filter by category"
+          />
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-fg-3 hidden sm:inline">Size</span>
-              <Segmented
-                value={size}
-                onChange={(val) => setSize(val as "sm" | "md" | "lg")}
-                options={[
-                  { value: "sm", label: "16px" },
-                  { value: "md", label: "20px" },
-                  { value: "lg", label: "24px" },
-                ]}
-              />
-            </div>
+          {/* Copy Mode Dropdown */}
+          <Select
+            size="sm"
+            value={copyFormat}
+            onChange={(val) => setCopyFormat(val as CopyFormat)}
+            className="h-8 text-xs min-w-[110px] rounded-lg border-white/[0.08] bg-white/[0.03]"
+            options={[
+              { value: "jsx", label: "Copy: JSX" },
+              { value: "import", label: "Copy: Import" },
+              { value: "name", label: "Copy: Name" },
+            ]}
+            aria-label="Copy format"
+          />
 
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider text-fg-3 hidden sm:inline">Weight</span>
-              <Segmented
-                value={weight}
-                onChange={(val) => setWeight(val as "regular" | "fill")}
-                options={[
-                  { value: "regular", label: "Regular" },
-                  { value: "fill", label: "Fill" },
-                ]}
-              />
-            </div>
-          </div>
+          {/* Size Dropdown */}
+          <Select
+            size="sm"
+            value={size}
+            onChange={(val) => setSize(val as "sm" | "md" | "lg")}
+            className="h-8 text-xs min-w-[85px] rounded-lg border-white/[0.08] bg-white/[0.03]"
+            options={[
+              { value: "sm", label: "16px" },
+              { value: "md", label: "20px" },
+              { value: "lg", label: "24px" },
+            ]}
+            aria-label="Icon size"
+          />
+
+          {/* Weight Dropdown */}
+          <Select
+            size="sm"
+            value={weight}
+            onChange={(val) => setWeight(val as "regular" | "fill")}
+            className="h-8 text-xs min-w-[95px] rounded-lg border-white/[0.08] bg-white/[0.03]"
+            options={[
+              { value: "regular", label: "Regular" },
+              { value: "fill", label: "Fill" },
+            ]}
+            aria-label="Icon weight"
+          />
         </div>
       </div>
 
