@@ -137,3 +137,4 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     showcaseSection: "media",
   },
 ]
+

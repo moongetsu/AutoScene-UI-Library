@@ -86,3 +86,4 @@ for (const comp of COMPONENTS) {
 }
 
 console.log(`Prerendered ${CATEGORIES.length} showcase routes and ${COMPONENTS.length} component routes successfully.`)
+
