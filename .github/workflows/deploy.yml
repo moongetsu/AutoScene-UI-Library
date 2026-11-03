@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -36,24 +36,6 @@ jobs:
 
       - name: Build
         run: npm run build
-
-      - name: Install Playwright Chromium
-        run: npx playwright install chromium --with-deps
-
-      - name: Capture latest preview screenshot
-        run: node scripts/capture-registry.mjs
-
-      - name: Commit and push updated preview if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/previews/registry-21st-overview.png public/og-image.png
-          if git diff --staged --quiet; then
-            echo "No screenshot changes detected."
-          else
-            git commit -m "(update) refresh automated registry preview screenshot"
-            git push origin main
-          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
