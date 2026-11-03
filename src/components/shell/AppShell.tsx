@@ -37,7 +37,7 @@ export function AppShell() {
   // In pure web / UI showcase mode, render full-bleed standalone website without desktop chrome
   if (!isTauri) {
     return (
-      <div className="min-h-screen w-full bg-[#070709] text-fg-1 overflow-y-auto overflow-x-hidden selection:bg-accent/30 selection:text-white">
+      <div className="min-h-screen w-full bg-[#070709] text-fg-1 selection:bg-accent/30 selection:text-white">
         <Outlet />
       </div>
     )

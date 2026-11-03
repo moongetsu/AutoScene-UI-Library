@@ -165,9 +165,12 @@
   }
 
   html,
-  body,
+  body {
+    min-height: 100%;
+  }
+
   #root {
-    height: 100%;
+    min-height: 100%;
   }
 
   html {
@@ -185,8 +188,6 @@
     margin: 0;
     background: var(--bg-canvas);
     color: var(--fg-1);
-    overflow-x: hidden;
-    overflow-y: auto;
   }
 
   /* Clickable elements get cursor pointer on the web */
