@@ -287,33 +287,44 @@ export function ButtonPlayground() {
             </div>
           </div>
 
-          {/* Size & Icon Pickers */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Size & Icon Pickers - separated and styled cleanly */}
+          <div className="flex flex-col gap-4">
+            {/* Size Selector */}
             <div className="flex flex-col gap-2">
               <label className="text-xs font-medium text-fg-2">Size</label>
-              <Segmented
-                aria-label="Size selector"
-                value={size}
-                onChange={(val) => setSize(val as ButtonSize)}
-                options={[
-                  { value: "sm", label: "SM" },
-                  { value: "md", label: "MD" },
-                  { value: "lg", label: "LG" },
-                ]}
-              />
+              <div className="grid grid-cols-3 gap-2 bg-white/[0.02] p-1 rounded-xl border border-white/[0.06]">
+                {(["sm", "md", "lg"] as ButtonSize[]).map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setSize(s)}
+                    className={cn(
+                      "h-8 rounded-lg text-xs font-semibold uppercase transition-all cursor-pointer flex items-center justify-center",
+                      size === s
+                        ? "bg-accent/15 border border-accent/40 text-accent shadow-sm"
+                        : "text-fg-3 hover:text-white hover:bg-white/[0.04]"
+                    )}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
 
+            {/* Icon Selector */}
             <div className="flex flex-col gap-2">
               <label className="text-xs font-medium text-fg-2">Icon</label>
-              <div className="flex items-center gap-1 bg-white/[0.03] p-1 rounded-xl border border-white/[0.06]">
+              <div className="grid grid-cols-5 gap-1.5 bg-white/[0.02] p-1 rounded-xl border border-white/[0.06]">
                 {(["plus", "play", "download", "trash", "none"] as IconType[]).map((i) => (
                   <button
                     key={i}
                     type="button"
                     onClick={() => setIcon(i)}
                     className={cn(
-                      "flex-1 flex items-center justify-center h-7 rounded-lg text-xs transition-colors cursor-pointer",
-                      icon === i ? "bg-white/[0.1] text-white shadow-sm font-semibold" : "text-fg-3 hover:text-white"
+                      "h-8 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-center",
+                      icon === i
+                        ? "bg-accent/15 border border-accent/40 text-accent shadow-sm"
+                        : "text-fg-3 hover:text-white hover:bg-white/[0.04]"
                     )}
                     title={i}
                   >
@@ -326,7 +337,7 @@ export function ButtonPlayground() {
                     ) : i === "trash" ? (
                       <Trash className="size-3.5" />
                     ) : (
-                      <Circle className="size-2.5 opacity-40" />
+                      <span className="text-[11px] font-mono">Off</span>
                     )}
                   </button>
                 ))}
