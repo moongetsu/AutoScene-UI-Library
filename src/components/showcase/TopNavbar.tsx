@@ -31,7 +31,7 @@ export function TopNavbar({
   const [isExpanded, setIsExpanded] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
 
-  // Listen to Escape key globally to collapse search back smoothly to the right icon
+  // Listen to Escape key globally to collapse search smoothly
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isExpanded) {
@@ -53,14 +53,6 @@ export function TopNavbar({
     navigator.clipboard.writeText("npx @moongetsu/autoscene-ui add")
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }
-
-  const handleOpenSearch = () => {
-    setIsExpanded(true)
-  }
-
-  const handleCloseSearch = () => {
-    setIsExpanded(false)
   }
 
   return (
@@ -99,22 +91,20 @@ export function TopNavbar({
         )}
       </div>
 
-      {/* Middle Animated Search Bar: Expands into the center with fluid spring physics */}
-      <div className="absolute left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+      {/* Center Anchor & Expanded Search Overlay */}
+      <div className="flex-1 flex items-center justify-center max-w-lg mx-4">
         <AnimatePresence>
           {isExpanded && (
             <motion.div
-              layoutId="topnavbar-search-morph"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.95, y: -6 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: -4 }}
               transition={{
                 type: "spring",
-                stiffness: 380,
-                damping: 28,
-                mass: 0.8,
+                stiffness: 400,
+                damping: 30,
               }}
-              className="pointer-events-auto relative w-[min(520px,calc(100vw-48px))] flex items-center"
+              className="relative w-full flex items-center shadow-2xl z-30"
             >
               <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-accent pointer-events-none" />
               <input
@@ -125,11 +115,11 @@ export function TopNavbar({
                 onKeyDown={(e) => {
                   if (e.key === "Escape") {
                     e.stopPropagation()
-                    handleCloseSearch()
+                    setIsExpanded(false)
                   }
                 }}
                 placeholder={searchPlaceholder}
-                className="w-full h-10 rounded-full border border-white/20 bg-[#0d0d11] shadow-2xl pl-10 pr-20 text-xs text-white placeholder:text-fg-3 focus:outline-none focus:border-accent/80 transition-colors cursor-pointer"
+                className="w-full h-10 rounded-full border border-white/20 bg-[#0d0d11] pl-10 pr-20 text-xs text-white placeholder:text-fg-3 focus:outline-none focus:border-accent/80 transition-colors cursor-pointer"
               />
               <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                 <kbd
@@ -140,7 +130,7 @@ export function TopNavbar({
                 </kbd>
                 <button
                   type="button"
-                  onClick={handleCloseSearch}
+                  onClick={() => setIsExpanded(false)}
                   className="size-6 rounded-full flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.1] transition-colors cursor-pointer"
                   title="Close search (Esc)"
                 >
@@ -152,27 +142,21 @@ export function TopNavbar({
         </AnimatePresence>
       </div>
 
-      {/* Right: Only the Search Icon Button + View Switcher + GitHub + Get Started */}
+      {/* Right: Search Icon Button + View Switcher + GitHub + Get Started */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Right Placed Search Icon Button (clean icon-only) */}
-        {!isExpanded && (
-          <motion.button
-            layoutId="topnavbar-search-morph"
-            type="button"
-            onClick={handleOpenSearch}
-            transition={{
-              type: "spring",
-              stiffness: 380,
-              damping: 28,
-              mass: 0.8,
-            }}
-            className="size-9 rounded-full border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.08] hover:border-white/20 transition-colors cursor-pointer shadow-sm group"
-            title="Search (Click or ⌘K)"
-            aria-label="Open search bar"
-          >
-            <MagnifyingGlass className="size-4 group-hover:text-accent transition-colors" />
-          </motion.button>
-        )}
+        {/* Right Placed Search Icon Button */}
+        <button
+          type="button"
+          onClick={() => setIsExpanded(true)}
+          className={cn(
+            "size-9 rounded-full border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.08] hover:border-white/20 transition-all cursor-pointer shadow-sm group",
+            isExpanded && "border-accent/40 bg-accent/10 text-accent"
+          )}
+          title="Search components (Click or ⌘K)"
+          aria-label="Open search bar"
+        >
+          <MagnifyingGlass className="size-4 group-hover:text-accent transition-colors" />
+        </button>
 
         {/* Registry vs Showcase View Switcher */}
         <div className="relative flex items-center gap-1 rounded-full bg-white/[0.04] p-1 border border-white/[0.08]">
