@@ -34,6 +34,15 @@ export function AppShell() {
   useEffect(() => installBrowserGuards({ dev: import.meta.env.DEV }), [])
   const railHidden = useUi((s) => s.sidebarCollapsed)
 
+  // In pure web / UI showcase mode, render full-bleed standalone website without desktop chrome
+  if (!isTauri) {
+    return (
+      <div className="min-h-screen w-full bg-[#070709] text-fg-1 overflow-x-hidden selection:bg-accent/30 selection:text-white">
+        <Outlet />
+      </div>
+    )
+  }
+
   // Every right-click is the app's: what the clicked thing offers, then the app's own entries.
   return (
     <AppMenu>
