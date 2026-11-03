@@ -10,8 +10,10 @@ import {
   Cards,
   Sidebar,
   Palette,
-  PlayCircle,
+  SlidersHorizontal,
   VideoCamera,
+  MagnifyingGlass,
+  GithubLogo,
 } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 
@@ -50,56 +52,143 @@ const NAV_ITEMS: { id: ShowcaseSectionId; label: string; icon: React.ReactNode; 
   // Foundation
   { id: "tokens", label: "Design Tokens", icon: <Palette className="size-4" />, group: "Foundation" },
   // Studio Tools
-  { id: "playground", label: "Live Playground", icon: <PlayCircle className="size-4" />, group: "Studio" },
-  { id: "record", label: "Animation Target", icon: <VideoCamera className="size-4" />, group: "Studio" },
+  { id: "playground", label: "Live Playground", icon: <SlidersHorizontal className="size-4" />, group: "Studio Tools" },
+  { id: "record", label: "Animation Target", icon: <VideoCamera className="size-4" />, group: "Studio Tools" },
 ]
 
 export function ShowcaseNav({ activeSection, onSelect }: ShowcaseNavProps) {
+  const [filter, setFilter] = React.useState("")
   const groups = Array.from(new Set(NAV_ITEMS.map((item) => item.group)))
 
+  const filteredItems = filter.trim()
+    ? NAV_ITEMS.filter((i) => i.label.toLowerCase().includes(filter.toLowerCase()) || i.group.toLowerCase().includes(filter.toLowerCase()))
+    : NAV_ITEMS
+
   return (
-    <nav className="w-full lg:w-72 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.08] bg-[#0c0c0f]/60 backdrop-blur-md p-5 flex flex-col gap-6 select-none lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
-      <div className="flex flex-col gap-1 px-2 pt-1">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-accent font-medium">Design System</span>
-        <h2 className="text-base font-bold text-white tracking-tight">Component Studio</h2>
+    <nav className="w-full lg:w-72 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.08] bg-[#09090c]/80 backdrop-blur-xl flex flex-col justify-between select-none lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
+      <div className="p-5 flex flex-col gap-5">
+        {/* Directory Title & Stats */}
+        <div className="flex flex-col gap-1.5 px-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-accent font-semibold flex items-center gap-1.5">
+              <span className="size-1.5 rounded-full bg-accent animate-pulse" />
+              Component Studio
+            </span>
+            <span className="text-[10px] font-mono text-fg-3">28 Primitives</span>
+          </div>
+          <h2 className="text-sm font-bold text-white tracking-tight">Design System Index</h2>
+        </div>
+
+        {/* Quick Filter Search */}
+        <div className="relative">
+          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-fg-3 pointer-events-none" />
+          <input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Filter components..."
+            className="w-full h-8 rounded-lg border border-white/[0.08] bg-white/[0.03] pl-9 pr-3 text-xs text-fg-1 placeholder:text-fg-3 focus:outline-none focus:border-accent/60 transition-colors"
+          />
+        </div>
+
+        {/* Categorized List */}
+        <div className="flex flex-col gap-6">
+          {groups.map((group) => {
+            const items = filteredItems.filter((item) => item.group === group)
+            if (items.length === 0) return null
+
+            const isStudio = group === "Studio Tools"
+
+            return (
+              <div key={group} className="flex flex-col gap-1">
+                <span className="text-[10px] font-semibold text-fg-3 uppercase tracking-wider px-2 mb-1 flex items-center justify-between">
+                  <span>{group}</span>
+                  {isStudio && (
+                    <span className="text-[9px] font-mono text-accent uppercase tracking-wider bg-accent/10 px-1.5 py-0.5 rounded">
+                      Interactive
+                    </span>
+                  )}
+                </span>
+
+                <div className={cn("flex flex-col gap-0.5", isStudio && "rounded-xl border border-white/[0.06] bg-white/[0.015] p-1")}>
+                  {items.map((item) => {
+                    const active = activeSection === item.id
+
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => onSelect(item.id)}
+                        className={cn(
+                          "group relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer",
+                          active
+                            ? "bg-accent/10 text-white font-semibold border-l-2 border-accent pl-2.5 shadow-sm"
+                            : "text-fg-2 hover:bg-white/[0.04] hover:text-white hover:translate-x-0.5"
+                        )}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span
+                            className={cn(
+                              "transition-colors",
+                              active ? "text-accent" : "text-fg-3 group-hover:text-fg-2"
+                            )}
+                          >
+                            {item.icon}
+                          </span>
+                          <span className="truncate">{item.label}</span>
+                        </div>
+
+                        {item.count && (
+                          <span
+                            className={cn(
+                              "text-[10px] font-mono px-1.5 py-0.2 rounded transition-colors",
+                              active
+                                ? "bg-accent/20 text-accent font-semibold"
+                                : "bg-white/[0.04] text-fg-3 group-hover:text-fg-2"
+                            )}
+                          >
+                            {item.count}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
-      <div className="flex flex-col gap-5">
-        {groups.map((group) => (
-          <div key={group} className="flex flex-col gap-1">
-            <span className="text-[10px] font-semibold text-fg-3 uppercase tracking-wider px-2 mb-1">
-              {group}
+      {/* Bottom Sticky Author & Metadata Footer */}
+      <div className="p-4 border-t border-white/[0.06] bg-[#070709]/60 flex items-center justify-between">
+        <a
+          href="https://github.com/moongetsu"
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-2.5 group cursor-pointer"
+        >
+          <img
+            src="https://avatars.githubusercontent.com/u/111883135?v=4"
+            alt="Moongetsu Avatar"
+            className="size-7 rounded-full border border-white/20 object-cover transition-transform group-hover:scale-105"
+          />
+          <div className="text-xs">
+            <span className="text-white font-semibold group-hover:text-accent transition-colors block">
+              Moongetsu
             </span>
-            {NAV_ITEMS.filter((item) => item.group === group).map((item) => {
-              const active = activeSection === item.id
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => onSelect(item.id)}
-                  className={cn(
-                    "group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all text-left",
-                    active
-                      ? "bg-accent/15 text-accent shadow-sm border border-accent/20"
-                      : "text-fg-2 hover:bg-white/[0.04] hover:text-white"
-                  )}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className={cn("transition-colors", active ? "text-accent" : "text-fg-3 group-hover:text-fg-2")}>
-                      {item.icon}
-                    </span>
-                    <span>{item.label}</span>
-                  </div>
-                  {item.count && (
-                    <span className="text-[10px] font-mono text-fg-3 px-1.5 py-0.5 rounded bg-white/[0.04]">
-                      {item.count}
-                    </span>
-                  )}
-                </button>
-              )
-            })}
+            <span className="text-[10px] text-fg-3 block">AutoScene UI</span>
           </div>
-        ))}
+        </a>
+
+        <a
+          href="https://github.com/moongetsu/AutoScene-UI-Library"
+          target="_blank"
+          rel="noreferrer"
+          className="size-7 rounded-lg flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.04] transition-colors"
+          aria-label="GitHub Repo"
+        >
+          <GithubLogo className="size-4" />
+        </a>
       </div>
     </nav>
   )
