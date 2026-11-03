@@ -41,17 +41,17 @@ const COMPONENT_METADATA: Record<string, { category: ComponentMeta["category"]; 
 
 /**
  * Dynamically scans src/components/ui/*.tsx using Vite import.meta.glob.
- * Completely automatic: adding a new component file immediately registers it.
+ * Explicitly ignores test files so Vitest runtime is never bundled into dev client.
  */
-const uiModules = import.meta.glob("/src/components/ui/*.tsx", { eager: true })
+const uiModules = import.meta.glob([
+  "/src/components/ui/*.tsx",
+  "!/src/components/ui/*.test.tsx"
+], { eager: true })
 
 export function getDiscoveredComponents(): ComponentMeta[] {
   const components: ComponentMeta[] = []
 
   for (const path of Object.keys(uiModules)) {
-    // Skip test files
-    if (path.endsWith(".test.tsx")) continue
-
     // Extract filename without path and extension (e.g. "/src/components/ui/filter-bar.tsx" -> "filter-bar")
     const fileName = path.split("/").pop()?.replace(/\.tsx$/, "")
     if (!fileName) continue
@@ -76,3 +76,4 @@ export function getDiscoveredComponents(): ComponentMeta[] {
 
 export const DISCOVERED_COMPONENTS = getDiscoveredComponents()
 export const TOTAL_UI_COMPONENTS_COUNT = DISCOVERED_COMPONENTS.length
+
