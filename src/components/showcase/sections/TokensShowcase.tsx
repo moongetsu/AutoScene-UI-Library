@@ -45,12 +45,12 @@ export function TokensShowcase() {
       >
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 w-full">
           {SURFACES.map((s) => (
-            <div key={s.name} className="rounded-xl border border-white/[0.08] bg-[#0c0c0f] p-3 flex flex-col gap-2.5">
+            <div key={s.name} className="rounded-xl border border-white/[0.08] bg-[#0c0c0f] p-3 flex flex-col gap-2.5 items-center text-center">
               <div
                 className="h-12 w-full rounded-lg border border-white/[0.08] shadow-inner"
                 style={{ backgroundColor: s.hex }}
               />
-              <div>
+              <div className="w-full">
                 <span className="text-xs font-semibold text-white block">{s.label}</span>
                 <span className="text-[10px] font-mono text-fg-3 block truncate">{s.name}</span>
                 <span className="text-[10px] font-mono text-accent block">{s.hex}</span>
@@ -72,12 +72,12 @@ export function TokensShowcase() {
       >
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
           {ACCENTS.map((a) => (
-            <div key={a.name} className="rounded-xl border border-white/[0.08] bg-[#0c0c0f] p-3 flex flex-col gap-2.5">
+            <div key={a.name} className="rounded-xl border border-white/[0.08] bg-[#0c0c0f] p-3 flex flex-col gap-2.5 items-center text-center">
               <div
                 className="h-12 w-full rounded-lg border border-white/[0.08] shadow-inner"
                 style={{ backgroundColor: a.hex }}
               />
-              <div>
+              <div className="w-full">
                 <span className="text-xs font-semibold text-white block">{a.label}</span>
                 <span className="text-[10px] font-mono text-fg-3 block truncate">{a.name}</span>
                 <span className="text-[10px] font-mono text-accent block">{a.hex}</span>
@@ -99,14 +99,14 @@ export function TokensShowcase() {
       >
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
           {TEXTS.map((t) => (
-            <div key={t.name} className="rounded-xl border border-white/[0.08] bg-[#0c0c0f] p-3 flex flex-col gap-2.5">
+            <div key={t.name} className="rounded-xl border border-white/[0.08] bg-[#0c0c0f] p-3 flex flex-col gap-2.5 items-center text-center">
               <div
                 className="h-12 w-full rounded-lg border border-white/[0.08] flex items-center justify-center font-bold text-base"
                 style={{ backgroundColor: "#0c0c0f", color: t.hex }}
               >
                 Aa
               </div>
-              <div>
+              <div className="w-full">
                 <span className="text-xs font-semibold text-white block">{t.label}</span>
                 <span className="text-[10px] font-mono text-fg-3 block truncate">{t.name}</span>
                 <span className="text-[10px] font-mono text-accent block">{t.hex}</span>
