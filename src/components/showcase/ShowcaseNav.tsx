@@ -37,23 +37,23 @@ interface ShowcaseNavProps {
 }
 
 const NAV_ITEMS: { id: ShowcaseSectionId; label: string; icon: React.ReactNode; group: string; count?: number }[] = [
-  // Primitives
-  { id: "buttons", label: "Buttons & Pills", icon: <CursorClick className="size-4" />, group: "Primitives", count: 6 },
-  { id: "badges", label: "Badges & Tags", icon: <Tag className="size-4" />, group: "Primitives", count: 4 },
-  { id: "inputs", label: "Inputs & Search", icon: <Square className="size-4" />, group: "Primitives", count: 3 },
-  { id: "toggles", label: "Toggles & Sliders", icon: <ToggleLeft className="size-4" />, group: "Primitives", count: 5 },
+  // Basic UI
+  { id: "buttons", label: "Buttons & Pills", icon: <CursorClick className="size-4" />, group: "Components", count: 6 },
+  { id: "badges", label: "Badges & Tags", icon: <Tag className="size-4" />, group: "Components", count: 4 },
+  { id: "inputs", label: "Inputs & Search", icon: <Square className="size-4" />, group: "Components", count: 3 },
+  { id: "toggles", label: "Toggles & Sliders", icon: <ToggleLeft className="size-4" />, group: "Components", count: 5 },
   // Feedback
-  { id: "indicators", label: "Indicators & Status", icon: <CircleNotch className="size-4" />, group: "Feedback", count: 4 },
+  { id: "indicators", label: "Status & Progress", icon: <CircleNotch className="size-4" />, group: "Feedback", count: 4 },
   { id: "overlays", label: "Overlays & Menus", icon: <ChatCircle className="size-4" />, group: "Feedback", count: 3 },
-  // Surfaces
-  { id: "media", label: "Media & Artwork", icon: <Image className="size-4" />, group: "Surfaces", count: 3 },
-  { id: "cards", label: "Composite Cards", icon: <Cards className="size-4" />, group: "Surfaces", count: 4 },
-  { id: "shell", label: "Shell & Headers", icon: <Sidebar className="size-4" />, group: "Surfaces", count: 2 },
-  // Foundation
-  { id: "tokens", label: "Design Tokens", icon: <Palette className="size-4" />, group: "Foundation" },
-  // Studio Tools
-  { id: "playground", label: "Live Playground", icon: <SlidersHorizontal className="size-4" />, group: "Studio Tools" },
-  { id: "record", label: "Animation Target", icon: <VideoCamera className="size-4" />, group: "Studio Tools" },
+  // Media & Shell
+  { id: "media", label: "Media & Artwork", icon: <Image className="size-4" />, group: "Layout & Media", count: 3 },
+  { id: "cards", label: "Composite Cards", icon: <Cards className="size-4" />, group: "Layout & Media", count: 4 },
+  { id: "shell", label: "Shell & Headers", icon: <Sidebar className="size-4" />, group: "Layout & Media", count: 2 },
+  // Colors & Tokens
+  { id: "tokens", label: "Colors & Tokens", icon: <Palette className="size-4" />, group: "Tokens" },
+  // Tools
+  { id: "playground", label: "Playground", icon: <SlidersHorizontal className="size-4" />, group: "Tools" },
+  { id: "record", label: "Animation Target", icon: <VideoCamera className="size-4" />, group: "Tools" },
 ]
 
 export function ShowcaseNav({ activeSection, onSelect }: ShowcaseNavProps) {
@@ -66,17 +66,11 @@ export function ShowcaseNav({ activeSection, onSelect }: ShowcaseNavProps) {
 
   return (
     <nav className="w-full lg:w-72 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.08] bg-[#09090c]/80 backdrop-blur-xl flex flex-col justify-between select-none lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
-      <div className="p-5 flex flex-col gap-5">
-        {/* Directory Title & Stats */}
-        <div className="flex flex-col gap-1.5 px-1">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-mono uppercase tracking-widest text-accent font-semibold flex items-center gap-1.5">
-              <span className="size-1.5 rounded-full bg-accent animate-pulse" />
-              Component Studio
-            </span>
-            <span className="text-[10px] font-mono text-fg-3">28 Primitives</span>
-          </div>
-          <h2 className="text-sm font-bold text-white tracking-tight">Design System Index</h2>
+      <div className="p-5 flex flex-col gap-4">
+        {/* Simple Directory Header */}
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-sm font-semibold text-white tracking-tight">Components</h2>
+          <span className="text-[11px] font-mono text-fg-3">28 items</span>
         </div>
 
         {/* Quick Filter Search */}
@@ -85,31 +79,24 @@ export function ShowcaseNav({ activeSection, onSelect }: ShowcaseNavProps) {
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="Filter components..."
+            placeholder="Search list..."
             className="w-full h-8 rounded-lg border border-white/[0.08] bg-white/[0.03] pl-9 pr-3 text-xs text-fg-1 placeholder:text-fg-3 focus:outline-none focus:border-accent/60 transition-colors"
           />
         </div>
 
         {/* Categorized List */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5 pt-1">
           {groups.map((group) => {
             const items = filteredItems.filter((item) => item.group === group)
             if (items.length === 0) return null
 
-            const isStudio = group === "Studio Tools"
-
             return (
               <div key={group} className="flex flex-col gap-1">
-                <span className="text-[10px] font-semibold text-fg-3 uppercase tracking-wider px-2 mb-1 flex items-center justify-between">
-                  <span>{group}</span>
-                  {isStudio && (
-                    <span className="text-[9px] font-mono text-accent uppercase tracking-wider bg-accent/10 px-1.5 py-0.5 rounded">
-                      Interactive
-                    </span>
-                  )}
+                <span className="text-[11px] font-medium text-fg-3 px-2 mb-0.5">
+                  {group}
                 </span>
 
-                <div className={cn("flex flex-col gap-0.5", isStudio && "rounded-xl border border-white/[0.06] bg-white/[0.015] p-1")}>
+                <div className="flex flex-col gap-0.5">
                   {items.map((item) => {
                     const active = activeSection === item.id
 
