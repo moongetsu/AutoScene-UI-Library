@@ -48,6 +48,9 @@ export function StudioRegistryLayout() {
   const [demoSwitch, setDemoSwitch] = React.useState(true)
   const [demoSlider, setDemoSlider] = React.useState(85)
   const [demoInput, setDemoInput] = React.useState("")
+  const [demoFilterStatus, setDemoFilterStatus] = React.useState("ready")
+  const [demoFilterSort, setDemoFilterSort] = React.useState("az")
+  const [demoFilterSearch, setDemoFilterSearch] = React.useState("")
 
   const copyCli = () => {
     navigator.clipboard.writeText("npx @moongetsu/autoscene-ui add")
@@ -265,8 +268,10 @@ export function StudioRegistryLayout() {
       category: "Inputs",
       description: "Desktop command toolbar with shortcut (/), multi-group filters, and animated active chips.",
       component: (
-        <div className="w-full max-w-sm scale-90 sm:scale-95 origin-center">
+        <div className="w-full max-w-sm">
           <FilterBar
+            search={demoFilterSearch}
+            onSearchChange={setDemoFilterSearch}
             searchPlaceholder="Search footage... (/)"
             filterGroups={[
               {
@@ -279,12 +284,18 @@ export function StudioRegistryLayout() {
                 ],
               },
             ]}
-            selectedFilters={{ status: "ready" }}
+            selectedFilters={{ status: demoFilterStatus }}
+            onFilterChange={(_, val) => setDemoFilterStatus(val)}
             sortOptions={[
               { value: "az", label: "Name A–Z" },
               { value: "za", label: "Name Z–A" },
             ]}
-            selectedSort="az"
+            selectedSort={demoFilterSort}
+            onSortChange={setDemoFilterSort}
+            onResetFilters={() => {
+              setDemoFilterStatus("all")
+              setDemoFilterSearch("")
+            }}
           />
         </div>
       ),
