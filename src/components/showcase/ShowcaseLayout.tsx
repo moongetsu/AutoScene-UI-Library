@@ -20,7 +20,7 @@ const SECTION_LABELS: Record<ShowcaseSectionId, string> = {
   inputs: "Inputs & Search",
   toggles: "Toggles & Sliders",
   indicators: "Status & Progress",
-  overlays: "Overlays & Menus",
+  overlays: "Dropdowns & Overlays",
   media: "Media & Artwork",
   cards: "Composite Cards",
   shell: "Shell & Headers",

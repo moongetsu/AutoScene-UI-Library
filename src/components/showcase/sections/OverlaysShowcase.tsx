@@ -16,12 +16,63 @@ export function OverlaysShowcase() {
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
-        title="Overlays & Menus"
-        description="Tooltips, dropdown menus, and toast notifications."
-        importPath='import { Tooltip, DropdownMenu } from "@moongetsu/autoscene-ui"'
+        title="Dropdowns & Overlays"
+        description="Floating dropdown menus, tooltips, and toast notifications."
+        importPath='import { DropdownMenu, Tooltip } from "@moongetsu/autoscene-ui"'
       />
 
-      {/* 1. Tooltips */}
+      {/* 1. Dropdown Menus */}
+      <ShowcaseSectionStage
+        title="Dropdown Menus"
+        description="Frosted glass menus with icons, destructive items, and subtle separator hairlines."
+        code={`import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  Button,
+} from "@moongetsu/autoscene-ui"
+import { DotsThree, Play, FolderOpen, Trash } from "@phosphor-icons/react"
+
+<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button variant="secondary">
+      Actions Menu <DotsThree weight="bold" />
+    </Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuItem onSelect={() => {}}><Play /> Watch source</DropdownMenuItem>
+    <DropdownMenuItem onSelect={() => {}}><FolderOpen /> Reveal in Folder</DropdownMenuItem>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem onSelect={() => {}} className="text-danger"><Trash /> Delete Export</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>`}
+      >
+        <div className="flex items-center justify-center py-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" className="gap-2">
+                Actions Menu <DotsThree weight="bold" className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onSelect={() => toast("Opening source…")}>
+                <Play /> Watch source
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => toast("Revealing in folder…")}>
+                <FolderOpen /> Reveal in Folder
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => toast.error("Clip removed")} className="text-danger">
+                <Trash /> Delete Export
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </ShowcaseSectionStage>
+
+      {/* 2. Tooltips */}
       <ShowcaseSectionStage
         title="Tooltips"
         description="Delicate hovering hints with directional auto-alignment."
@@ -43,53 +94,6 @@ export function OverlaysShowcase() {
           <Tooltip label="Accent-styled highlight information">
             <Button variant="accent">Accent Button Tooltip</Button>
           </Tooltip>
-        </div>
-      </ShowcaseSectionStage>
-
-      {/* 2. Dropdown Menus */}
-      <ShowcaseSectionStage
-        title="Dropdown Menus"
-        description="Frosted glass menus with icons, destructive items, and subtle separator hairlines."
-        code={`import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@moongetsu/autoscene-ui"
-
-<DropdownMenu>
-  <DropdownMenuTrigger asChild>
-    <Button variant="secondary">Actions Menu <DotsThree weight="bold" /></Button>
-  </DropdownMenuTrigger>
-  <DropdownMenuContent>
-    <DropdownMenuItem><Play /> Watch source</DropdownMenuItem>
-    <DropdownMenuItem><FolderOpen /> Reveal in Folder</DropdownMenuItem>
-    <DropdownMenuSeparator />
-    <DropdownMenuItem className="text-danger"><Trash /> Delete Export</DropdownMenuItem>
-  </DropdownMenuContent>
-</DropdownMenu>`}
-      >
-        <div className="flex items-center justify-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary">
-                Actions Menu <DotsThree weight="bold" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onSelect={() => toast("Opening source…")}>
-                <Play /> Watch source
-              </DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => toast("Revealing in folder…")}>
-                <FolderOpen /> Reveal in Folder
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => toast.error("Clip removed")} className="text-danger">
-                <Trash /> Delete Export
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </ShowcaseSectionStage>
 

@@ -46,7 +46,7 @@ const NAV_ITEMS: { id: ShowcaseSectionId; label: string; icon: React.ReactNode; 
   { id: "toggles", label: "Toggles & Sliders", icon: <ToggleLeft className="size-4" />, group: "Components", count: 5 },
   // Feedback
   { id: "indicators", label: "Status & Progress", icon: <CircleNotch className="size-4" />, group: "Feedback", count: 4 },
-  { id: "overlays", label: "Overlays & Menus", icon: <ChatCircle className="size-4" />, group: "Feedback", count: 3 },
+  { id: "overlays", label: "Dropdowns & Overlays", icon: <ChatCircle className="size-4" />, group: "Feedback", count: 3 },
   // Media & Shell
   { id: "media", label: "Media & Artwork", icon: <Image className="size-4" />, group: "Layout & Media", count: 3 },
   { id: "cards", label: "Composite Cards", icon: <Cards className="size-4" />, group: "Layout & Media", count: 4 },
