@@ -48,7 +48,7 @@ export function IconsShowcase() {
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
         title="Iconography"
-        description="A curated collection of Phosphor icons tailored for video editing and creator tools. Consistent regular weights with fill accents."
+        description="Phosphor icons used across the app, with regular line weight and fill variants."
         importPath='import { Play, Scissors, FilmStrip } from "@moongetsu/autoscene-ui/icons"'
       />
 
