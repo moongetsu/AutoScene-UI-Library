@@ -19,21 +19,9 @@ import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
 import { SPRING_FAST } from "@/lib/motion"
 import { TOTAL_UI_COMPONENTS_COUNT } from "@/registry/discovery"
+import { DISCOVERED_SECTIONS, type ShowcaseSectionMeta } from "@/registry/showcase-discovery"
 
-export type ShowcaseSectionId =
-  | "buttons"
-  | "badges"
-  | "inputs"
-  | "toggles"
-  | "indicators"
-  | "overlays"
-  | "media"
-  | "cards"
-  | "shell"
-  | "tokens"
-  | "icons"
-  | "playground"
-  | "record"
+export type ShowcaseSectionId = string
 
 interface ShowcaseNavProps {
   activeSection: ShowcaseSectionId
@@ -42,25 +30,14 @@ interface ShowcaseNavProps {
   onClose?: () => void
 }
 
-const NAV_ITEMS: { id: ShowcaseSectionId; label: string; icon: React.ReactNode; group: string; count?: number }[] = [
-  // Basic UI
-  { id: "buttons", label: "Buttons & Pills", icon: <CursorClick className="size-4" />, group: "Components", count: 6 },
-  { id: "badges", label: "Badges & Tags", icon: <Tag className="size-4" />, group: "Components", count: 4 },
-  { id: "inputs", label: "Inputs & Search", icon: <Square className="size-4" />, group: "Components", count: 3 },
-  { id: "toggles", label: "Toggles & Sliders", icon: <ToggleLeft className="size-4" />, group: "Components", count: 5 },
-  // Feedback
-  { id: "indicators", label: "Status & Progress", icon: <CircleNotch className="size-4" />, group: "Feedback", count: 4 },
-  { id: "overlays", label: "Dropdowns & Overlays", icon: <ChatCircle className="size-4" />, group: "Feedback", count: 3 },
-  // Media & Shell
-  { id: "media", label: "Media & Artwork", icon: <Image className="size-4" />, group: "Layout & Media", count: 3 },
-  { id: "cards", label: "Composite Cards", icon: <Cards className="size-4" />, group: "Layout & Media", count: 4 },
-  { id: "shell", label: "Shell & Headers", icon: <Sidebar className="size-4" />, group: "Layout & Media", count: 2 },
-  // Colors & Tokens
-  { id: "tokens", label: "Colors & Tokens", icon: <Palette className="size-4" />, group: "Tokens" },
-  { id: "icons", label: "Icons (80+)", icon: <Image className="size-4" />, group: "Tokens", count: 82 },
-  // Tools
-  { id: "playground", label: "Playground", icon: <SlidersHorizontal className="size-4" />, group: "Tools" },
-  { id: "record", label: "Animation Target", icon: <VideoCamera className="size-4" />, group: "Tools" },
+const STATIC_TOOL_ITEMS: ShowcaseSectionMeta[] = [
+  { id: "playground", label: "Playground", icon: <SlidersHorizontal className="size-4" />, group: "Tools", Component: () => null },
+  { id: "record", label: "Animation Target", icon: <VideoCamera className="size-4" />, group: "Tools", Component: () => null },
+]
+
+const NAV_ITEMS: ShowcaseSectionMeta[] = [
+  ...DISCOVERED_SECTIONS,
+  ...STATIC_TOOL_ITEMS,
 ]
 
 export function ShowcaseNav({ activeSection, onSelect, isOpen, onClose }: ShowcaseNavProps) {

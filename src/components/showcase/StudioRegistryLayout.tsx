@@ -28,14 +28,11 @@ import { motion } from "motion/react"
 import { SPRING_FAST } from "@/lib/motion"
 import { cn } from "@/lib/utils"
 import { DISCOVERED_COMPONENTS, TOTAL_UI_COMPONENTS_COUNT } from "@/registry/discovery"
-
-interface ComponentCardData {
-  id: string
-  title: string
-  category: string
-  description: string
-  component: React.ReactNode
-}
+import {
+  COMPONENT_DEMO_PREVIEWS,
+  getFallbackComponentPreview,
+  type ComponentCardData,
+} from "@/registry/component-previews"
 
 export function StudioRegistryLayout() {
   const [copied, setCopied] = React.useState(false)
@@ -73,248 +70,52 @@ export function StudioRegistryLayout() {
     })
   }
 
-  // Live component cards for the gallery grid
-  const components: ComponentCardData[] = [
-    {
-      id: "button-primary",
-      title: "Primary Action Pill",
-      category: "Buttons",
-      description: "White glassmorphic CTA pill with inner specular glow and spring depression.",
-      component: (
-        <Button variant="primary" size="md" onClick={() => toast.success("Built scene pack")}>
-          <Play weight="fill" className="size-4" /> Build a scenepack
-        </Button>
-      ),
-    },
-    {
-      id: "button-accent",
-      title: "Accent Gold Button",
-      category: "Buttons",
-      description: "AutoScene brand gold with subtle backdrop glow for focal actions.",
-      component: (
-        <Button variant="accent" size="md" onClick={() => toast("Filtered vocals")}>
-          <Plus weight="bold" className="size-4 text-accent" /> Filter Vocals
-        </Button>
-      ),
-    },
-    {
-      id: "button-glass",
-      title: "Frosted Glass Pill",
-      category: "Buttons",
-      description: "Translucent backdrop pill designed to float over media footage.",
-      component: (
-        <Button variant="glass" size="md" onClick={() => toast("Saved EDL file")}>
-          <DownloadSimple className="size-4" /> Save EDL
-        </Button>
-      ),
-    },
-    {
-      id: "button-danger",
-      title: "Danger Destructive Pill",
-      category: "Buttons",
-      description: "Muted crimson border with red glow hover for deletions.",
-      component: (
-        <Button variant="danger" size="sm" onClick={() => toast.error("Media removed")}>
-          <Trash className="size-3.5" /> Remove Media
-        </Button>
-      ),
-    },
-    {
-      id: "segmented-tabs",
-      title: "Segmented Sliding Tabs",
-      category: "Toggles",
-      description: "Spring-animated sliding tab switcher with zero latency.",
-      component: (
-        <div className="flex flex-col items-center gap-2">
-          <Segmented
-            aria-label="Filter"
-            value={demoTab}
-            onChange={(val) => setDemoTab(val)}
-            options={[
-              { value: "episodes", label: "Episodes" },
-              { value: "cast", label: "Cast" },
-            ]}
-          />
-          <span className="text-[11px] font-mono text-fg-3">
-            Active: <span className="text-accent">{demoTab}</span>
-          </span>
-        </div>
-      ),
-    },
-    {
-      id: "switch-toggle",
-      title: "Hardware Switch",
-      category: "Toggles",
-      description: "High-contrast boolean switch with fluid thumb easing.",
-      component: (
-        <label className="flex items-center gap-3 cursor-pointer select-none">
-          <span className="text-xs text-fg-2">Hardware Acceleration</span>
-          <Switch
-            checked={demoSwitch}
-            onCheckedChange={(checked) => {
-              setDemoSwitch(checked)
-              toast(checked ? "Hardware acceleration enabled" : "Hardware acceleration disabled")
-            }}
-          />
-        </label>
-      ),
-    },
-    {
-      id: "slider-precision",
-      title: "Precision Range Slider",
-      category: "Toggles",
-      description: "Glass track slider with instant drag feedback and percentage chip.",
-      component: (
-        <div className="w-52 flex flex-col gap-2">
-          <div className="flex justify-between text-xs text-fg-2">
-            <span>Threshold</span>
-            <span className="font-mono text-accent">{demoSlider}%</span>
-          </div>
-          <Slider
-            label="Threshold"
-            value={demoSlider}
-            min={0}
-            max={100}
-            step={1}
-            format={(val) => `${val}%`}
-            onChange={(val) => setDemoSlider(val)}
-          />
-        </div>
-      ),
-    },
-    {
-      id: "input-search",
-      title: "Cinematic Search Bar",
-      category: "Inputs",
-      description: "Dark glass input with embedded icon and subtle white focus border.",
-      component: (
-        <div className="relative w-56">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-fg-3 pointer-events-none" />
-          <Input
-            value={demoInput}
-            onChange={(e) => setDemoInput(e.target.value)}
-            className="pl-9 h-8 text-xs"
-            placeholder="Search cast or scenes…"
-          />
-        </div>
-      ),
-    },
-    {
-      id: "character-card",
-      title: "Cast Profile Card",
-      category: "Cards",
-      description: "Face recognition card with portrait frame, clip counter badge and menu.",
-      component: (
-        <div className="w-52 rounded-xl border border-white/[0.08] bg-panel p-3 flex flex-col gap-2.5">
-          <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-overlay">
-            <img
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&fit=crop"
-              alt="Character"
-              className="size-full object-cover"
-            />
-            <div className="absolute top-2 right-2">
-              <Badge tone="accent">42 clips</Badge>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-xs font-semibold text-fg-1">Patrick Jane</div>
-              <div className="text-[10px] text-fg-3">The Mentalist</div>
-            </div>
-            <Button variant="ghost" size="icon-sm" className="size-6">
-              <DotsThree weight="bold" />
-            </Button>
-          </div>
-        </div>
-      ),
-    },
-    {
-      id: "export-row-card",
-      title: "Export Status Card",
-      category: "Cards",
-      description: "Export summary card with codec tag, progress state, and quick play.",
-      component: (
-        <div className="w-64 rounded-xl border border-white/[0.08] bg-panel p-3.5 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-accent/15 text-accent">
-              <FilmStrip className="size-4" />
-            </div>
-            <div>
-              <div className="text-xs font-medium text-fg-1 truncate max-w-[120px]">Patrick_Jane.mov</div>
-              <div className="text-[10px] text-fg-3">ProRes 422 · 42 clips</div>
-            </div>
-          </div>
-          <Badge tone="accent" className="h-5 px-1.5 text-[10px]">Verified</Badge>
-        </div>
-      ),
-    },
-    {
-      id: "status-badges",
-      title: "Design System Badges",
-      category: "Feedback",
-      description: "Pill tags for counts, media overlays, and states.",
-      component: (
-        <div className="flex flex-wrap gap-2">
-          <Badge tone="accent">Gold Focus</Badge>
-          <Badge tone="danger">Failed</Badge>
-          <Badge tone="outline">Outline</Badge>
-          <Badge tone="media">Media Frost</Badge>
-        </div>
-      ),
-    },
-    {
-      id: "filter-bar",
-      title: "Filter & Sorting Bar",
-      category: "Inputs",
-      description: "Desktop command toolbar with shortcut (/), multi-group filters, and animated active chips.",
-      component: (
-        <div className="w-full max-w-sm">
-          <FilterBar
-            search={demoFilterSearch}
-            onSearchChange={setDemoFilterSearch}
-            searchPlaceholder="Search footage... (/)"
-            filterGroups={[
-              {
-                id: "status",
-                label: "Status",
-                options: [
-                  { value: "all", label: "All Items" },
-                  { value: "ready", label: "Ready", count: 12 },
-                  { value: "rendering", label: "Rendering", count: 4 },
-                ],
-              },
-            ]}
-            selectedFilters={{ status: demoFilterStatus }}
-            onFilterChange={(_, val) => setDemoFilterStatus(val)}
-            sortOptions={[
-              { value: "az", label: "Name A–Z" },
-              { value: "za", label: "Name Z–A" },
-            ]}
-            selectedSort={demoFilterSort}
-            onSortChange={setDemoFilterSort}
-            onResetFilters={() => {
-              setDemoFilterStatus("all")
-              setDemoFilterSearch("")
-            }}
-          />
-        </div>
-      ),
-    },
-    {
-      id: "kbd-shortcuts",
-      title: "Keyboard Shortcuts (Kbd)",
-      category: "Feedback",
-      description: "Tactile key caps with drop shadows and shortcuts.",
-      component: (
-        <div className="flex items-center gap-3 text-xs text-fg-2">
-          <span>Command Palette:</span>
-          <Kbd keys={["⌘", "K"]} />
-        </div>
-      ),
-    },
-  ]
+  // Dynamically generated component cards from the discovery engine
+  const components: ComponentCardData[] = React.useMemo(() => {
+    return DISCOVERED_COMPONENTS.map((meta) => {
+      const demoRenderer = COMPONENT_DEMO_PREVIEWS[meta.id]
+      const componentNode = demoRenderer
+        ? demoRenderer({
+            demoTab,
+            setDemoTab,
+            demoSwitch,
+            setDemoSwitch,
+            demoSlider,
+            setDemoSlider,
+            demoInput,
+            setDemoInput,
+            demoFilterStatus,
+            setDemoFilterStatus,
+            demoFilterSort,
+            setDemoFilterSort,
+            demoFilterSearch,
+            setDemoFilterSearch,
+          })
+        : getFallbackComponentPreview(meta.id, meta.name)
 
-  const categories = ["All", "Buttons", "Toggles", "Inputs", "Cards", "Feedback"]
+      return {
+        id: meta.id,
+        title: meta.name,
+        category: meta.category,
+        description: meta.description,
+        component: componentNode,
+      }
+    })
+  }, [
+    demoTab,
+    demoSwitch,
+    demoSlider,
+    demoInput,
+    demoFilterStatus,
+    demoFilterSort,
+    demoFilterSearch,
+  ])
+
+  // Dynamically derive category filter pills from discovered components
+  const categories = React.useMemo(() => {
+    const set = new Set(DISCOVERED_COMPONENTS.map((c) => c.category))
+    return ["All", ...Array.from(set).sort()]
+  }, [])
 
   const filtered = components.filter((item) => {
     const matchesCat = selectedCategory === "All" || item.category === selectedCategory
