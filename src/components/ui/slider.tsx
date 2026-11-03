@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Slider as S } from "@animate-ui/react/primitives/radix-ui"
+import { Slider as S } from "radix-ui"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
 import { SPRING_FAST } from "@/lib/motion"

@@ -34,7 +34,7 @@ export function TogglesShowcase() {
   ]}
 />`}
       >
-        <div className="flex flex-col gap-4 w-full max-w-sm">
+        <div className="flex flex-col items-center gap-4 w-full max-w-sm">
           <Segmented
             aria-label="View tabs"
             value={tab}
@@ -81,11 +81,13 @@ export function TogglesShowcase() {
         code={`import { Slider } from "@moongetsu/autoscene-ui"
 
 <Slider
-  value={[sliderVal]}
+  value={sliderVal}
   min={0}
   max={100}
   step={1}
-  onValueChange={(val) => setSliderVal(val[0])}
+  label="Confidence"
+  format={(val) => \`\${val}%\`}
+  onChange={(val) => setSliderVal(val)}
 />`}
       >
         <div className="flex flex-col gap-4 w-full max-w-sm">
@@ -94,11 +96,13 @@ export function TogglesShowcase() {
             <span className="font-mono text-accent">{sliderVal}%</span>
           </div>
           <Slider
-            value={[sliderVal]}
+            value={sliderVal}
             min={0}
             max={100}
             step={1}
-            onValueChange={(val) => setSliderVal(val[0])}
+            label="Detection Confidence"
+            format={(val) => `${val}%`}
+            onChange={(val) => setSliderVal(val)}
           />
         </div>
       </ShowcaseSectionStage>

@@ -13,8 +13,8 @@ import { cn } from "@/lib/utils"
 const buttonVariants = cva(
   [
     "inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium cursor-pointer",
-    "transition-[background-color,border-color,color,box-shadow] duration-200 ease-out",
-    "disabled:pointer-events-none disabled:opacity-40",
+    "transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out",
+    "disabled:pointer-events-none disabled:opacity-40 active:scale-[0.96]",
     "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   ],
   {

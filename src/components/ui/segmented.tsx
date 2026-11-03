@@ -6,9 +6,9 @@ import { motion } from "motion/react"
 import { cn } from "@/lib/utils"
 import { SPRING_FAST } from "@/lib/motion"
 
-const track = "relative inline-flex h-9 items-center gap-0.5 rounded-full border border-white/10 bg-white/[0.06] p-1 backdrop-blur-xl"
+const track = "relative inline-flex h-9 w-fit items-center gap-0.5 rounded-full border border-white/10 bg-white/[0.06] p-1 backdrop-blur-xl"
 const item = cn(
-  "relative z-10 inline-flex h-full items-center gap-2 rounded-full px-3.5 text-sm font-medium transition-colors duration-[var(--dur-fast)] [&_svg]:size-4 cursor-pointer",
+  "relative z-10 inline-flex h-full items-center justify-center gap-2 rounded-full px-4 text-sm font-medium transition-colors duration-[var(--dur-fast)] [&_svg]:size-4 cursor-pointer select-none",
   "hover:text-fg-1",
   "disabled:pointer-events-none disabled:opacity-40",
 )
