@@ -1,0 +1,157 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { toast } from "sonner"
+import type { ExportItem, ExportSummary, JobInfo } from "@/bindings"
+import { useActivity } from "@/state/activity"
+import { startEventBridge } from "./events"
+import { commands } from "./ipc"
+import { queryClient } from "./queries"
+
+// Each backend event's listener, as the bridge registers it.
+const { handlers } = vi.hoisted(() => ({ handlers: {} as Record<string, (e: { payload: unknown }) => void> }))
+
+vi.mock("./ipc", () => ({
+  events: new Proxy(
+    {},
+    {
+      get: (_, name: string) => ({
+        listen: (h: (e: { payload: unknown }) => void) => {
+          handlers[name] = h
+          return Promise.resolve(() => {})
+        },
+      }),
+    },
+  ),
+  commands: {
+    jobsList: vi.fn(() => Promise.resolve([])),
+    exportsList: vi.fn(),
+    revealPath: vi.fn(() => Promise.resolve(null)),
+  },
+  errorMessage: (e: unknown) => String(e),
+}))
+vi.mock("sonner", () => ({ toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }) }))
+
+const job = (o: Partial<JobInfo>): JobInfo => ({
+  id: "j1",
+  kind: "export",
+  title: "Exporting 2 clips",
+  subtitle: "Breaking Bad",
+  projectId: "p",
+  mediaId: null,
+  exportId: "e1",
+  state: "running",
+  progress: null,
+  stage: null,
+  etaMs: null,
+  error: null,
+  createdAt: 1,
+  finishedAt: null,
+  rev: 1,
+  ...o,
+})
+
+const clip = (path: string) => ({ id: 1, mediaId: "m", start: 0, end: 24, name: "clip", status: "done", path, verified: true }) as ExportItem
+const exported = (o: Partial<ExportSummary>) =>
+  ({ id: "e1", outDir: "C:\\Exports\\Show", items: [clip("a.mov"), clip("b.mov")], merged: null, ...o }) as ExportSummary
+
+/** The job finishing, and the toast that says so. */
+async function finish(list: ExportSummary[]) {
+  vi.mocked(commands.exportsList).mockResolvedValue(list)
+  handlers.jobChanged({ payload: job({ state: "done", rev: 2 }) })
+  await vi.waitFor(() => expect(toast.success).toHaveBeenCalledOnce())
+  return vi.mocked(toast.success).mock.calls[0][1] as { action?: { label: string; onClick: () => void } }
+}
+
+let stop: () => void
+beforeEach(() => {
+  useActivity.setState({ jobs: {}, order: [] })
+  stop = startEventBridge()
+  handlers.jobChanged({ payload: job({}) })
+})
+afterEach(() => {
+  stop()
+  queryClient.clear()
+  vi.clearAllMocks()
+})
+
+describe("an export finishing", () => {
+  it("offers to show the folder of a file per clip", async () => {
+    const { action } = await finish([exported({})])
+    expect(action?.label).toBe("Show in folder")
+    action?.onClick()
+    expect(commands.revealPath).toHaveBeenCalledWith("C:\\Exports\\Show")
+  })
+
+  it("shows the one file the clips were joined into", async () => {
+    const merged = { name: "Pack", path: "C:\\Exports\\Show\\Pack.mov", verified: true, bytes: 1, error: null }
+    const { action } = await finish([exported({ merged })])
+    action?.onClick()
+    expect(commands.revealPath).toHaveBeenCalledWith("C:\\Exports\\Show\\Pack.mov")
+  })
+
+  it("shows a single clip itself", async () => {
+    const { action } = await finish([exported({ items: [clip("C:\\Exports\\Show\\clip.mov")] })])
+    action?.onClick()
+    expect(commands.revealPath).toHaveBeenCalledWith("C:\\Exports\\Show\\clip.mov")
+  })
+
+  it("says it finished without the button when the export can't be found", async () => {
+    const { action } = await finish([])
+    expect(action).toBeUndefined()
+  })
+})
+
+describe("an export's job ending", () => {
+  it("reads the project's exports again, a cancel too", () => {
+    const read = vi.spyOn(queryClient, "invalidateQueries")
+    handlers.jobProgress({ payload: { id: "j1", rev: 2, progress: 0.5, stage: null, etaMs: null } })
+    expect(read).not.toHaveBeenCalled()
+    handlers.jobChanged({ payload: job({ state: "cancelled", rev: 3 }) })
+    expect(read).toHaveBeenCalledWith({ queryKey: ["exports", "p"] })
+    expect(toast.success).not.toHaveBeenCalled()
+    read.mockRestore()
+  })
+})
+
+describe("a plugin job that finishes", () => {
+  const plugin = (o: Partial<JobInfo>) =>
+    job({ id: "j2", kind: "plugin", title: "Post to Discord", subtitle: "Discord notify", exportId: null, rev: 2, ...o })
+
+  it("says its message", () => {
+    handlers.jobChanged({ payload: plugin({ state: "running" }) })
+    handlers.jobChanged({ payload: plugin({ state: "done", message: "Posted 12 clips.", rev: 3 }) })
+    // Named by its plugin, after a word the plugin can't choose: its words
+    // never read as AutoScene's, whatever it calls itself.
+    expect(toast).toHaveBeenCalledExactlyOnceWith("Plugin “Discord notify”: Post to Discord", { description: "Posted 12 clips." })
+    expect(toast.success).not.toHaveBeenCalled()
+  })
+
+  it("says it failed, and which plugin it was", () => {
+    handlers.jobChanged({ payload: plugin({ state: "failed", error: "Discord refused the post.", rev: 3 }) })
+    expect(toast.error).toHaveBeenCalledExactlyOnceWith("Plugin “Discord notify”: Post to Discord failed", {
+      description: "Discord refused the post.",
+    })
+  })
+
+  it("reads as a plugin's even when the plugin calls itself AutoScene", () => {
+    handlers.jobChanged({ payload: plugin({ state: "done", title: "Update ready", subtitle: "AutoScene", message: "Restart now.", rev: 3 }) })
+    expect(toast).toHaveBeenCalledExactlyOnceWith("Plugin “AutoScene”: Update ready", { description: "Restart now." })
+  })
+
+  it("says nothing when it has nothing to say", () => {
+    handlers.jobChanged({ payload: plugin({ state: "done", message: null }) })
+    expect(toast).not.toHaveBeenCalled()
+    expect(toast.success).not.toHaveBeenCalled()
+  })
+})
+
+describe("plugins changing", () => {
+  it("plugins:changed refetches the plugins", () => {
+    const read = vi.spyOn(queryClient, "invalidateQueries")
+    handlers.pluginsChanged({ payload: { pluginId: "dev.a.one" } })
+    handlers.pluginsChanged({ payload: { pluginId: null } })
+    // The list, and by prefix every plugin's settings; the settings too when
+    // whether unreviewed plugins may run changed.
+    expect(read.mock.calls).toEqual([[{ queryKey: ["plugins"] }], [{ queryKey: ["plugins"] }], [{ queryKey: ["settings"] }]])
+    read.mockRestore()
+  })
+})
