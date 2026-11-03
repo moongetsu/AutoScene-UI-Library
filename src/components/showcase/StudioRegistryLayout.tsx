@@ -406,20 +406,22 @@ export function StudioRegistryLayout() {
                   key={cat}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
-                  className={`relative px-4 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+                  className={cn(
+                    "relative px-4 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap cursor-pointer select-none",
                     isSelected ? "text-black font-semibold" : "text-fg-2 hover:text-white"
-                  }`}
+                  )}
                 >
-                  {isSelected ? (
+                  {isSelected && (
                     <motion.div
                       layoutId="registry-category-pill"
                       transition={SPRING_FAST}
-                      className="absolute inset-0 rounded-full bg-white shadow-lg -z-10"
+                      className="absolute inset-0 rounded-full bg-white shadow-lg pointer-events-none"
                     />
-                  ) : (
-                    <div className="absolute inset-0 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] -z-10" />
                   )}
-                  {cat}
+                  {!isSelected && (
+                    <div className="absolute inset-0 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] pointer-events-none transition-colors" />
+                  )}
+                  <span className="relative z-10">{cat}</span>
                 </button>
               )
             })}
