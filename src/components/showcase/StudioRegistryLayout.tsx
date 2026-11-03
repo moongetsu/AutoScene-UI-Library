@@ -23,6 +23,7 @@ import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
 import { TopNavbar } from "./TopNavbar"
 import { ShowcaseCommandPalette } from "./ShowcaseCommandPalette"
 import { toast } from "sonner"
+import { notify } from "@/components/ui/toaster"
 import { motion } from "motion/react"
 import { SPRING_FAST } from "@/lib/motion"
 import { cn } from "@/lib/utils"
@@ -50,8 +51,10 @@ export function StudioRegistryLayout() {
   const copyCli = () => {
     navigator.clipboard.writeText("npx @moongetsu/autoscene-ui add")
     setCopied(true)
-    toast.success("Copied install command to clipboard", {
-      description: "npx @moongetsu/autoscene-ui add",
+    notify.success("CLI Install Command Copied", {
+      description: "Run this command in your project terminal to scaffold primitives.",
+      snippet: "npx @moongetsu/autoscene-ui add",
+      badge: "CLI Installer",
     })
     setTimeout(() => setCopied(false), 2000)
   }
@@ -59,8 +62,10 @@ export function StudioRegistryLayout() {
   const copyComponentLink = (id: string, title: string) => {
     const url = `https://moongetsu.github.io/AutoScene-UI-Library/components/${id}/`
     navigator.clipboard.writeText(url)
-    toast.success(`Copied share link for ${title}`, {
-      description: url,
+    notify.info(`Copied Direct Component Link`, {
+      description: `Shareable link for ${title} copied to clipboard.`,
+      snippet: url,
+      badge: "Deep Link",
     })
   }
 
