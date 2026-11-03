@@ -60,7 +60,9 @@ function TipContent({
         sideOffset={8}
         collisionPadding={8}
         className={cn(
-          "glass-strong z-50 max-w-[min(520px,calc(100vw-24px))] rounded-lg px-2.5 py-1.5 text-xs font-medium text-fg-1 [overflow-wrap:anywhere] data-[state=delayed-open]:animate-fade-in",
+          "glass-strong z-50 max-w-[min(520px,calc(100vw-24px))] rounded-lg px-2.5 py-1.5 text-xs font-medium text-fg-1 [overflow-wrap:anywhere]",
+          "data-[state=delayed-open]:data-[side=top]:animate-tooltip-in-top data-[state=delayed-open]:data-[side=bottom]:animate-tooltip-in-bottom",
+          "data-[state=instant-open]:animate-fade-in",
           className,
         )}
       >

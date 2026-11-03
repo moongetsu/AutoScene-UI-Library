@@ -1,13 +1,15 @@
 import type * as React from "react"
-import { useState } from "react"
+import { useId, useState } from "react"
 import { Link } from "@tanstack/react-router"
 import { HoverCard, ToggleGroup } from "radix-ui"
+import { motion } from "motion/react"
 import { cn } from "@/lib/utils"
+import { SPRING_FAST } from "@/lib/motion"
 
-const track = "inline-flex h-9 items-center gap-0.5 rounded-full border border-white/10 bg-white/[0.06] p-1 backdrop-blur-xl"
+const track = "relative inline-flex h-9 items-center gap-0.5 rounded-full border border-white/10 bg-white/[0.06] p-1 backdrop-blur-xl"
 const item = cn(
-  "inline-flex h-full items-center gap-2 rounded-full px-3.5 text-sm font-medium text-fg-2 transition-[color,background-color] duration-[var(--dur-fast)] [&_svg]:size-4",
-  "hover:text-fg-1 data-[state=on]:bg-white/[0.14] data-[state=on]:text-fg-1 data-[state=on]:shadow-1",
+  "relative z-10 inline-flex h-full items-center gap-2 rounded-full px-3.5 text-sm font-medium transition-colors duration-[var(--dur-fast)] [&_svg]:size-4 cursor-pointer",
+  "hover:text-fg-1",
   "disabled:pointer-events-none disabled:opacity-40",
 )
 
@@ -19,7 +21,7 @@ type Option<T extends string> = {
   disabled?: boolean
 }
 
-/** Single-choice pill switch (modes, filters). */
+/** Single-choice pill switch with Animate UI layoutId sliding indicator. */
 export function Segmented<T extends string>({
   value,
   onChange,
@@ -35,9 +37,9 @@ export function Segmented<T extends string>({
   className?: string
   "aria-label": string
 }) {
-  // One preview at a time: the focused option's (after a click) must not
-  // stay open beside the one the pointer moved on to.
   const [peek, setPeek] = useState<T | null>(null)
+  const layoutId = useId()
+
   return (
     <ToggleGroup.Root
       type="single"
@@ -48,8 +50,21 @@ export function Segmented<T extends string>({
       className={cn(track, className)}
     >
       {options.map((o) => {
+        const isSelected = value === o.value
         const button = (
-          <ToggleGroup.Item key={o.value} value={o.value} disabled={o.disabled} className={item}>
+          <ToggleGroup.Item
+            key={o.value}
+            value={o.value}
+            disabled={o.disabled}
+            className={cn(item, isSelected ? "text-fg-1 font-semibold" : "text-fg-2")}
+          >
+            {isSelected && (
+              <motion.div
+                layoutId={`segmented-active-${layoutId}`}
+                transition={SPRING_FAST}
+                className="absolute inset-0 rounded-full bg-white/[0.14] shadow-1 -z-10"
+              />
+            )}
             {o.label}
           </ToggleGroup.Item>
         )
