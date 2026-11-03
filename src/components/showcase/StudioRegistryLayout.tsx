@@ -364,31 +364,29 @@ export function StudioRegistryLayout() {
             ))}
           </div>
 
-          {/* 21st.dev Style Component Card Grid - Refined Compact Scaling */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
+          {/* 21st.dev Style Component Card Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {filtered.map((item) => (
               <div
                 key={item.id}
-                className="group relative flex flex-col rounded-xl border border-white/[0.08] bg-[#0c0c0f] hover:border-white/20 transition-all duration-200 overflow-hidden shadow-lg"
+                className="group relative flex flex-col rounded-2xl border border-white/[0.08] bg-[#0c0c0f] hover:border-white/20 transition-all duration-300 overflow-hidden shadow-xl"
               >
                 {/* Visual Stage */}
-                <div className="relative h-44 w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/[0.04] via-transparent to-transparent flex items-center justify-center p-5 border-b border-white/[0.06] overflow-hidden">
-                  <div className="transform transition-transform duration-200 group-hover:scale-[1.02]">
-                    {item.component}
-                  </div>
+                <div className="relative aspect-[4/3] w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/[0.04] via-transparent to-transparent flex items-center justify-center p-8 border-b border-white/[0.06]">
+                  {item.component}
                 </div>
 
                 {/* Card Info Footer */}
-                <div className="p-3.5 flex flex-col gap-1 bg-[#0c0c0f]">
+                <div className="p-4 flex flex-col gap-1.5 bg-[#0c0c0f]">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-semibold text-fg-1 group-hover:text-accent transition-colors truncate">
+                    <h3 className="text-sm font-semibold text-fg-1 group-hover:text-accent transition-colors">
                       {item.title}
                     </h3>
-                    <Badge tone="neutral" className="text-[9px] h-3.5 px-1.5 shrink-0">
+                    <Badge tone="neutral" className="text-[10px] h-4 px-1.5">
                       {item.category}
                     </Badge>
                   </div>
-                  <p className="text-[11px] text-fg-3 line-clamp-1">{item.description}</p>
+                  <p className="text-xs text-fg-3 line-clamp-1">{item.description}</p>
                 </div>
               </div>
             ))}
