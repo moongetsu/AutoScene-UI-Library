@@ -1,20 +1,19 @@
-import { Play, DownloadSimple, Trash, CircleNotch, Plus } from "@/components/icons"
+import { Play, DownloadSimple, Trash, Plus } from "@/components/icons"
 import { Button } from "@/components/ui/button"
+import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
-const VARIANTS = ["primary", "accent", "secondary", "glass", "ghost", "danger"] as const
 const SIZES = ["lg", "md", "sm"] as const
 const ICON_SIZES = ["icon-lg", "icon", "icon-sm"] as const
 
 export function ButtonsShowcase() {
   return (
-    <div className="flex flex-col gap-10">
-      <div>
-        <h2 className="text-2xl font-bold text-white tracking-tight">Buttons & Pills</h2>
-        <p className="text-fg-2 mt-1 text-sm">
-          Glassmorphic pill buttons crafted with CVA, backdrop-blur, subtle inner specular borders, and spring press states.
-        </p>
-      </div>
+    <div className="flex flex-col gap-8">
+      <ShowcasePageHeader
+        title="Buttons & Pills"
+        description="Glassmorphic pill buttons crafted with CVA, backdrop-blur, subtle inner specular borders, and spring press states."
+        importPath='import { Button } from "@/components/ui/button"'
+      />
 
       {/* 1. Variants Matrix */}
       <ShowcaseSectionStage
