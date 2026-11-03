@@ -206,8 +206,6 @@ export function IconsShowcase() {
     lg: "size-6",
   }[size]
 
-  const hasActiveFilters = selectedCategory !== "All" || weight !== "regular" || search.trim().length > 0
-
   const resetFilters = () => {
     setSelectedCategory("All")
     setWeight("regular")
@@ -291,6 +289,7 @@ export function IconsShowcase() {
 
             {/* Copy Format Segmented Pill */}
             <Segmented
+              aria-label="Copy Format"
               value={copyFormat}
               onChange={(val) => setCopyFormat(val as CopyFormat)}
               options={[

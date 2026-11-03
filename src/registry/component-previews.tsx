@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Play, Plus, DownloadSimple, Trash, FilmStrip, Check, Info } from "@/components/icons"
+import { Play } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
@@ -12,9 +12,6 @@ import { Progress } from "@/components/ui/progress"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Select } from "@/components/ui/select"
 import { Tooltip, TooltipProvider } from "@/components/ui/tooltip"
-import { Artwork } from "@/components/ui/artwork"
-import { EmptyState } from "@/components/ui/empty-state"
-import { ErrorState } from "@/components/ui/error-state"
 import { toast, notify, CleanToastCapsule } from "@/components/ui/toaster"
 
 export interface ComponentCardData {
@@ -68,8 +65,9 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
         <span className="font-mono text-fg-1">{h?.demoSlider ?? 85}%</span>
       </div>
       <Slider
-        value={[h?.demoSlider ?? 85]}
-        onValueChange={(val) => h?.setDemoSlider?.(val[0])}
+        label="Master Volume"
+        value={h?.demoSlider ?? 85}
+        onChange={(val: number) => h?.setDemoSlider?.(val)}
         max={100}
         step={1}
       />
@@ -78,6 +76,7 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
   segmented: (h) => (
     <div className="flex flex-col items-center gap-2">
       <Segmented
+        aria-label="Navigation Tabs"
         value={h?.demoTab ?? "cast"}
         onChange={(v) => h?.setDemoTab?.(v)}
         options={[
@@ -173,7 +172,7 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
   ),
   tooltip: () => (
     <TooltipProvider>
-      <Tooltip content="Split playhead at cursor (S)">
+      <Tooltip label="Split playhead at cursor (S)">
         <Button variant="secondary" size="sm">
           Hover for Tooltip
         </Button>
@@ -288,7 +287,7 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
 /**
  * Returns a fallback interactive demo for any newly discovered component
  */
-export function getFallbackComponentPreview(id: string, name: string): React.ReactNode {
+export function getFallbackComponentPreview(_id: string, name: string): React.ReactNode {
   return (
     <div className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/[0.06] bg-white/[0.02] text-center gap-2">
       <span className="text-xs font-medium text-fg-2">{name} Component</span>

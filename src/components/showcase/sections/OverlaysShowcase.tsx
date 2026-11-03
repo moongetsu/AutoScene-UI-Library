@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { toast, notify, CleanToastCapsule } from "@/components/ui/toaster"
+import { toast, CleanToastCapsule } from "@/components/ui/toaster"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 

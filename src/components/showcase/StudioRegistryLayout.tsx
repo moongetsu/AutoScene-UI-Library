@@ -3,27 +3,13 @@ import {
   MagnifyingGlass,
   Copy,
   Check,
-  GithubLogo,
-  Play,
-  DotsThree,
-  Trash,
-  DownloadSimple,
-  FilmStrip,
-  Plus,
   Link as LinkIcon,
 } from "@/components/icons"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { FilterBar } from "@/components/ui/filter-bar"
-import { Switch } from "@/components/ui/switch"
-import { Slider } from "@/components/ui/slider"
-import { Segmented } from "@/components/ui/segmented"
-import { Kbd } from "@/components/ui/kbd"
 import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
 import { TopNavbar } from "./TopNavbar"
 import { ShowcaseCommandPalette } from "./ShowcaseCommandPalette"
-import { toast, notify } from "@/components/ui/toaster"
+import { notify } from "@/components/ui/toaster"
 import { motion } from "motion/react"
 import { SPRING_FAST } from "@/lib/motion"
 import { cn } from "@/lib/utils"

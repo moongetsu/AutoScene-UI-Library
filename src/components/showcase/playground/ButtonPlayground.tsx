@@ -9,14 +9,12 @@ import {
   SlidersHorizontal,
   Image,
   SquaresFour,
-  Circle,
   TerminalWindow,
 } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
-import { Segmented } from "@/components/ui/segmented"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { cn } from "@/lib/utils"
 

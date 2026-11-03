@@ -1,6 +1,6 @@
 import * as React from "react"
 import { GithubLogo, MagnifyingGlass, Check, List, X } from "@phosphor-icons/react"
-import { motion, AnimatePresence } from "motion/react"
+import { motion } from "motion/react"
 import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"

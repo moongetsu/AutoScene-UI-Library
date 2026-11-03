@@ -80,6 +80,8 @@ export function ContextMenuCheckboxItem({
   )
 }
 
+export const ContextMenu = M.Root
+export const ContextMenuTrigger = M.Trigger
 export const ContextMenuRadioGroup = M.RadioGroup
 
 /** One choice of a `ContextMenuRadioGroup`. */

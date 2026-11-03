@@ -10,8 +10,6 @@ import {
   Cards,
   Sidebar,
   Palette,
-  SlidersHorizontal,
-  VideoCamera,
 } from "@phosphor-icons/react"
 
 export interface ShowcaseSectionMeta {

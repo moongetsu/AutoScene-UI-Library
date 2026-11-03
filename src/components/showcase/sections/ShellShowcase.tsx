@@ -1,4 +1,4 @@
-import { MagnifyingGlass, GearSix, Play, Clock } from "@/components/icons"
+import { GearSix, Play, Clock } from "@/components/icons"
 import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"

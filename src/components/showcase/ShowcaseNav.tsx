@@ -1,15 +1,5 @@
 import * as React from "react"
 import {
-  CursorClick,
-  Tag,
-  Square,
-  ToggleLeft,
-  CircleNotch,
-  ChatCircle,
-  Image,
-  Cards,
-  Sidebar,
-  Palette,
   SlidersHorizontal,
   VideoCamera,
   MagnifyingGlass,
@@ -47,9 +37,6 @@ export function ShowcaseNav({ activeSection, onSelect, isOpen, onClose }: Showca
   const filteredItems = filter.trim()
     ? NAV_ITEMS.filter((i) => i.label.toLowerCase().includes(filter.toLowerCase()) || i.group.toLowerCase().includes(filter.toLowerCase()))
     : NAV_ITEMS
-
-  // Sum of all component primitives/variants documented across the sections
-  const totalComponentVariants = filteredItems.reduce((sum, item) => sum + (item.count ?? 1), 0)
 
   const handleSelect = (id: ShowcaseSectionId) => {
     onSelect(id)
