@@ -252,15 +252,15 @@ export function StudioRegistryLayout() {
       {/* Main 21st.dev Style Layout */}
       <div className="flex-1 flex flex-col lg:flex-row">
         {/* Left Hero Sidebar - Sticky on desktop */}
-        <aside className="w-full lg:w-96 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.08] p-8 lg:p-10 flex flex-col justify-between lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
+        <aside className="w-full lg:w-96 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.08] p-5 sm:p-8 lg:p-10 flex flex-col justify-between lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
           <div className="flex flex-col gap-6">
             <div className="flex items-center">
-              <AutoSceneMark bare className="size-16" />
+              <AutoSceneMark bare className="size-12 sm:size-16" />
             </div>
 
             <div>
-              <h1 className="text-3xl font-extrabold text-white tracking-tight">AutoScene UI</h1>
-              <p className="mt-3 text-sm text-fg-2 leading-relaxed">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">AutoScene UI</h1>
+              <p className="mt-2.5 sm:mt-3 text-xs sm:text-sm text-fg-2 leading-relaxed">
                 A collection of components, blocks, and templates for building clean video editing and creative tools. Built on Radix UI, CVA, and Tailwind CSS.
               </p>
             </div>
@@ -355,9 +355,20 @@ export function StudioRegistryLayout() {
         </aside>
 
         {/* Right Gallery Grid */}
-        <main className="flex-1 p-6 lg:p-10 flex flex-col gap-6">
+        <main className="flex-1 p-4 sm:p-6 lg:p-10 flex flex-col gap-6">
+          {/* Mobile Search Bar (visible on mobile where top nav hides search) */}
+          <div className="relative w-full md:hidden">
+            <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-3 pointer-events-none" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search components..."
+              className="w-full h-10 rounded-xl border border-white/[0.08] bg-white/[0.03] pl-10 pr-4 text-xs text-fg-1 placeholder:text-fg-3 focus:outline-none focus:border-accent/60 transition-colors"
+            />
+          </div>
+
           {/* Category Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
             {categories.map((cat) => (
               <button
                 key={cat}

@@ -117,13 +117,13 @@ export function ShowcaseSectionStage({
       )}
     >
       {/* Header bar */}
-      <div className="flex items-center justify-between px-6 py-3.5 border-b border-white/[0.06] bg-white/[0.015]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3.5 border-b border-white/[0.06] bg-white/[0.015]">
         <div>
           <h3 className="text-sm font-semibold text-white tracking-tight">{title}</h3>
           {description && <p className="text-xs text-fg-3 mt-0.5">{description}</p>}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 self-end sm:self-auto">
           {/* Always-visible permanent Copy button when code exists */}
           {code && (
             <button
@@ -187,7 +187,7 @@ export function ShowcaseSectionStage({
 
       {/* Body Stage */}
       {tab === "preview" ? (
-        <div className="relative min-h-[150px] p-8 flex flex-wrap items-center justify-center gap-4 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/[0.03] via-transparent to-transparent">
+        <div className="relative min-h-[150px] p-4 sm:p-8 flex flex-wrap items-center justify-center gap-4 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/[0.03] via-transparent to-transparent">
           {children}
         </div>
       ) : (

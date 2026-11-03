@@ -49,6 +49,7 @@ export {
   Info,
   Keyboard,
   Link,
+  List,
   ListBullets,
   ListNumbers,
   MagnifyingGlass,

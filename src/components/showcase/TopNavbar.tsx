@@ -1,5 +1,5 @@
 import * as React from "react"
-import { GithubLogo, MagnifyingGlass, Check, Copy } from "@phosphor-icons/react"
+import { GithubLogo, MagnifyingGlass, Check, Copy, List, X } from "@phosphor-icons/react"
 import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -10,6 +10,8 @@ interface TopNavbarProps {
   searchValue?: string
   onSearchChange?: (val: string) => void
   searchPlaceholder?: string
+  onToggleMobileNav?: () => void
+  isMobileNavOpen?: boolean
 }
 
 export function TopNavbar({
@@ -18,6 +20,8 @@ export function TopNavbar({
   searchValue,
   onSearchChange,
   searchPlaceholder = "Search components, primitives... (⌘K)",
+  onToggleMobileNav,
+  isMobileNavOpen,
 }: TopNavbarProps) {
   const [copied, setCopied] = React.useState(false)
 
@@ -28,13 +32,24 @@ export function TopNavbar({
   }
 
   return (
-    <header className="sticky top-0 z-50 h-16 border-b border-white/[0.08] bg-[#070709]/85 backdrop-blur-xl px-6 lg:px-8 flex items-center justify-between">
-      {/* Left: Brand + Version + Dynamic Breadcrumb */}
-      <div className="flex items-center gap-3">
-        <a href="#/" className="flex items-center gap-2.5 group">
-          <AutoSceneMark bare className="size-6 transition-transform group-hover:scale-105" />
-          <span className="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
-            AutoScene <span className="text-[11px] px-1.5 py-0.5 rounded-md bg-accent/15 text-accent font-mono font-medium">UI</span>
+    <header className="sticky top-0 z-50 h-16 border-b border-white/[0.08] bg-[#070709]/85 backdrop-blur-xl px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      {/* Left: Mobile Nav Toggle + Brand + Version + Dynamic Breadcrumb */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        {onToggleMobileNav && (
+          <button
+            type="button"
+            onClick={onToggleMobileNav}
+            className="lg:hidden size-9 rounded-lg flex items-center justify-center text-fg-2 hover:text-white hover:bg-white/[0.06] transition-colors -ml-1 cursor-pointer"
+            aria-label="Toggle navigation menu"
+          >
+            {isMobileNavOpen ? <X className="size-5" /> : <List className="size-5" />}
+          </button>
+        )}
+
+        <a href="#/" className="flex items-center gap-2 sm:gap-2.5 group">
+          <AutoSceneMark bare className="size-5 sm:size-6 transition-transform group-hover:scale-105" />
+          <span className="font-bold text-sm sm:text-base tracking-tight text-white flex items-center gap-1.5">
+            AutoScene <span className="text-[10px] sm:text-[11px] px-1.5 py-0.5 rounded-md bg-accent/15 text-accent font-mono font-medium">UI</span>
           </span>
         </a>
 
@@ -67,13 +82,13 @@ export function TopNavbar({
       </div>
 
       {/* Right: Switcher + GitHub + Get Started Button */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Registry vs Showcase Toggle */}
         <div className="flex items-center gap-1 rounded-full bg-white/[0.04] p-1 border border-white/[0.08]">
           <a
             href="#/"
             className={cn(
-              "text-xs px-3.5 py-1.5 rounded-full transition-all",
+              "text-[11px] sm:text-xs px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full transition-all",
               activeView === "registry"
                 ? "bg-white/[0.1] text-white font-semibold shadow-sm"
                 : "text-fg-2 hover:text-white"
@@ -84,7 +99,7 @@ export function TopNavbar({
           <a
             href="#/showcase"
             className={cn(
-              "text-xs px-3.5 py-1.5 rounded-full transition-all",
+              "text-[11px] sm:text-xs px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full transition-all",
               activeView === "showcase"
                 ? "bg-white/[0.1] text-white font-semibold shadow-sm"
                 : "text-fg-2 hover:text-white"
@@ -98,6 +113,28 @@ export function TopNavbar({
         <a
           href="https://github.com/moongetsu/AutoScene-UI-Library"
           target="_blank"
+          rel="noreferrer"
+          className="size-8 rounded-lg flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.04] transition-colors"
+          aria-label="GitHub Repository"
+        >
+          <GithubLogo className="size-4 sm:size-5" />
+        </a>
+
+        {/* CLI Copy / CTA Button */}
+        <Button variant="primary" size="sm" onClick={copyCli} className="text-xs px-2.5 sm:px-3.5">
+          {copied ? (
+            <>
+              <Check className="size-3.5 text-accent mr-1 animate-pop-in" />
+              <span>Copied</span>
+            </>
+          ) : (
+            <span>Get Started</span>
+          )}
+        </Button>
+      </div>
+    </header>
+  )
+}
           rel="noreferrer"
           className="size-8 rounded-lg flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.04] transition-colors"
           aria-label="GitHub Repository"

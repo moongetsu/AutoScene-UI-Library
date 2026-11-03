@@ -34,6 +34,8 @@ export type ShowcaseSectionId =
 interface ShowcaseNavProps {
   activeSection: ShowcaseSectionId
   onSelect: (id: ShowcaseSectionId) => void
+  isOpen?: boolean
+  onClose?: () => void
 }
 
 const NAV_ITEMS: { id: ShowcaseSectionId; label: string; icon: React.ReactNode; group: string; count?: number }[] = [
@@ -56,7 +58,7 @@ const NAV_ITEMS: { id: ShowcaseSectionId; label: string; icon: React.ReactNode; 
   { id: "record", label: "Animation Target", icon: <VideoCamera className="size-4" />, group: "Tools" },
 ]
 
-export function ShowcaseNav({ activeSection, onSelect }: ShowcaseNavProps) {
+export function ShowcaseNav({ activeSection, onSelect, isOpen, onClose }: ShowcaseNavProps) {
   const [filter, setFilter] = React.useState("")
   const groups = Array.from(new Set(NAV_ITEMS.map((item) => item.group)))
 
@@ -64,8 +66,29 @@ export function ShowcaseNav({ activeSection, onSelect }: ShowcaseNavProps) {
     ? NAV_ITEMS.filter((i) => i.label.toLowerCase().includes(filter.toLowerCase()) || i.group.toLowerCase().includes(filter.toLowerCase()))
     : NAV_ITEMS
 
+  const handleSelect = (id: ShowcaseSectionId) => {
+    onSelect(id)
+    onClose?.()
+  }
+
   return (
-    <nav className="w-full lg:w-72 shrink-0 border-b lg:border-b-0 lg:border-r border-white/[0.08] bg-[#09090c]/80 backdrop-blur-xl flex flex-col justify-between select-none lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
+    <>
+      {/* Mobile Drawer Backdrop */}
+      {isOpen && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden transition-opacity"
+        />
+      )}
+
+      <nav
+        className={cn(
+          "shrink-0 border-r border-white/[0.08] bg-[#09090c] lg:bg-[#09090c]/80 backdrop-blur-xl flex flex-col justify-between select-none transition-transform duration-300 ease-out z-50",
+          // Mobile: Off-canvas fixed drawer
+          "fixed top-16 bottom-0 left-0 w-72 max-w-[85vw] overflow-y-auto lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:translate-x-0 scrollbar-thin scrollbar-thumb-white/10",
+          isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
+        )}
+      >
       <div className="p-5 flex flex-col gap-4">
         {/* Simple Directory Header */}
         <div className="flex items-center justify-between px-1">
@@ -104,7 +127,7 @@ export function ShowcaseNav({ activeSection, onSelect }: ShowcaseNavProps) {
                       <button
                         key={item.id}
                         type="button"
-                        onClick={() => onSelect(item.id)}
+                        onClick={() => handleSelect(item.id)}
                         className={cn(
                           "group relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer",
                           active
@@ -214,5 +237,7 @@ export function ShowcaseNav({ activeSection, onSelect }: ShowcaseNavProps) {
         </a>
       </div>
     </nav>
+    </>
+  )
   )
 }

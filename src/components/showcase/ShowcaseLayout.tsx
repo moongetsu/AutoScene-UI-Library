@@ -32,6 +32,7 @@ const SECTION_LABELS: Record<ShowcaseSectionId, string> = {
 export function ShowcaseLayout() {
   const [active, setActive] = React.useState<ShowcaseSectionId>("buttons")
   const [search, setSearch] = React.useState("")
+  const [mobileNavOpen, setMobileNavOpen] = React.useState(false)
 
   return (
     <div className="min-h-screen bg-[#070709] text-fg-1 flex flex-col font-sans selection:bg-accent/30 selection:text-white">
@@ -42,15 +43,22 @@ export function ShowcaseLayout() {
         searchValue={search}
         onSearchChange={setSearch}
         searchPlaceholder="Filter studio showcase... (⌘K)"
+        isMobileNavOpen={mobileNavOpen}
+        onToggleMobileNav={() => setMobileNavOpen(!mobileNavOpen)}
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Navigation Sidebar */}
-        <ShowcaseNav activeSection={active} onSelect={setActive} />
+      <div className="flex-1 flex flex-col lg:flex-row relative">
+        {/* Navigation Sidebar (Slide-out drawer on mobile, sticky sidebar on desktop) */}
+        <ShowcaseNav
+          activeSection={active}
+          onSelect={setActive}
+          isOpen={mobileNavOpen}
+          onClose={() => setMobileNavOpen(false)}
+        />
 
         {/* Content Viewer Stage */}
-        <main className="flex-1 p-6 lg:p-12 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-12 overflow-y-auto">
           <div className="max-w-4xl mx-auto pb-24">
             {active === "buttons" && <ButtonsShowcase />}
             {active === "badges" && <BadgesShowcase />}
