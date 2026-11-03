@@ -110,28 +110,42 @@ export function IconsShowcase() {
               <motion.button
                 key={name}
                 type="button"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => copyIconCode(name)}
-                className="group relative flex flex-col items-center justify-center gap-2.5 p-4 rounded-xl border border-white/[0.06] bg-[#0c0c10]/60 hover:bg-white/[0.04] hover:border-accent/40 transition-colors cursor-pointer text-fg-2 hover:text-white"
+                className={`group relative flex flex-col items-center justify-center h-28 p-3 rounded-2xl border transition-all duration-200 cursor-pointer overflow-hidden ${
+                  isCopied
+                    ? "border-accent bg-accent/[0.08] shadow-[0_0_24px_rgba(245,165,36,0.15)]"
+                    : "border-white/[0.07] bg-[#0c0c10]/70 hover:border-white/20 hover:bg-white/[0.03]"
+                }`}
                 title={`Copy <${name} />`}
               >
-                {/* Rendered Icon */}
-                <div className="size-10 rounded-lg flex items-center justify-center bg-white/[0.02] border border-white/[0.04] group-hover:border-accent/30 group-hover:bg-accent/[0.08] transition-colors">
-                  <Component className={`${iconSizeClass} transition-transform group-hover:scale-110 text-current group-hover:text-accent`} weight={weight} />
+                {/* Center Icon presentation with smooth swap on copied */}
+                <div className="relative flex items-center justify-center size-11 rounded-xl">
+                  {isCopied ? (
+                    <motion.div
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="size-9 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-accent"
+                    >
+                      <Check className="size-4" weight="bold" />
+                    </motion.div>
+                  ) : (
+                    <Component
+                      className={`${iconSizeClass} transition-transform duration-200 group-hover:scale-110 text-fg-2 group-hover:text-white`}
+                      weight={weight}
+                    />
+                  )}
                 </div>
 
-                {/* Name Label */}
-                <span className="text-[11px] font-mono truncate max-w-full text-fg-3 group-hover:text-white transition-colors">
-                  {name}
+                {/* Name Label or Copied feedback */}
+                <span
+                  className={`mt-1 text-[11px] font-mono tracking-tight truncate max-w-full transition-colors ${
+                    isCopied ? "text-accent font-medium" : "text-fg-3 group-hover:text-fg-1"
+                  }`}
+                >
+                  {isCopied ? "Copied" : name}
                 </span>
-
-                {/* Copied indicator pill */}
-                {isCopied && (
-                  <span className="absolute top-2 right-2 flex items-center gap-1 text-[9px] font-mono text-accent bg-[#121118]/95 px-2 py-0.5 rounded-full border border-accent/40 shadow-lg shadow-black/60 pointer-events-none z-10">
-                    <Check className="size-2.5" /> Copied
-                  </span>
-                )}
               </motion.button>
             )
           })}
