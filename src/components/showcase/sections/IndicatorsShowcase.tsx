@@ -2,6 +2,7 @@ import { Progress } from "@/components/ui/progress"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ErrorState } from "@/components/ui/error-state"
 import { Kbd } from "@/components/ui/kbd"
+import { Skeleton } from "@/components/ui/skeleton"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
@@ -11,7 +12,7 @@ export function IndicatorsShowcase() {
       <ShowcasePageHeader
         title="Status & Progress"
         description="Progress bars, keyboard shortcuts, and empty states."
-        importPath='import { Progress, Kbd, EmptyState } from "@moongetsu/autoscene-ui"'
+        importPath='import { Progress, Skeleton, Kbd, EmptyState } from "@moongetsu/autoscene-ui"'
       />
 
       {/* 1. Progress */}
@@ -91,6 +92,42 @@ export function IndicatorsShowcase() {
             title="No scenes detected"
             description="Drop an MP4 video or select an episode file to begin cutting."
           />
+        </div>
+      </ShowcaseSectionStage>
+
+      {/* 4. Skeleton Shimmer Loaders */}
+      <ShowcaseSectionStage
+        title="Shimmer Skeletons"
+        description="Specular sweep loading placeholders for media grids, actor profiles, and timeline feeds."
+        code={`import { Skeleton } from "@moongetsu/autoscene-ui"
+
+{/* Media Card Placeholder */}
+<div className="w-64 rounded-xl border border-white/[0.08] bg-panel p-3.5 flex flex-col gap-3">
+  <Skeleton className="aspect-video w-full rounded-lg" />
+  <div className="flex flex-col gap-1.5">
+    <Skeleton className="h-4 w-3/4" />
+    <Skeleton className="h-3 w-1/2" />
+  </div>
+</div>`}
+      >
+        <div className="flex flex-wrap gap-6 items-center justify-center">
+          {/* Card skeleton */}
+          <div className="w-56 rounded-xl border border-white/[0.08] bg-[#0c0c0f] p-3 flex flex-col gap-3">
+            <Skeleton className="aspect-video w-full rounded-lg" />
+            <div className="flex flex-col gap-1.5">
+              <Skeleton className="h-3.5 w-3/4" />
+              <Skeleton className="h-2.5 w-1/2" />
+            </div>
+          </div>
+
+          {/* Avatar row skeleton */}
+          <div className="flex items-center gap-3 p-3 rounded-xl border border-white/[0.08] bg-[#0c0c0f]">
+            <Skeleton className="size-10 rounded-full" />
+            <div className="flex flex-col gap-1.5">
+              <Skeleton className="h-3.5 w-24" />
+              <Skeleton className="h-2.5 w-16" />
+            </div>
+          </div>
         </div>
       </ShowcaseSectionStage>
     </div>
