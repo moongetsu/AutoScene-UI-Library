@@ -26,3 +26,4 @@ export function Skeleton({ className, shimmer = true, ...props }: SkeletonProps)
     />
   )
 }
+
