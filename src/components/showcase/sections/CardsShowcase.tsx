@@ -9,7 +9,7 @@ export function CardsShowcase() {
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
         title="Composite Cards"
-        description="Production cards combining artwork, status pills, meta labels, and contextual menus for media items."
+        description="Cards for character profiles, exports, and video clips."
         importPath='import { Card } from "@/components/ui/card"'
       />
 

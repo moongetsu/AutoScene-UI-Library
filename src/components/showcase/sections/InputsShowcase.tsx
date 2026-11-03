@@ -11,7 +11,7 @@ export function InputsShowcase() {
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
         title="Inputs & Search"
-        description="Dark glass form inputs with subtle specular borders, crisp placeholder styling, and responsive focus outlines."
+        description="Text inputs and search bars with focus borders."
         importPath='import { Input } from "@/components/ui/input"'
       />
 

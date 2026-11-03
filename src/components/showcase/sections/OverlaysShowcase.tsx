@@ -17,7 +17,7 @@ export function OverlaysShowcase() {
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
         title="Overlays & Menus"
-        description="Floating context tooltips, glass dropdown menus, and interactive toast notifications powered by Radix and Sonner."
+        description="Tooltips, dropdown menus, and toast notifications."
         importPath='import { Tooltip, DropdownMenu } from "@/components/ui/..."'
       />
 

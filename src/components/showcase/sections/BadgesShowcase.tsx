@@ -6,8 +6,8 @@ export function BadgesShowcase() {
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
-        title="Badges & Status Tags"
-        description="Pill tags and status indicators used across episodes, exports, and clip verifications."
+        title="Badges & Tags"
+        description="Tags and status badges for clips, episodes, and export states."
         importPath='import { Badge } from "@/components/ui/badge"'
       />
 

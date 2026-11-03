@@ -27,8 +27,8 @@ export function TokensShowcase() {
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
-        title="Design Tokens"
-        description="AutoScene cinematic design tokens: near-black theatre surfaces, warm white typography, and gold accent speculars."
+        title="Colors & Tokens"
+        description="Dark background surfaces, gray text hierarchy, and brand gold accents."
         importPath='@import "@/styles/tokens.css";'
       />
 

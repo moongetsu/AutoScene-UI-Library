@@ -8,7 +8,7 @@ export function MediaShowcase() {
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
         title="Media & Artwork"
-        description="Artwork frames, responsive aspect-ratio wrappers, and cinematic hero display headers."
+        description="Image containers, aspect ratio frames, and hero headers."
         importPath='import { Hero } from "@/components/ui/hero"'
       />
 

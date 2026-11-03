@@ -11,7 +11,7 @@ export function ButtonsShowcase() {
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
         title="Buttons & Pills"
-        description="Glassmorphic pill buttons crafted with CVA, backdrop-blur, subtle inner specular borders, and spring press states."
+        description="Buttons with glass backgrounds, border highlights, and click animations."
         importPath='import { Button } from "@/components/ui/button"'
       />
 

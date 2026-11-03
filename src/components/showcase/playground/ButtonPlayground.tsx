@@ -217,8 +217,8 @@ export function ButtonPlayground() {
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
-        title="Interactive Studio Playground"
-        description="Fine-tune live visual parameters, test against video footage, and copy dynamically generated TSX."
+        title="Playground"
+        description="Change button properties, test on different backgrounds, and copy the React code."
         importPath='import { Button } from "@/components/ui/button"'
       />
 

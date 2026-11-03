@@ -9,8 +9,8 @@ export function IndicatorsShowcase() {
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
-        title="Indicators & System States"
-        description="Linear progress bars, shortcut keycaps, empty placeholders, and fault states designed for background pipelines."
+        title="Status & Progress"
+        description="Progress bars, keyboard shortcuts, and empty states."
         importPath='import { Progress, Kbd, EmptyState } from "@/components/ui/..."'
       />
 

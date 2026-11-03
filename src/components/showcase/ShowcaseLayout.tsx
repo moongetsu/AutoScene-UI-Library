@@ -19,13 +19,13 @@ const SECTION_LABELS: Record<ShowcaseSectionId, string> = {
   badges: "Badges & Tags",
   inputs: "Inputs & Search",
   toggles: "Toggles & Sliders",
-  indicators: "Indicators & Status",
+  indicators: "Status & Progress",
   overlays: "Overlays & Menus",
   media: "Media & Artwork",
   cards: "Composite Cards",
   shell: "Shell & Headers",
-  tokens: "Design Tokens",
-  playground: "Live Playground",
+  tokens: "Colors & Tokens",
+  playground: "Playground",
   record: "Animation Target",
 }
 

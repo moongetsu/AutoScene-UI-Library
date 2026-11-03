@@ -13,8 +13,8 @@ export function TogglesShowcase() {
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
-        title="Toggles & Segmented Controls"
-        description="Spring-animated switches, tactile range sliders, and sliding pill tabs built for interactive studio settings."
+        title="Toggles & Sliders"
+        description="Switches, range sliders, and sliding tab buttons."
         importPath='import { Switch, Segmented, Slider } from "@/components/ui/..."'
       />
 

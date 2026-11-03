@@ -7,8 +7,8 @@ export function ShellShowcase() {
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
-        title="Shell & Navigation Rail"
-        description="Window chrome, vertical navigation rail, brand marks, and app shell surfaces."
+        title="Shell & Headers"
+        description="Navigation rails, brand logos, and app shell headers."
         importPath='import { AutoSceneMark } from "@/components/brand/AutoSceneMark"'
       />
 
