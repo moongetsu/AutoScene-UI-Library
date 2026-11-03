@@ -36,6 +36,12 @@ export function StudioRegistryLayout() {
   const [search, setSearch] = React.useState("")
   const [selectedCategory, setSelectedCategory] = React.useState("All")
 
+  // Interactive state for live demo components
+  const [demoTab, setDemoTab] = React.useState("cast")
+  const [demoSwitch, setDemoSwitch] = React.useState(true)
+  const [demoSlider, setDemoSlider] = React.useState(85)
+  const [demoInput, setDemoInput] = React.useState("")
+
   const copyCli = () => {
     navigator.clipboard.writeText("npx @moongetsu/autoscene-ui add")
     setCopied(true)
@@ -57,7 +63,7 @@ export function StudioRegistryLayout() {
       category: "Buttons",
       description: "White glassmorphic CTA pill with inner specular glow and spring depression.",
       component: (
-        <Button variant="primary" size="md">
+        <Button variant="primary" size="md" onClick={() => toast.success("Built scene pack")}>
           <Play weight="fill" className="size-4" /> Build a scenepack
         </Button>
       ),
@@ -68,7 +74,7 @@ export function StudioRegistryLayout() {
       category: "Buttons",
       description: "AutoScene brand gold with subtle backdrop glow for focal actions.",
       component: (
-        <Button variant="accent" size="md">
+        <Button variant="accent" size="md" onClick={() => toast("Filtered vocals")}>
           <Plus weight="bold" className="size-4 text-accent" /> Filter Vocals
         </Button>
       ),
@@ -79,7 +85,7 @@ export function StudioRegistryLayout() {
       category: "Buttons",
       description: "Translucent backdrop pill designed to float over media footage.",
       component: (
-        <Button variant="glass" size="md">
+        <Button variant="glass" size="md" onClick={() => toast("Saved EDL file")}>
           <DownloadSimple className="size-4" /> Save EDL
         </Button>
       ),
@@ -90,7 +96,7 @@ export function StudioRegistryLayout() {
       category: "Buttons",
       description: "Muted crimson border with red glow hover for deletions.",
       component: (
-        <Button variant="danger" size="sm">
+        <Button variant="danger" size="sm" onClick={() => toast.error("Media removed")}>
           <Trash className="size-3.5" /> Remove Media
         </Button>
       ),
@@ -101,16 +107,19 @@ export function StudioRegistryLayout() {
       category: "Toggles",
       description: "Spring-animated sliding tab switcher with zero latency.",
       component: (
-        <div className="w-56">
+        <div className="flex flex-col items-center gap-2">
           <Segmented
             aria-label="Filter"
-            value="cast"
-            onChange={() => {}}
+            value={demoTab}
+            onChange={(val) => setDemoTab(val)}
             options={[
               { value: "episodes", label: "Episodes" },
               { value: "cast", label: "Cast" },
             ]}
           />
+          <span className="text-[11px] font-mono text-fg-3">
+            Active: <span className="text-accent">{demoTab}</span>
+          </span>
         </div>
       ),
     },
@@ -120,10 +129,16 @@ export function StudioRegistryLayout() {
       category: "Toggles",
       description: "High-contrast boolean switch with fluid thumb easing.",
       component: (
-        <div className="flex items-center gap-3">
+        <label className="flex items-center gap-3 cursor-pointer select-none">
           <span className="text-xs text-fg-2">Hardware Acceleration</span>
-          <Switch checked={true} onCheckedChange={() => {}} />
-        </div>
+          <Switch
+            checked={demoSwitch}
+            onCheckedChange={(checked) => {
+              setDemoSwitch(checked)
+              toast(checked ? "Hardware acceleration enabled" : "Hardware acceleration disabled")
+            }}
+          />
+        </label>
       ),
     },
     {
@@ -132,12 +147,20 @@ export function StudioRegistryLayout() {
       category: "Toggles",
       description: "Glass track slider with instant drag feedback and percentage chip.",
       component: (
-        <div className="w-48 flex flex-col gap-1.5">
-          <div className="flex justify-between text-[11px] text-fg-3">
+        <div className="w-52 flex flex-col gap-2">
+          <div className="flex justify-between text-xs text-fg-2">
             <span>Threshold</span>
-            <span className="font-mono text-accent">85%</span>
+            <span className="font-mono text-accent">{demoSlider}%</span>
           </div>
-          <Slider label="Threshold" value={85} max={100} onChange={() => {}} />
+          <Slider
+            label="Threshold"
+            value={demoSlider}
+            min={0}
+            max={100}
+            step={1}
+            format={(val) => `${val}%`}
+            onChange={(val) => setDemoSlider(val)}
+          />
         </div>
       ),
     },
@@ -148,8 +171,13 @@ export function StudioRegistryLayout() {
       description: "Dark glass input with embedded icon and subtle white focus border.",
       component: (
         <div className="relative w-56">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-fg-3" />
-          <Input className="pl-9 h-8 text-xs" placeholder="Search cast or scenes…" />
+          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-fg-3 pointer-events-none" />
+          <Input
+            value={demoInput}
+            onChange={(e) => setDemoInput(e.target.value)}
+            className="pl-9 h-8 text-xs"
+            placeholder="Search cast or scenes…"
+          />
         </div>
       ),
     },
