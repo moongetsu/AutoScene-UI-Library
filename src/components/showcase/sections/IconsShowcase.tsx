@@ -2,25 +2,18 @@ import * as React from "react"
 import * as Icons from "@/components/icons"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { Segmented } from "@/components/ui/segmented"
+import { FilterBar, type FilterGroup, type SortOption } from "@/components/ui/filter-bar"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import { notify } from "@/components/ui/toaster"
-import {
-  MagnifyingGlass,
-  Check,
-  Funnel,
-  ArrowsDownUp,
-  X,
-  SlidersHorizontal,
-} from "@phosphor-icons/react"
-import { motion, AnimatePresence } from "motion/react"
+import { Check, SlidersHorizontal } from "@phosphor-icons/react"
+import { motion } from "motion/react"
 
 // Category mapping for the 82 curated Phosphor icons in AutoScene
 const ICON_CATEGORIES: Record<string, string[]> = {
@@ -221,6 +214,37 @@ export function IconsShowcase() {
     setSearch("")
   }
 
+  const filterGroups: FilterGroup[] = [
+    {
+      id: "category",
+      label: "Category",
+      options: CATEGORIES.map((cat) => ({
+        value: cat,
+        label: cat,
+        count: cat === "All" ? ICON_LIST.length : ICON_LIST.filter((i) => i.category === cat).length,
+      })),
+    },
+    {
+      id: "weight",
+      label: "Weight",
+      options: [
+        { value: "regular", label: "Regular Line" },
+        { value: "fill", label: "Solid Fill" },
+      ],
+    },
+  ]
+
+  const sortOptions: SortOption[] = [
+    { value: "az", label: "Name: A to Z" },
+    { value: "za", label: "Name: Z to A" },
+    { value: "category", label: "Grouped by Category" },
+  ]
+
+  const handleFilterChange = (groupId: string, val: string) => {
+    if (groupId === "category") setSelectedCategory(val)
+    if (groupId === "weight") setWeight(val as "regular" | "fill")
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <ShowcasePageHeader
@@ -229,106 +253,20 @@ export function IconsShowcase() {
         importPath='import { Play, Scissors, FilmStrip } from "@moongetsu/autoscene-ui/icons"'
       />
 
-      {/* Modern Filter & Sorting Command Bar */}
-      <div className="flex flex-col gap-3 p-3 rounded-2xl border border-white/[0.08] bg-[#0c0c10]/80 backdrop-blur-2xl shadow-2xl">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          {/* Search Input with Keyboard Shortcut Badge */}
-          <div className="relative flex-1 max-w-md">
-            <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-fg-3 pointer-events-none" />
-            <input
-              ref={searchInputRef}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search icons... (press / to focus)"
-              className="w-full h-9 rounded-xl border border-white/[0.08] bg-white/[0.03] pl-10 pr-9 text-xs text-white placeholder:text-fg-3 focus:outline-none focus:border-accent/60 transition-colors"
-            />
-            {search ? (
-              <button
-                type="button"
-                onClick={() => setSearch("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-fg-3 hover:text-white cursor-pointer"
-              >
-                <X className="size-3.5" />
-              </button>
-            ) : (
-              <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex h-4 items-center justify-center rounded border border-white/10 bg-white/[0.05] px-1.5 font-mono text-[10px] text-fg-3 pointer-events-none">
-                /
-              </kbd>
-            )}
-          </div>
-
-          {/* Action Popover Controls (Filter, Sort, Format, Size) */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Filter Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className={`inline-flex items-center gap-2 h-9 px-3 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
-                    selectedCategory !== "All" || weight !== "regular"
-                      ? "border-accent/60 bg-accent/15 text-accent shadow-[0_0_12px_rgba(245,165,36,0.15)]"
-                      : "border-white/[0.08] bg-white/[0.04] text-fg-2 hover:bg-white/[0.07] hover:text-white"
-                  }`}
-                >
-                  <Funnel className="size-3.5" />
-                  <span>Filter</span>
-                  {(selectedCategory !== "All" || weight !== "regular") && (
-                    <span className="size-1.5 rounded-full bg-accent" />
-                  )}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Category</DropdownMenuLabel>
-                <DropdownMenuRadioGroup value={selectedCategory} onValueChange={setSelectedCategory}>
-                  {CATEGORIES.map((cat) => (
-                    <DropdownMenuRadioItem key={cat} value={cat}>
-                      <span className="flex items-center justify-between w-full">
-                        <span>{cat}</span>
-                        <span className="text-[10px] font-mono opacity-60">
-                          {cat === "All" ? ICON_LIST.length : ICON_LIST.filter((i) => i.category === cat).length}
-                        </span>
-                      </span>
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-
-                <DropdownMenuSeparator />
-
-                <DropdownMenuLabel>Weight</DropdownMenuLabel>
-                <DropdownMenuRadioGroup value={weight} onValueChange={(val) => setWeight(val as "regular" | "fill")}>
-                  <DropdownMenuRadioItem value="regular">Regular Line</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="fill">Solid Fill</DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Sort Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className={`inline-flex items-center gap-2 h-9 px-3 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
-                    sortMode !== "az"
-                      ? "border-accent/60 bg-accent/15 text-accent"
-                      : "border-white/[0.08] bg-white/[0.04] text-fg-2 hover:bg-white/[0.07] hover:text-white"
-                  }`}
-                >
-                  <ArrowsDownUp className="size-3.5" />
-                  <span>
-                    {sortMode === "az" ? "Name A–Z" : sortMode === "za" ? "Name Z–A" : "By Category"}
-                  </span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel>Sort Order</DropdownMenuLabel>
-                <DropdownMenuRadioGroup value={sortMode} onValueChange={(val) => setSortMode(val as SortMode)}>
-                  <DropdownMenuRadioItem value="az">Name: A to Z</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="za">Name: Z to A</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="category">Grouped by Category</DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
+      {/* Reusable FilterBar Component */}
+      <FilterBar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search 82 icons... (press / to focus)"
+        filterGroups={filterGroups}
+        selectedFilters={{ category: selectedCategory, weight }}
+        onFilterChange={handleFilterChange}
+        sortOptions={sortOptions}
+        selectedSort={sortMode}
+        onSortChange={(val) => setSortMode(val as SortMode)}
+        onResetFilters={resetFilters}
+        actions={
+          <>
             {/* View Settings: Size Toggle */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -361,71 +299,9 @@ export function IconsShowcase() {
                 { value: "name", label: "Name" },
               ]}
             />
-          </div>
-        </div>
-
-        {/* Active Filter Chips with Smooth AnimatePresence */}
-        <AnimatePresence>
-          {hasActiveFilters && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 450, damping: 30 }}
-              className="flex items-center gap-2 pt-2 border-t border-white/[0.06] overflow-hidden flex-wrap"
-            >
-              <span className="text-[11px] font-mono text-fg-3">Active:</span>
-
-              {selectedCategory !== "All" && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-accent/15 text-accent border border-accent/30">
-                  Category: {selectedCategory}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedCategory("All")}
-                    className="hover:opacity-75 cursor-pointer"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </span>
-              )}
-
-              {weight !== "regular" && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-accent/15 text-accent border border-accent/30">
-                  Weight: Solid Fill
-                  <button
-                    type="button"
-                    onClick={() => setWeight("regular")}
-                    className="hover:opacity-75 cursor-pointer"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </span>
-              )}
-
-              {search.trim() && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/[0.08] text-white border border-white/10">
-                  Query: "{search}"
-                  <button
-                    type="button"
-                    onClick={() => setSearch("")}
-                    className="hover:opacity-75 cursor-pointer"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </span>
-              )}
-
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="text-[11px] font-mono text-fg-3 hover:text-accent ml-auto cursor-pointer transition-colors"
-              >
-                Reset all
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          </>
+        }
+      />
 
       {/* Live Counter bar */}
       <div className="flex items-center justify-between px-1 text-xs text-fg-3 font-mono">

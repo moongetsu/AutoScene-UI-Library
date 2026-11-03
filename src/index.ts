@@ -21,6 +21,7 @@ export { Select } from "./components/ui/select"
 export { Sheet } from "./components/ui/sheet"
 export { Shelf } from "./components/ui/shelf"
 export { Dialog } from "./components/ui/dialog"
+export { FilterBar, type FilterBarProps, type FilterGroup, type FilterOption, type SortOption } from "./components/ui/filter-bar"
 export {
   DropdownMenu,
   DropdownMenuTrigger,
