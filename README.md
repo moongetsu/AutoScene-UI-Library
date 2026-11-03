@@ -4,18 +4,38 @@
 
 # AutoScene UI Library
 
-**The Cinematic Dark-Theatre Design System for AutoScene**
+**The Cinematic Dark-Theatre Component Registry & Design System for AutoScene**
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-7.1-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-gold.svg?style=flat-square)](LICENSE)
 
-[Overview](#overview) • [Live Showcase](#live-showcase) • [Components](#components) • [Tokens](#design-tokens) • [Automated Previews](#automated-previews)
+[Registry](#component-registry) • [Live Showcase](#live-showcase) • [Components](#components) • [Tokens](#design-tokens) • [CLI](#cli-installation)
 
 ---
 
 </div>
+
+## Component Registry (21st.dev Style)
+
+An interactive, searchable component registry modeled after [21st.dev](https://21st.dev) featuring instant live component stages, category filters, and one-click copy prompts.
+
+![21st.dev Style Registry](docs/previews/registry-21st-overview.png)
+
+---
+
+## Previews
+
+### Button System & Interaction
+| Variants & Sizes | Automated Spring Animation (Hover & Press) |
+| :---: | :---: |
+| ![Buttons Preview](docs/previews/buttons-preview.png) | ![Button Animation](docs/previews/button-interaction.gif) |
+
+### Composite Video Production Cards
+![Cards Preview](docs/previews/cards-preview.png)
+
+---
 
 ## Overview
 
@@ -28,19 +48,13 @@ The **AutoScene UI Library** is a standalone, decoupled design system extracted 
 
 ---
 
-## Previews
+## CLI Installation
 
-### Studio Showcase & Design System Gallery
-![Showcase Overview](docs/previews/showcase-overview.png)
+Install components directly into any Tailwind + React project:
 
-### Glassmorphic Button System
-![Buttons Preview](docs/previews/buttons-preview.png)
-
-### Automated Spring Interaction (Hover & Active Press)
-![Button Animation](docs/previews/button-interaction.gif)
-
-### Composite Production Cards
-![Cards Preview](docs/previews/cards-preview.png)
+```bash
+npx @moongetsu/autoscene-ui add
+```
 
 ---
 
@@ -63,11 +77,12 @@ src/
 │   │   ├── tooltip.tsx        # Floating micro-tooltips
 │   │   ├── dropdown-menu.tsx  # Glass context menus
 │   │   └── ...
-│   ├── showcase/              # Studio gallery & playground
-│   │   ├── ShowcaseLayout.tsx # Studio frame with sidebar navigation
-│   │   ├── sections/          # Dedicated showcase per component family
-│   │   ├── playground/        # Interactive modifier (radius, blur, glow)
-│   │   └── recorder/          # Isolated target for headless video capture
+│   ├── showcase/              # Studio gallery & registry
+│   │   ├── StudioRegistryLayout.tsx # 21st.dev style component catalog & stage grid
+│   │   ├── ShowcaseLayout.tsx       # Studio workbench with category navigation
+│   │   ├── sections/                # Dedicated showcase per component family
+│   │   ├── playground/              # Interactive modifier (radius, blur, glow)
+│   │   └── recorder/                # Isolated target for headless video capture
 │   └── icons.ts               # Curated icon set (Phosphor Icons)
 └── styles/
     ├── tokens.css             # Cinematic CSS variables
@@ -76,34 +91,22 @@ src/
 
 ---
 
-## Getting Started
+## Running Locally
 
-### 1. Installation
-Clone the repository and install dependencies:
-
-```bash
-git clone https://github.com/moongetsu/AutoScene-UI-Library.git
-cd AutoScene-UI-Library
-npm install
-```
-
-### 2. Launch the UI Showcase
-Start the interactive component gallery in your browser:
-
+### 1. Launch the 21st.dev Style Registry
 ```bash
 npm run dev
 ```
+Open `http://localhost:5173/#/registry` in your browser.
 
-Navigate to `http://localhost:5173/#/showcase` to preview every variant, size, and interaction state.
+### 2. Launch the Studio Showcase & Playground
+Open `http://localhost:5173/#/showcase` to access the full matrix and real-time parameter playground.
 
-### 3. Generate Previews Automatically
-To capture screenshots and record button interaction GIFs with zero manual work:
-
+### 3. Generate Previews & Interaction GIFs Automatically
 ```bash
 node scripts/record-previews.mjs
+node scripts/capture-registry.mjs
 ```
-
-This runs headless Chromium via Playwright, simulates hover and spring clicks, and encodes optimized GIFs using FFmpeg.
 
 ---
 

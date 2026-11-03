@@ -24,7 +24,7 @@ import { NotFound } from "@/features/not-found"
 import { PackPage } from "@/features/pack/PackPage"
 import { RouteError } from "@/features/route-error"
 import { type PluginSection, type SettingsSection, isPluginSection, settingsSection } from "@/lib/actions"
-import { ShowcaseLayout } from "@/components/showcase"
+import { ShowcaseLayout, StudioRegistryLayout } from "@/components/showcase"
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -151,6 +151,11 @@ const routeTree = rootRoute.addChildren([
     getParentRoute: () => rootRoute,
     path: "/showcase",
     component: ShowcaseLayout,
+  }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/registry",
+    component: StudioRegistryLayout,
   }),
 ])
 

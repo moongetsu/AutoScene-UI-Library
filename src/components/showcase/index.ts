@@ -1,4 +1,5 @@
 export { ShowcaseLayout } from "./ShowcaseLayout"
+export { StudioRegistryLayout } from "./StudioRegistryLayout"
 export { ShowcaseNav, type ShowcaseSectionId } from "./ShowcaseNav"
 export { ButtonsShowcase } from "./sections/ButtonsShowcase"
 export { BadgesShowcase } from "./sections/BadgesShowcase"
