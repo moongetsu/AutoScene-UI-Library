@@ -15,7 +15,7 @@ import {
   MagnifyingGlass,
   GithubLogo,
 } from "@phosphor-icons/react"
-import { motion } from "motion/react"
+import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
 import { SPRING_FAST } from "@/lib/motion"
 
@@ -110,72 +110,83 @@ export function ShowcaseNav({ activeSection, onSelect, isOpen, onClose }: Showca
         </div>
 
         {/* Categorized List */}
-        <div className="flex flex-col gap-5 pt-1">
-          {groups.map((group) => {
-            const items = filteredItems.filter((item) => item.group === group)
-            if (items.length === 0) return null
+        <motion.div layout className="flex flex-col gap-5 pt-1">
+          <AnimatePresence mode="popLayout" initial={false}>
+            {groups.map((group) => {
+              const items = filteredItems.filter((item) => item.group === group)
+              if (items.length === 0) return null
 
-            return (
-              <div key={group} className="flex flex-col gap-1">
-                <span className="text-[11px] font-medium text-fg-3 px-2 mb-0.5">
-                  {group}
-                </span>
+              return (
+                <motion.div
+                  key={group}
+                  layout="position"
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={SPRING_FAST}
+                  className="flex flex-col gap-1"
+                >
+                  <span className="text-[11px] font-medium text-fg-3 px-2 mb-0.5">
+                    {group}
+                  </span>
 
-                <div className="flex flex-col gap-0.5">
-                  {items.map((item) => {
-                    const active = activeSection === item.id
+                  <div className="flex flex-col gap-0.5">
+                    {items.map((item) => {
+                      const active = activeSection === item.id
 
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => handleSelect(item.id)}
-                        className={cn(
-                          "group relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left cursor-pointer",
-                          active
-                            ? "text-white font-semibold"
-                            : "text-fg-2 hover:text-white"
-                        )}
-                      >
-                        {active && (
-                          <motion.div
-                            layoutId="sidebar-active-indicator"
-                            transition={SPRING_FAST}
-                            className="absolute inset-0 rounded-lg bg-accent/10 border-l-2 border-accent shadow-sm"
-                          />
-                        )}
-                        <div className="relative z-10 flex items-center gap-2.5">
-                          <span
-                            className={cn(
-                              "transition-colors",
-                              active ? "text-accent" : "text-fg-3 group-hover:text-fg-2"
-                            )}
-                          >
-                            {item.icon}
-                          </span>
-                          <span className="truncate">{item.label}</span>
-                        </div>
+                      return (
+                        <motion.button
+                          layout="position"
+                          key={item.id}
+                          type="button"
+                          onClick={() => handleSelect(item.id)}
+                          className={cn(
+                            "group relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left cursor-pointer",
+                            active
+                              ? "text-white font-semibold"
+                              : "text-fg-2 hover:text-white"
+                          )}
+                        >
+                          {active && (
+                            <motion.div
+                              layoutId="sidebar-active-indicator"
+                              transition={SPRING_FAST}
+                              className="absolute inset-0 rounded-lg bg-accent/10 border-l-2 border-accent shadow-sm"
+                            />
+                          )}
+                          <div className="relative z-10 flex items-center gap-2.5">
+                            <span
+                              className={cn(
+                                "transition-colors",
+                                active ? "text-accent" : "text-fg-3 group-hover:text-fg-2"
+                              )}
+                            >
+                              {item.icon}
+                            </span>
+                            <span className="truncate">{item.label}</span>
+                          </div>
 
-                        {item.count && (
-                          <span
-                            className={cn(
-                              "relative z-10 text-[10px] font-mono px-1.5 py-0.2 rounded transition-colors",
-                              active
-                                ? "bg-accent/20 text-accent font-semibold"
-                                : "bg-white/[0.04] text-fg-3 group-hover:text-fg-2"
-                            )}
-                          >
-                            {item.count}
-                          </span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          })}
-        </div>
+                          {item.count && (
+                            <span
+                              className={cn(
+                                "relative z-10 text-[10px] font-mono px-1.5 py-0.2 rounded transition-colors",
+                                active
+                                  ? "bg-accent/20 text-accent font-semibold"
+                                  : "bg-white/[0.04] text-fg-3 group-hover:text-fg-2"
+                              )}
+                            >
+                              {item.count}
+                            </span>
+                          )}
+                        </motion.button>
+                      )
+                    })}
+                  </div>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+        </motion.div>
       </div>
 
       {/* Bottom Sticky Author & Metadata Footer */}
