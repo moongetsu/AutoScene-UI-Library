@@ -19,6 +19,7 @@ import { TextMenu } from "./TextMenu"
 import { UpdateDialog } from "./UpdateDialog"
 import { WindowControls } from "./WindowControls"
 import { WindowTitle } from "./WindowTitle"
+import { Toaster } from "@/components/ui/toaster"
 
 /**
  * The window: the rail on the left (on the native material), the view on
