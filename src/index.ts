@@ -45,7 +45,7 @@ export * as icons from "./components/icons"
 export * from "./components/icons"
 
 // Toast Trigger API
-export { toast } from "sonner"
+export { toast, notify } from "./components/ui/toaster"
 
 // Utility Functions
 export { cn } from "./lib/utils"

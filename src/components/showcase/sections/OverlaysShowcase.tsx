@@ -1,4 +1,4 @@
-import { DotsThree, FolderOpen, Play, Trash, CheckCircle, Warning, Info, XCircle } from "@phosphor-icons/react"
+import { DotsThree, FolderOpen, Play, Trash } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"
 import {
@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { toast, notify } from "@/components/ui/toaster"
+import { toast, notify, CleanToastCapsule } from "@/components/ui/toaster"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
@@ -128,79 +128,40 @@ toast.error("Scene Render Failed", {
   description: "GPU pipeline aborted due to frame timestamp discontinuity.",
 })`}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl mx-auto">
-          {/* Success Rich Toast Trigger */}
-          <Button
-            variant="accent"
-            onClick={() =>
-              notify.success("CLI Install Command Ready", {
-                description: "Run this command to scaffold primitives in your app.",
-                snippet: "npx @moongetsu/autoscene-ui add",
-                badge: "CLI Installer",
-              })
-            }
-            className="w-full justify-start gap-2.5 h-11 px-3.5"
-          >
-            <CheckCircle weight="fill" className="size-4 text-accent shrink-0" />
-            <div className="flex flex-col items-start min-w-0">
-              <span className="text-xs font-semibold">Success with Snippet</span>
-              <span className="text-[10px] text-accent/80 font-mono">With interactive copy box</span>
-            </div>
-          </Button>
+        <div className="flex flex-col items-center gap-3 w-full max-w-xl mx-auto">
+          {/* Warning with Action */}
+          <CleanToastCapsule
+            id="preview-warning"
+            tone="warning"
+            title="Verification Threshold Low"
+            description="Actor facial landmark confidence dropped to 68%."
+            actionLabel="Re-scan"
+            onAction={() => toast.success("Markers re-aligned")}
+          />
 
-          {/* Info Rich Toast Trigger */}
-          <Button
-            variant="secondary"
-            onClick={() =>
-              notify.info("Share Link Generated", {
-                description: "Direct component preview link copied to clipboard.",
-                snippet: "https://moongetsu.github.io/AutoScene-UI-Library/",
-                badge: "Deep Link",
-              })
-            }
-            className="w-full justify-start gap-2.5 h-11 px-3.5"
-          >
-            <Info weight="fill" className="size-4 text-sky-400 shrink-0" />
-            <div className="flex flex-col items-start min-w-0">
-              <span className="text-xs font-semibold">Info with Deep Link</span>
-              <span className="text-[10px] text-fg-3 font-mono">With shareable URL</span>
-            </div>
-          </Button>
+          {/* Success with Snippet */}
+          <CleanToastCapsule
+            id="preview-success"
+            tone="accent"
+            title="CLI Install Command Ready"
+            snippet="npx @moongetsu/autoscene-ui add"
+          />
 
-          {/* Warning Rich Toast Trigger */}
-          <Button
-            variant="secondary"
-            onClick={() =>
-              toast.warning("Verification Threshold Low", {
-                description: "Actor facial landmark confidence dropped to 68%.",
-                action: { label: "Re-scan", onClick: () => toast.success("Markers re-aligned") },
-              })
-            }
-            className="w-full justify-start gap-2.5 h-11 px-3.5"
-          >
-            <Warning weight="fill" className="size-4 text-amber-400 shrink-0" />
-            <div className="flex flex-col items-start min-w-0">
-              <span className="text-xs font-semibold">Warning with Action</span>
-              <span className="text-[10px] text-amber-300/80 font-mono">Includes interactive action button</span>
-            </div>
-          </Button>
+          {/* Destructive Alert */}
+          <CleanToastCapsule
+            id="preview-danger"
+            tone="danger"
+            title="Scene Render Failed"
+            description="GPU pipeline aborted due to frame timestamp discontinuity."
+          />
 
-          {/* Error Rich Toast Trigger */}
-          <Button
-            variant="danger"
-            onClick={() =>
-              toast.error("Scene Render Failed", {
-                description: "GPU pipeline aborted due to frame timestamp discontinuity.",
-              })
-            }
-            className="w-full justify-start gap-2.5 h-11 px-3.5"
-          >
-            <XCircle weight="fill" className="size-4 text-danger shrink-0" />
-            <div className="flex flex-col items-start min-w-0">
-              <span className="text-xs font-semibold">Destructive Alert</span>
-              <span className="text-[10px] text-danger/80 font-mono">Error status radiance</span>
-            </div>
-          </Button>
+          {/* Info with Deep Link */}
+          <CleanToastCapsule
+            id="preview-info"
+            tone="info"
+            title="Share Link Generated"
+            snippet="https://moongetsu.github.io/AutoScene-UI-Library/"
+          />
         </div>
       </ShowcaseSectionStage>
     </div>
