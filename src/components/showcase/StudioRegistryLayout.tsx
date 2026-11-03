@@ -50,14 +50,18 @@ export function StudioRegistryLayout() {
   const copyCli = () => {
     navigator.clipboard.writeText("npx @moongetsu/autoscene-ui add")
     setCopied(true)
-    toast.success("Copied install command to clipboard")
+    toast.success("Copied install command to clipboard", {
+      description: "npx @moongetsu/autoscene-ui add",
+    })
     setTimeout(() => setCopied(false), 2000)
   }
 
   const copyComponentLink = (id: string, title: string) => {
     const url = `https://moongetsu.github.io/AutoScene-UI-Library/components/${id}/`
     navigator.clipboard.writeText(url)
-    toast.success(`Copied link for ${title}`)
+    toast.success(`Copied share link for ${title}`, {
+      description: url,
+    })
   }
 
   // Live component cards for the gallery grid

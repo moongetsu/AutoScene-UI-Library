@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Check, Copy } from "@phosphor-icons/react"
+import { toast } from "sonner"
 
 interface ShowcasePageHeaderProps {
   title: string
@@ -18,6 +19,9 @@ export function ShowcasePageHeader({
     if (!importPath) return
     navigator.clipboard.writeText(importPath)
     setCopied(true)
+    toast.success(`Copied import statement for ${title}`, {
+      description: importPath,
+    })
     setTimeout(() => setCopied(false), 2000)
   }
 
