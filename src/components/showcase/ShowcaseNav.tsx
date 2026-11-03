@@ -147,43 +147,60 @@ export function ShowcaseNav({ activeSection, onSelect }: ShowcaseNavProps) {
       </div>
 
       {/* Bottom Sticky Author & Metadata Footer */}
-      <div className="p-4 border-t border-white/[0.06] bg-[#070709]/60 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <a
-            href="https://github.com/moongetsu"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2 group cursor-pointer"
-            title="Moongetsu GitHub Profile"
-          >
-            <img
-              src="https://avatars.githubusercontent.com/u/111883135?v=4"
-              alt="Moongetsu Avatar"
-              className="size-6 rounded-full border border-white/20 object-cover transition-transform group-hover:scale-105"
-            />
-            <span className="text-xs font-semibold text-white group-hover:text-accent transition-colors">
-              Moongetsu
-            </span>
-          </a>
+      <div className="p-3.5 border-t border-white/[0.06] bg-[#070709]/80 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          {/* Overlapping Avatar Stack */}
+          <div className="flex -space-x-2 items-center">
+            <a
+              href="https://github.com/moongetsu"
+              target="_blank"
+              rel="noreferrer"
+              className="relative z-10 block rounded-full ring-2 ring-[#09090c] hover:z-30 transition-transform hover:scale-110"
+              title="Moongetsu"
+            >
+              <img
+                src="https://avatars.githubusercontent.com/u/111883135?v=4"
+                alt="Moongetsu"
+                className="size-7 rounded-full object-cover"
+              />
+            </a>
+            <a
+              href="https://github.com/tcmmi"
+              target="_blank"
+              rel="noreferrer"
+              className="relative z-20 block rounded-full ring-2 ring-[#09090c] hover:z-30 transition-transform hover:scale-110"
+              title="tcmmi"
+            >
+              <img
+                src="https://avatars.githubusercontent.com/u/119017174?v=4"
+                alt="tcmmi"
+                className="size-7 rounded-full object-cover"
+              />
+            </a>
+          </div>
 
-          <span className="text-fg-3 text-xs">&</span>
-
-          <a
-            href="https://github.com/tcmmi"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-2 group cursor-pointer"
-            title="tcmmi GitHub Profile"
-          >
-            <img
-              src="https://avatars.githubusercontent.com/u/119017174?v=4"
-              alt="tcmmi Avatar"
-              className="size-6 rounded-full border border-white/20 object-cover transition-transform group-hover:scale-105"
-            />
-            <span className="text-xs font-semibold text-white group-hover:text-accent transition-colors">
-              tcmmi
-            </span>
-          </a>
+          <div className="flex flex-col text-xs leading-tight">
+            <div className="flex items-center gap-1 font-semibold text-white">
+              <a
+                href="https://github.com/moongetsu"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-accent transition-colors"
+              >
+                Moongetsu
+              </a>
+              <span className="text-fg-3 font-normal">&</span>
+              <a
+                href="https://github.com/tcmmi"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-accent transition-colors"
+              >
+                tcmmi
+              </a>
+            </div>
+            <span className="text-[10px] text-fg-3 pt-0.5">AutoScene UI</span>
+          </div>
         </div>
 
         <a
