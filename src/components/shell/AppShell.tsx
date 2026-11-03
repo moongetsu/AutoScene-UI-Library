@@ -39,6 +39,7 @@ export function AppShell() {
     return (
       <div className="min-h-screen w-full bg-[#070709] text-fg-1 selection:bg-accent/30 selection:text-white">
         <Outlet />
+        <Toaster />
       </div>
     )
   }
