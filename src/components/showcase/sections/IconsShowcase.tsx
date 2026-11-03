@@ -121,20 +121,22 @@ export function IconsShowcase() {
                 title={`Copy <${name} />`}
               >
                 {/* Center Icon presentation with smooth swap on copied */}
-                <div className="relative flex items-center justify-center size-11 rounded-xl">
+                <div className="relative flex items-center justify-center size-12 rounded-xl">
                   {isCopied ? (
                     <motion.div
                       initial={{ scale: 0.5, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      className="size-9 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-accent"
+                      className="size-11 rounded-xl bg-accent/20 border border-accent/40 flex items-center justify-center text-accent shadow-[0_0_12px_rgba(245,165,36,0.2)]"
                     >
-                      <Check className="size-4" weight="bold" />
+                      <Check className="size-5" weight="bold" />
                     </motion.div>
                   ) : (
-                    <Component
-                      className={`${iconSizeClass} transition-transform duration-200 group-hover:scale-110 text-fg-2 group-hover:text-white`}
-                      weight={weight}
-                    />
+                    <div className="size-11 rounded-xl flex items-center justify-center bg-white/[0.03] border border-white/[0.08] group-hover:border-accent/40 group-hover:bg-accent/[0.08] group-hover:shadow-[0_0_16px_rgba(245,165,36,0.12)] transition-all duration-200">
+                      <Component
+                        className={`${iconSizeClass} transition-transform duration-200 group-hover:scale-110 text-fg-2 group-hover:text-accent`}
+                        weight={weight}
+                      />
+                    </div>
                   )}
                 </div>
 
