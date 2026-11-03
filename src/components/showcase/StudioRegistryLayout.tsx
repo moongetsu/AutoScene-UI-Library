@@ -265,22 +265,42 @@ export function StudioRegistryLayout() {
               </p>
             </div>
 
-            {/* Author Credit */}
-            <div className="flex items-center gap-3 pt-2">
-              <img
-                src="https://avatars.githubusercontent.com/u/111883135?v=4"
-                alt="Moongetsu Avatar"
-                className="size-9 rounded-full border border-white/20 object-cover"
-              />
-              <div className="text-xs">
-                <span className="text-fg-3 block">Created by</span>
+            {/* Authors Credit */}
+            <div className="flex flex-col gap-2 pt-2">
+              <span className="text-[11px] font-mono uppercase tracking-wider text-fg-3">Created by</span>
+              <div className="flex items-center gap-4">
                 <a
                   href="https://github.com/moongetsu"
                   target="_blank"
                   rel="noreferrer"
-                  className="font-semibold text-white hover:text-accent transition-colors"
+                  className="flex items-center gap-2 group cursor-pointer"
                 >
-                  Moongetsu
+                  <img
+                    src="https://avatars.githubusercontent.com/u/111883135?v=4"
+                    alt="Moongetsu Avatar"
+                    className="size-7 rounded-full border border-white/20 object-cover transition-transform group-hover:scale-105"
+                  />
+                  <span className="text-xs font-semibold text-white group-hover:text-accent transition-colors">
+                    Moongetsu
+                  </span>
+                </a>
+
+                <span className="text-fg-3 text-xs">&</span>
+
+                <a
+                  href="https://github.com/tcmmi"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 group cursor-pointer"
+                >
+                  <img
+                    src="https://avatars.githubusercontent.com/u/119017174?v=4"
+                    alt="tcmmi Avatar"
+                    className="size-7 rounded-full border border-white/20 object-cover transition-transform group-hover:scale-105"
+                  />
+                  <span className="text-xs font-semibold text-white group-hover:text-accent transition-colors">
+                    tcmmi
+                  </span>
                 </a>
               </div>
             </div>

@@ -148,24 +148,43 @@ export function ShowcaseNav({ activeSection, onSelect }: ShowcaseNavProps) {
 
       {/* Bottom Sticky Author & Metadata Footer */}
       <div className="p-4 border-t border-white/[0.06] bg-[#070709]/60 flex items-center justify-between">
-        <a
-          href="https://github.com/moongetsu"
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-2.5 group cursor-pointer"
-        >
-          <img
-            src="https://avatars.githubusercontent.com/u/111883135?v=4"
-            alt="Moongetsu Avatar"
-            className="size-7 rounded-full border border-white/20 object-cover transition-transform group-hover:scale-105"
-          />
-          <div className="text-xs">
-            <span className="text-white font-semibold group-hover:text-accent transition-colors block">
+        <div className="flex items-center gap-3">
+          <a
+            href="https://github.com/moongetsu"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2 group cursor-pointer"
+            title="Moongetsu GitHub Profile"
+          >
+            <img
+              src="https://avatars.githubusercontent.com/u/111883135?v=4"
+              alt="Moongetsu Avatar"
+              className="size-6 rounded-full border border-white/20 object-cover transition-transform group-hover:scale-105"
+            />
+            <span className="text-xs font-semibold text-white group-hover:text-accent transition-colors">
               Moongetsu
             </span>
-            <span className="text-[10px] text-fg-3 block">AutoScene UI</span>
-          </div>
-        </a>
+          </a>
+
+          <span className="text-fg-3 text-xs">&</span>
+
+          <a
+            href="https://github.com/tcmmi"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-2 group cursor-pointer"
+            title="tcmmi GitHub Profile"
+          >
+            <img
+              src="https://avatars.githubusercontent.com/u/119017174?v=4"
+              alt="tcmmi Avatar"
+              className="size-6 rounded-full border border-white/20 object-cover transition-transform group-hover:scale-105"
+            />
+            <span className="text-xs font-semibold text-white group-hover:text-accent transition-colors">
+              tcmmi
+            </span>
+          </a>
+        </div>
 
         <a
           href="https://github.com/moongetsu/AutoScene-UI-Library"
