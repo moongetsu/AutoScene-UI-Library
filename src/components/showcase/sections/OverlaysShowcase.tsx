@@ -1,4 +1,4 @@
-import { DotsThree, FolderOpen, Play, Trash, CheckCircle, WarningCircle, Info, XCircle } from "@/components/icons"
+import { DotsThree, FolderOpen, Play, Trash, CheckCircle, Warning, Info, XCircle } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"
 import {
@@ -178,7 +178,7 @@ toast.error("Scene Render Failed", {
             }
             className="w-full justify-start gap-2.5 h-11 px-3.5"
           >
-            <WarningCircle weight="fill" className="size-4 text-amber-400 shrink-0" />
+            <Warning weight="fill" className="size-4 text-amber-400 shrink-0" />
             <div className="flex flex-col items-start min-w-0">
               <span className="text-xs font-semibold">Warning with Action</span>
               <span className="text-[10px] text-amber-300/80 font-mono">Includes interactive action button</span>
