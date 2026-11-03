@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Play, Plus, DownloadSimple, Trash, FilmStrip, Check, Bell, Info } from "@/components/icons"
+import { Play, Plus, DownloadSimple, Trash, FilmStrip, Check, Info } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
