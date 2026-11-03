@@ -12,6 +12,7 @@ import { MediaShowcase } from "./sections/MediaShowcase"
 import { CardsShowcase } from "./sections/CardsShowcase"
 import { ShellShowcase } from "./sections/ShellShowcase"
 import { TokensShowcase } from "./sections/TokensShowcase"
+import { IconsShowcase } from "./sections/IconsShowcase"
 import { ButtonPlayground } from "./playground/ButtonPlayground"
 import { AnimationTarget } from "./recorder/AnimationTarget"
 
@@ -26,6 +27,7 @@ const SECTION_LABELS: Record<ShowcaseSectionId, string> = {
   cards: "Composite Cards",
   shell: "Shell & Headers",
   tokens: "Colors & Tokens",
+  icons: "Iconography",
   playground: "Playground",
   record: "Animation Target",
 }
@@ -100,6 +102,7 @@ export function ShowcaseLayout() {
             {active === "cards" && <CardsShowcase />}
             {active === "shell" && <ShellShowcase />}
             {active === "tokens" && <TokensShowcase />}
+            {active === "icons" && <IconsShowcase />}
             {active === "playground" && <ButtonPlayground />}
             {active === "record" && <AnimationTarget />}
           </div>

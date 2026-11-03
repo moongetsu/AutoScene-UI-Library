@@ -39,6 +39,10 @@ export {
 // Brand Identity
 export { AutoSceneMark } from "./components/brand/AutoSceneMark"
 
+// Iconography exports
+export * as icons from "./components/icons"
+export * from "./components/icons"
+
 // Toast Trigger API
 export { toast } from "sonner"
 
