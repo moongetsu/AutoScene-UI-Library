@@ -48,12 +48,29 @@ The **AutoScene UI Library** is a standalone, decoupled design system extracted 
 
 ---
 
-## CLI Installation
+## Installation
 
-Install components directly into any Tailwind + React project:
+Install `@moongetsu/autoscene-ui` in your React project:
 
 ```bash
-npx @moongetsu/autoscene-ui add
+npm install @moongetsu/autoscene-ui @phosphor-icons/react
+```
+
+### Quick Usage
+
+Import components directly:
+
+```tsx
+import { Button, Badge, Input, Switch, Slider, Tooltip } from "@moongetsu/autoscene-ui"
+
+export default function App() {
+  return (
+    <div className="p-8 flex flex-col gap-4">
+      <Button variant="primary">Launch Scene</Button>
+      <Badge tone="accent">Processed</Badge>
+    </div>
+  )
+}
 ```
 
 ---
