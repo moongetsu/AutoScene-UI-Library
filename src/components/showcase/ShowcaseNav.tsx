@@ -66,6 +66,9 @@ export function ShowcaseNav({ activeSection, onSelect, isOpen, onClose }: Showca
   const [filter, setFilter] = React.useState("")
   const groups = Array.from(new Set(NAV_ITEMS.map((item) => item.group)))
 
+  // Total count of distinct showcase sections
+  const totalItemsCount = NAV_ITEMS.length
+
   const filteredItems = filter.trim()
     ? NAV_ITEMS.filter((i) => i.label.toLowerCase().includes(filter.toLowerCase()) || i.group.toLowerCase().includes(filter.toLowerCase()))
     : NAV_ITEMS
@@ -97,7 +100,7 @@ export function ShowcaseNav({ activeSection, onSelect, isOpen, onClose }: Showca
         {/* Simple Directory Header */}
         <div className="flex items-center justify-between px-1">
           <h2 className="text-sm font-semibold text-white tracking-tight">Components</h2>
-          <span className="text-[11px] font-mono text-fg-3">28 items</span>
+          <span className="text-[11px] font-mono text-fg-3">{filteredItems.length} items</span>
         </div>
 
         {/* Quick Filter Search */}

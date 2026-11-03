@@ -371,7 +371,7 @@ export function StudioRegistryLayout() {
             {/* Stats row */}
             <div className="flex items-center gap-6 text-xs text-fg-3 border-y border-white/[0.06] py-3.5">
               <div>
-                <span className="font-semibold text-fg-1">28</span> Components
+                <span className="font-semibold text-fg-1">{components.length}</span> Components
               </div>
               <div>
                 <span className="font-semibold text-fg-1">100%</span> TypeScript
