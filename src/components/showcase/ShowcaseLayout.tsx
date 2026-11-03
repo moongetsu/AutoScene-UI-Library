@@ -27,7 +27,7 @@ const SECTION_LABELS: Record<ShowcaseSectionId, string> = {
   cards: "Composite Cards",
   shell: "Shell & Headers",
   tokens: "Colors & Tokens",
-  icons: "Iconography",
+  icons: "Icons",
   playground: "Playground",
   record: "Animation Target",
 }

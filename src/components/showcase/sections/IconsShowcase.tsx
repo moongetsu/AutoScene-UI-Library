@@ -176,7 +176,7 @@ export function IconsShowcase() {
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
-        title="Iconography"
+        title="Icons"
         description="Phosphor icons used across the app, with regular line weight and fill variants."
         importPath='import { Play, Scissors, FilmStrip } from "@moongetsu/autoscene-ui/icons"'
       />

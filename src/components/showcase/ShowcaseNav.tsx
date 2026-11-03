@@ -56,7 +56,7 @@ const NAV_ITEMS: { id: ShowcaseSectionId; label: string; icon: React.ReactNode; 
   { id: "shell", label: "Shell & Headers", icon: <Sidebar className="size-4" />, group: "Layout & Media", count: 2 },
   // Colors & Tokens
   { id: "tokens", label: "Colors & Tokens", icon: <Palette className="size-4" />, group: "Tokens" },
-  { id: "icons", label: "Iconography (80+)", icon: <Image className="size-4" />, group: "Tokens", count: 85 },
+  { id: "icons", label: "Icons (80+)", icon: <Image className="size-4" />, group: "Tokens", count: 82 },
   // Tools
   { id: "playground", label: "Playground", icon: <SlidersHorizontal className="size-4" />, group: "Tools" },
   { id: "record", label: "Animation Target", icon: <VideoCamera className="size-4" />, group: "Tools" },

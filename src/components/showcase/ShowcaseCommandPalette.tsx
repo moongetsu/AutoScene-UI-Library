@@ -45,7 +45,7 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
 
 const QUICK_LINKS = [
   { id: "buttons", label: "Buttons & Pills", section: "buttons" },
-  { id: "icons", label: "Iconography (80+)", section: "icons" },
+  { id: "icons", label: "Icons (80+)", section: "icons" },
   { id: "toggles", label: "Toggles & Sliders", section: "toggles" },
   { id: "inputs", label: "Search & Form Inputs", section: "inputs" },
   { id: "cards", label: "Composite Cards", section: "cards" },
