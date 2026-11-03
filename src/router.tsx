@@ -11,7 +11,6 @@ import { AppShell } from "@/components/shell/AppShell"
 import { CastPage } from "@/features/cast/CastPage"
 import { CharacterPage } from "@/features/cast/CharacterPage"
 import { ReviewPage } from "@/features/cast/ReviewPage"
-import { LibraryPage } from "@/features/library/LibraryPage"
 import { PlayerPage } from "@/features/player/PlayerPage"
 import { EpisodesPage } from "@/features/project/EpisodesPage"
 import { ExportsPage } from "@/features/project/ExportsPage"
@@ -41,7 +40,7 @@ const rootRoute = createRootRoute({ component: AppShell })
 const libraryRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  component: LibraryPage,
+  component: StudioRegistryLayout,
 })
 
 const projectRoute = createRoute({

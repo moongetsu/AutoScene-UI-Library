@@ -9,6 +9,7 @@ const fixtures = path.join(repoRoot, "fixtures", "out")
 
 // Tauri expects a fixed port and must not have the terminal cleared.
 export default defineConfig(({ command }) => ({
+  base: "/AutoScene-UI-Library/",
   plugins: [react(), tailwindcss()],
   clearScreen: false,
   server: {
