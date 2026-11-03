@@ -135,26 +135,4 @@ export function TopNavbar({
     </header>
   )
 }
-          rel="noreferrer"
-          className="size-8 rounded-lg flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.04] transition-colors"
-          aria-label="GitHub Repository"
-        >
-          <GithubLogo className="size-5" />
-        </a>
-
-        {/* CLI Copy / CTA Button */}
-        <Button variant="primary" size="sm" onClick={copyCli}>
-          {copied ? (
-            <>
-              <Check className="size-3.5 text-accent mr-1 animate-pop-in" />
-              <span>Copied CLI</span>
-            </>
-          ) : (
-            <span>Get Started</span>
-          )}
-        </Button>
-      </div>
-    </header>
-  )
-}
 
