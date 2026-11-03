@@ -50,7 +50,7 @@ const COMPONENTS = [
 ]
 
 function renderPage(title, desc, relativeUrl) {
-  const fullTitle = `${title} — AutoScene UI`
+  const fullTitle = `${title} | AutoScene UI`
   const canonical = `https://moongetsu.github.io/AutoScene-UI-Library/${relativeUrl}`
 
   let html = baseHtml
