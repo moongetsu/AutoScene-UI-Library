@@ -142,6 +142,16 @@ Key tokens defined in `src/styles/tokens.css`:
 | `--fg-2` | `#b4b1ac` | Secondary muted text |
 | `--line-hairline`| `rgba(255, 255, 255, 0.07)` | Subtle separation lines |
 
+### Typography & Fonts
+
+AutoScene UI uses three dedicated typefaces:
+
+| Font Family | Package | Role |
+| :--- | :--- | :--- |
+| **Inter Variable** | `@fontsource-variable/inter` | Primary UI sans-serif for controls, buttons, forms, and navigation |
+| **Instrument Serif** | `@fontsource/instrument-serif` | Editorial display serif for titles, project cards, and hero sections |
+| **Geist Mono Variable** | `@fontsource-variable/geist-mono` | Monospace font for timecodes, frame counters, metrics, and codeblocks |
+
 ---
 
 ## License

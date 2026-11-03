@@ -115,6 +115,60 @@ export function TokensShowcase() {
           ))}
         </div>
       </ShowcaseSectionStage>
+
+      {/* 4. Font Families */}
+      <ShowcaseSectionStage
+        title="Font Families"
+        description="Three dedicated typefaces used throughout AutoScene UI for editorial clarity and density."
+        code={`/* Font Families in tokens.css */
+--font-sans:    "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+--font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+--font-mono:    "Geist Mono Variable", ui-monospace, Menlo, monospace;`}
+      >
+        <div className="flex flex-col gap-4 w-full">
+          {/* Inter */}
+          <div className="p-4 rounded-xl border border-white/[0.08] bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-white">Inter Variable</span>
+                <span className="text-[10px] font-mono text-accent px-1.5 py-0.5 rounded bg-accent/15">UI Sans</span>
+              </div>
+              <p className="text-xs text-fg-3 mt-1">Primary interface font for controls, labels, buttons, and navigation.</p>
+            </div>
+            <div className="font-sans text-lg font-medium text-fg-1 tracking-tight">
+              AutoScene Video Studio 0123456789
+            </div>
+          </div>
+
+          {/* Instrument Serif */}
+          <div className="p-4 rounded-xl border border-white/[0.08] bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-white">Instrument Serif</span>
+                <span className="text-[10px] font-mono text-accent px-1.5 py-0.5 rounded bg-accent/15">Display</span>
+              </div>
+              <p className="text-xs text-fg-3 mt-1">Cinematic display font for headers, project titles, and hero callouts.</p>
+            </div>
+            <div className="font-serif italic text-2xl text-fg-1 tracking-wide">
+              The Mentalist — Patrick Jane
+            </div>
+          </div>
+
+          {/* Geist Mono */}
+          <div className="p-4 rounded-xl border border-white/[0.08] bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-white">Geist Mono Variable</span>
+                <span className="text-[10px] font-mono text-accent px-1.5 py-0.5 rounded bg-accent/15">Monospace</span>
+              </div>
+              <p className="text-xs text-fg-3 mt-1">Technical font for timecodes, frame counters, metrics, and codeblocks.</p>
+            </div>
+            <div className="font-mono text-sm text-fg-1">
+              01:23:45:18 · 24.00 fps · 42 clips
+            </div>
+          </div>
+        </div>
+      </ShowcaseSectionStage>
     </div>
   )
 }
