@@ -71,12 +71,10 @@ export function ShowcaseLayout() {
       <TopNavbar
         activeView="showcase"
         breadcrumb={SECTION_LABELS[active]}
-        searchValue={search}
-        onSearchChange={setSearch}
-        searchPlaceholder="Filter studio showcase... (⌘K)"
         isMobileNavOpen={mobileNavOpen}
         onToggleMobileNav={() => setMobileNavOpen(!mobileNavOpen)}
         onOpenCommandPalette={() => setPaletteOpen(true)}
+        isCommandPaletteOpen={paletteOpen}
       />
 
       {/* Main Content Area */}

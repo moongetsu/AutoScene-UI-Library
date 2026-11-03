@@ -17,6 +17,7 @@ import {
   Code,
   ArrowSquareOut,
   ArrowRight,
+  X,
 } from "@phosphor-icons/react"
 import { REGISTRY_COMPONENTS } from "@/data/registry-items"
 
@@ -62,7 +63,7 @@ export function ShowcaseCommandPalette({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [open, onOpenChange])
 
-  // Reset search when palette closes/opens
+  // Reset search query when palette closes
   React.useEffect(() => {
     if (!open) {
       setSearch("")
@@ -119,7 +120,7 @@ export function ShowcaseCommandPalette({
   }, [search])
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="popLayout">
       {open && (
         <div className="fixed inset-0 z-50 flex items-start justify-center pt-[14vh] px-4">
           {/* Animated Backdrop */}
@@ -132,15 +133,16 @@ export function ShowcaseCommandPalette({
             className="fixed inset-0 bg-black/60 backdrop-blur-md"
           />
 
-          {/* Animated Dialog Content */}
+          {/* Morphing Palette Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.94, y: -12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -8 }}
+            layoutId="shared-command-palette-morph"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             transition={{
               type: "spring",
-              damping: 26,
-              stiffness: 340,
+              stiffness: 400,
+              damping: 32,
               mass: 0.8,
             }}
             className="relative z-50 w-[min(580px,calc(100vw-32px))] rounded-2xl border border-white/10 bg-[#0d0d10] p-0 shadow-2xl focus:outline-none overflow-hidden"
@@ -151,7 +153,7 @@ export function ShowcaseCommandPalette({
             >
               {/* Top search bar */}
               <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.08] bg-white/[0.02]">
-                <MagnifyingGlass className="size-5 text-fg-3 shrink-0" />
+                <MagnifyingGlass className="size-5 text-accent shrink-0" />
                 <Command.Input
                   autoFocus
                   value={search}
@@ -159,6 +161,14 @@ export function ShowcaseCommandPalette({
                   placeholder="Search components, documentation, or jump to tabs..."
                   className="w-full bg-transparent text-sm text-fg-1 placeholder:text-fg-3 outline-none"
                 />
+                <button
+                  type="button"
+                  onClick={() => onOpenChange(false)}
+                  className="size-6 rounded-full flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.1] transition-colors cursor-pointer mr-1"
+                  title="Close (Esc)"
+                >
+                  <X className="size-3.5" />
+                </button>
                 <kbd className="text-[10px] font-mono text-fg-3 bg-white/[0.06] px-1.5 py-0.5 rounded border border-white/[0.08]">
                   ESC
                 </kbd>

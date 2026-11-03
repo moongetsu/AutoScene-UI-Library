@@ -1,6 +1,6 @@
 import * as React from "react"
 import { GithubLogo, MagnifyingGlass, Check, List, X } from "@phosphor-icons/react"
-import { motion, AnimatePresence } from "motion/react"
+import { motion } from "motion/react"
 import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -15,39 +15,18 @@ interface TopNavbarProps {
   onToggleMobileNav?: () => void
   isMobileNavOpen?: boolean
   onOpenCommandPalette?: () => void
+  isCommandPaletteOpen?: boolean
 }
 
 export function TopNavbar({
   activeView,
   breadcrumb,
-  searchValue,
-  onSearchChange,
-  searchPlaceholder = "Search components, primitives... (⌘K)",
   onToggleMobileNav,
   isMobileNavOpen,
   onOpenCommandPalette,
+  isCommandPaletteOpen,
 }: TopNavbarProps) {
   const [copied, setCopied] = React.useState(false)
-  const [isExpanded, setIsExpanded] = React.useState(false)
-  const inputRef = React.useRef<HTMLInputElement>(null)
-
-  // Listen to Escape key globally to collapse search smoothly
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isExpanded) {
-        setIsExpanded(false)
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [isExpanded])
-
-  // Auto focus input when expanded
-  React.useEffect(() => {
-    if (isExpanded) {
-      inputRef.current?.focus()
-    }
-  }, [isExpanded])
 
   const copyCli = () => {
     navigator.clipboard.writeText("npx @moongetsu/autoscene-ui add")
@@ -91,72 +70,30 @@ export function TopNavbar({
         )}
       </div>
 
-      {/* Center Anchor & Expanded Search Overlay */}
-      <div className="flex-1 flex items-center justify-center max-w-lg mx-4">
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -6 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: -4 }}
-              transition={{
-                type: "spring",
-                stiffness: 400,
-                damping: 30,
-              }}
-              className="relative w-full flex items-center shadow-2xl z-30"
-            >
-              <MagnifyingGlass className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-accent pointer-events-none" />
-              <input
-                ref={inputRef}
-                value={searchValue || ""}
-                onChange={(e) => onSearchChange?.(e.target.value)}
-                onClick={onOpenCommandPalette}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") {
-                    e.stopPropagation()
-                    setIsExpanded(false)
-                  }
-                }}
-                placeholder={searchPlaceholder}
-                className="w-full h-10 rounded-full border border-white/20 bg-[#0d0d11] pl-10 pr-20 text-xs text-white placeholder:text-fg-3 focus:outline-none focus:border-accent/80 transition-colors cursor-pointer"
-              />
-              <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                <kbd
-                  onClick={onOpenCommandPalette}
-                  className="text-[10px] font-mono text-fg-3 bg-white/[0.08] hover:text-white px-1.5 py-0.5 rounded border border-white/[0.1] cursor-pointer transition-colors"
-                >
-                  ⌘K
-                </kbd>
-                <button
-                  type="button"
-                  onClick={() => setIsExpanded(false)}
-                  className="size-6 rounded-full flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.1] transition-colors cursor-pointer"
-                  title="Close search (Esc)"
-                >
-                  <X className="size-3.5" />
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
       {/* Right: Search Icon Button + View Switcher + GitHub + Get Started */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Right Placed Search Icon Button */}
-        <button
-          type="button"
-          onClick={() => setIsExpanded(true)}
-          className={cn(
-            "size-9 rounded-full border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.08] hover:border-white/20 transition-all cursor-pointer shadow-sm group",
-            isExpanded && "border-accent/40 bg-accent/10 text-accent"
-          )}
-          title="Search components (Click or ⌘K)"
-          aria-label="Open search bar"
-        >
-          <MagnifyingGlass className="size-4 group-hover:text-accent transition-colors" />
-        </button>
+        {/* Right Placed Search Icon Button that morphs to the Command Palette */}
+        {!isCommandPaletteOpen ? (
+          <motion.button
+            layoutId="shared-command-palette-morph"
+            type="button"
+            onClick={onOpenCommandPalette}
+            transition={{
+              type: "spring",
+              stiffness: 400,
+              damping: 32,
+              mass: 0.8,
+            }}
+            className="size-9 rounded-full border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.08] hover:border-white/20 transition-colors cursor-pointer shadow-sm group"
+            title="Search components (⌘K)"
+            aria-label="Open command palette search"
+          >
+            <MagnifyingGlass className="size-4 group-hover:text-accent transition-colors" />
+          </motion.button>
+        ) : (
+          /* Placeholder so layout doesn't shift while modal is open */
+          <div className="size-9 rounded-full opacity-0 pointer-events-none" />
+        )}
 
         {/* Registry vs Showcase View Switcher */}
         <div className="relative flex items-center gap-1 rounded-full bg-white/[0.04] p-1 border border-white/[0.08]">

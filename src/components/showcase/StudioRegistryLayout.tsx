@@ -288,9 +288,8 @@ export function StudioRegistryLayout() {
       {/* Universal Top Navbar */}
       <TopNavbar
         activeView="registry"
-        searchValue={search}
-        onSearchChange={setSearch}
         onOpenCommandPalette={() => setPaletteOpen(true)}
+        isCommandPaletteOpen={paletteOpen}
       />
 
       {/* Main 21st.dev Style Layout */}
