@@ -1,8 +1,10 @@
 import * as React from "react"
-import { GithubLogo, MagnifyingGlass, Check, Copy, List, X } from "@phosphor-icons/react"
+import { GithubLogo, MagnifyingGlass, Check, List, X } from "@phosphor-icons/react"
+import { motion } from "motion/react"
 import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { SPRING_FAST } from "@/lib/motion"
 
 interface TopNavbarProps {
   activeView: "registry" | "showcase"
@@ -84,27 +86,41 @@ export function TopNavbar({
       {/* Right: Switcher + GitHub + Get Started Button */}
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Registry vs Showcase Toggle */}
-        <div className="flex items-center gap-1 rounded-full bg-white/[0.04] p-1 border border-white/[0.08]">
+        <div className="relative flex items-center gap-1 rounded-full bg-white/[0.04] p-1 border border-white/[0.08]">
           <a
             href="#/"
             className={cn(
-              "text-[11px] sm:text-xs px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full transition-all",
+              "relative z-10 text-[11px] sm:text-xs px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full transition-colors",
               activeView === "registry"
-                ? "bg-white/[0.1] text-white font-semibold shadow-sm"
+                ? "text-white font-semibold"
                 : "text-fg-2 hover:text-white"
             )}
           >
+            {activeView === "registry" && (
+              <motion.div
+                layoutId="topnavbar-active-pill"
+                transition={SPRING_FAST}
+                className="absolute inset-0 rounded-full bg-white/[0.12] shadow-sm -z-10"
+              />
+            )}
             Registry
           </a>
           <a
             href="#/showcase"
             className={cn(
-              "text-[11px] sm:text-xs px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full transition-all",
+              "relative z-10 text-[11px] sm:text-xs px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full transition-colors",
               activeView === "showcase"
-                ? "bg-white/[0.1] text-white font-semibold shadow-sm"
+                ? "text-white font-semibold"
                 : "text-fg-2 hover:text-white"
             )}
           >
+            {activeView === "showcase" && (
+              <motion.div
+                layoutId="topnavbar-active-pill"
+                transition={SPRING_FAST}
+                className="absolute inset-0 rounded-full bg-white/[0.12] shadow-sm -z-10"
+              />
+            )}
             Showcase
           </a>
         </div>

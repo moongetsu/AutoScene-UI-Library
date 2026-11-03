@@ -22,6 +22,8 @@ import { Kbd } from "@/components/ui/kbd"
 import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
 import { TopNavbar } from "./TopNavbar"
 import { toast } from "sonner"
+import { motion } from "motion/react"
+import { SPRING_FAST } from "@/lib/motion"
 
 interface ComponentCardData {
   id: string
@@ -397,20 +399,30 @@ export function StudioRegistryLayout() {
 
           {/* Category Filter Pills */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap ${
-                  selectedCategory === cat
-                    ? "bg-white text-black shadow-lg font-semibold"
-                    : "bg-white/[0.04] text-fg-2 hover:bg-white/[0.08] hover:text-white border border-white/[0.06]"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+            {categories.map((cat) => {
+              const isSelected = selectedCategory === cat
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`relative px-4 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
+                    isSelected ? "text-black font-semibold" : "text-fg-2 hover:text-white"
+                  }`}
+                >
+                  {isSelected ? (
+                    <motion.div
+                      layoutId="registry-category-pill"
+                      transition={SPRING_FAST}
+                      className="absolute inset-0 rounded-full bg-white shadow-lg -z-10"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] -z-10" />
+                  )}
+                  {cat}
+                </button>
+              )
+            })}
           </div>
 
           {/* 21st.dev Style Component Card Grid */}

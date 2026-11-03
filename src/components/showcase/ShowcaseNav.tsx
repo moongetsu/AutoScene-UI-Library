@@ -15,7 +15,9 @@ import {
   MagnifyingGlass,
   GithubLogo,
 } from "@phosphor-icons/react"
+import { motion } from "motion/react"
 import { cn } from "@/lib/utils"
+import { SPRING_FAST } from "@/lib/motion"
 
 export type ShowcaseSectionId =
   | "buttons"
@@ -129,13 +131,20 @@ export function ShowcaseNav({ activeSection, onSelect, isOpen, onClose }: Showca
                         type="button"
                         onClick={() => handleSelect(item.id)}
                         className={cn(
-                          "group relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all text-left cursor-pointer",
+                          "group relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left cursor-pointer",
                           active
-                            ? "bg-accent/10 text-white font-semibold border-l-2 border-accent pl-2.5 shadow-sm"
-                            : "text-fg-2 hover:bg-white/[0.04] hover:text-white hover:translate-x-0.5"
+                            ? "text-white font-semibold"
+                            : "text-fg-2 hover:text-white"
                         )}
                       >
-                        <div className="flex items-center gap-2.5">
+                        {active && (
+                          <motion.div
+                            layoutId="sidebar-active-indicator"
+                            transition={SPRING_FAST}
+                            className="absolute inset-0 rounded-lg bg-accent/10 border-l-2 border-accent shadow-sm"
+                          />
+                        )}
+                        <div className="relative z-10 flex items-center gap-2.5">
                           <span
                             className={cn(
                               "transition-colors",
@@ -150,7 +159,7 @@ export function ShowcaseNav({ activeSection, onSelect, isOpen, onClose }: Showca
                         {item.count && (
                           <span
                             className={cn(
-                              "text-[10px] font-mono px-1.5 py-0.2 rounded transition-colors",
+                              "relative z-10 text-[10px] font-mono px-1.5 py-0.2 rounded transition-colors",
                               active
                                 ? "bg-accent/20 text-accent font-semibold"
                                 : "bg-white/[0.04] text-fg-3 group-hover:text-fg-2"
