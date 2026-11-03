@@ -9,14 +9,14 @@ export function ShellShowcase() {
       <ShowcasePageHeader
         title="Shell & Headers"
         description="Navigation rails, brand logos, and app shell headers."
-        importPath='import { AutoSceneMark } from "@/components/brand/AutoSceneMark"'
+        importPath='import { AutoSceneMark } from "@moongetsu/autoscene-ui"'
       />
 
       {/* 1. Brand Vectors */}
       <ShowcaseSectionStage
         title="Brand Marks"
         description="The AutoScene golden chevron mark with boxed and bare variations."
-        code={`import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
+        code={`import { AutoSceneMark } from "@moongetsu/autoscene-ui"
 
 {/* Boxed app icon */}
 <AutoSceneMark className="size-10" />
