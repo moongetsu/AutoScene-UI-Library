@@ -6,10 +6,11 @@ import {
   Trash,
   Check,
   Copy,
-  Sparkle,
+  SlidersHorizontal,
   Image,
   SquaresFour,
   Circle,
+  TerminalWindow,
 } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
@@ -75,6 +76,82 @@ const PRESETS: {
     glow: 25,
   },
 ]
+
+/**
+ * Lightweight syntax highlighter with line numbers matching the rest of the showcase
+ */
+function highlightTsx(code: string) {
+  const lines = code.trim().split("\n")
+
+  return lines.map((line, lineIdx) => {
+    const tokens: React.ReactNode[] = []
+    let remaining = line
+    let keyIdx = 0
+
+    if (remaining.trim().startsWith("//") || remaining.trim().startsWith("{/*")) {
+      return (
+        <div key={lineIdx} className="table-row">
+          <span className="table-cell pr-4 text-right select-none text-white/20 font-mono text-[11px] w-8">
+            {lineIdx + 1}
+          </span>
+          <span className="table-cell text-fg-disabled italic font-mono">{line}</span>
+        </div>
+      )
+    }
+
+    const regex = /(import|from|export|default|const|let|var|function|return|as|type|interface|true|false|<[a-zA-Z0-9_.]+|\/?>|"[\s\S]*?"|'[\s\S]*?'|\b[a-zA-Z_][a-zA-Z0-9_]*(?==))/g
+    let match: RegExpExecArray | null
+    let lastIdx = 0
+
+    while ((match = regex.exec(remaining)) !== null) {
+      if (match.index > lastIdx) {
+        tokens.push(
+          <span key={keyIdx++} className="text-fg-2">
+            {remaining.slice(lastIdx, match.index)}
+          </span>
+        )
+      }
+
+      const matchText = match[0]
+      if (matchText.startsWith('"') || matchText.startsWith("'")) {
+        tokens.push(<span key={keyIdx++} className="text-[#a5d6a7]">{matchText}</span>)
+      } else if (matchText.startsWith("<") || matchText === "/>" || matchText === ">") {
+        tokens.push(<span key={keyIdx++} className="text-[#f6c177] font-semibold">{matchText}</span>)
+      } else if (match[0].endsWith("=")) {
+        tokens.push(<span key={keyIdx++} className="text-[#9ccfd8]">{matchText}</span>)
+      } else if (
+        ["import", "from", "export", "default", "const", "let", "var", "function", "return", "as", "type", "interface"].includes(
+          matchText
+        )
+      ) {
+        tokens.push(<span key={keyIdx++} className="text-[#ea9a97] font-medium">{matchText}</span>)
+      } else if (matchText === "true" || matchText === "false") {
+        tokens.push(<span key={keyIdx++} className="text-[#ebbcba] font-mono">{matchText}</span>)
+      } else {
+        tokens.push(<span key={keyIdx++} className="text-fg-1">{matchText}</span>)
+      }
+
+      lastIdx = regex.lastIndex
+    }
+
+    if (lastIdx < remaining.length) {
+      tokens.push(
+        <span key={keyIdx++} className="text-fg-2">
+          {remaining.slice(lastIdx)}
+        </span>
+      )
+    }
+
+    return (
+      <div key={lineIdx} className="table-row group/line hover:bg-white/[0.02]">
+        <span className="table-cell pr-5 text-right select-none text-white/20 group-hover/line:text-white/40 font-mono text-[11px] w-9 transition-colors">
+          {lineIdx + 1}
+        </span>
+        <span className="table-cell font-mono text-[12px] whitespace-pre">{tokens}</span>
+      </div>
+    )
+  })
+}
 
 export function ButtonPlayground() {
   const [variant, setVariant] = useState<ButtonVariant>("accent")
@@ -145,21 +222,33 @@ export function ButtonPlayground() {
         importPath='import { Button } from "@/components/ui/button"'
       />
 
-      {/* Preset Quick-Buttons */}
+      {/* Preset Quick-Buttons - clean phosphor icon */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
         <span className="text-xs font-semibold text-fg-3 uppercase tracking-wider pr-2 flex items-center gap-1.5 shrink-0">
-          <Sparkle className="size-3.5 text-accent" /> Presets:
+          <SlidersHorizontal className="size-4 text-accent" /> Presets:
         </span>
-        {PRESETS.map((p) => (
-          <button
-            key={p.name}
-            type="button"
-            onClick={() => applyPreset(p)}
-            className="px-3 py-1.5 rounded-full text-xs font-medium bg-white/[0.04] hover:bg-white/[0.08] hover:text-white border border-white/[0.08] text-fg-2 transition-all shrink-0 cursor-pointer"
-          >
-            {p.name}
-          </button>
-        ))}
+        {PRESETS.map((p) => {
+          const isActive =
+            variant === p.variant &&
+            label === p.label &&
+            icon === p.icon &&
+            radius === p.radius
+          return (
+            <button
+              key={p.name}
+              type="button"
+              onClick={() => applyPreset(p)}
+              className={cn(
+                "px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all shrink-0 cursor-pointer",
+                isActive
+                  ? "bg-accent/15 border-accent/40 text-accent font-semibold shadow-sm"
+                  : "bg-white/[0.04] hover:bg-white/[0.08] hover:text-white border-white/[0.08] text-fg-2"
+              )}
+            >
+              {p.name}
+            </button>
+          )
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -320,34 +409,34 @@ export function ButtonPlayground() {
                   type="button"
                   onClick={() => setBg("dark")}
                   className={cn(
-                    "px-2 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1",
-                    bg === "dark" ? "bg-white/[0.1] text-white" : "text-fg-3 hover:text-white"
+                    "px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1.5",
+                    bg === "dark" ? "bg-white/[0.1] text-white shadow-sm font-semibold" : "text-fg-3 hover:text-white"
                   )}
                   title="Dark studio backdrop"
                 >
-                  <SquaresFour className="size-3" /> Canvas
+                  <SquaresFour className="size-3.5" /> Canvas
                 </button>
                 <button
                   type="button"
                   onClick={() => setBg("checker")}
                   className={cn(
-                    "px-2 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1",
-                    bg === "checker" ? "bg-white/[0.1] text-white" : "text-fg-3 hover:text-white"
+                    "px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1.5",
+                    bg === "checker" ? "bg-white/[0.1] text-white shadow-sm font-semibold" : "text-fg-3 hover:text-white"
                   )}
                   title="Checkerboard transparency"
                 >
-                  <SquaresFour className="size-3" /> Grid
+                  <SquaresFour className="size-3.5" /> Grid
                 </button>
                 <button
                   type="button"
                   onClick={() => setBg("media")}
                   className={cn(
-                    "px-2 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1",
-                    bg === "media" ? "bg-white/[0.1] text-white" : "text-fg-3 hover:text-white"
+                    "px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1.5",
+                    bg === "media" ? "bg-white/[0.1] text-white shadow-sm font-semibold" : "text-fg-3 hover:text-white"
                   )}
                   title="Cinematic footage frame"
                 >
-                  <Image className="size-3" /> Footage
+                  <Image className="size-3.5" /> Footage
                 </button>
               </div>
             </div>
@@ -395,9 +484,10 @@ export function ButtonPlayground() {
 
           {/* Generated React Code Snippet Box */}
           <div className="flex flex-col rounded-2xl border border-white/[0.08] bg-[#0c0c0f] overflow-hidden shadow-xl">
+            {/* Header bar */}
             <div className="flex items-center justify-between px-6 py-3 border-b border-white/[0.06] bg-white/[0.015]">
               <div className="flex items-center gap-2 text-xs font-mono text-fg-3">
-                <span className="size-2 rounded-full bg-accent animate-pulse" />
+                <TerminalWindow className="size-3.5 text-accent" />
                 <span>Generated TSX Snippet</span>
               </div>
 
@@ -425,10 +515,11 @@ export function ButtonPlayground() {
               </button>
             </div>
 
-            <div className="p-5 bg-[#08080a] overflow-x-auto">
-              <pre className="text-xs font-mono text-fg-2 leading-relaxed selection:bg-accent/30 selection:text-white whitespace-pre">
-                <code>{generatedCode}</code>
-              </pre>
+            {/* Syntax-highlighted code table with line numbers */}
+            <div className="p-4 bg-[#08080a] overflow-x-auto max-h-[380px] scrollbar-thin scrollbar-thumb-white/10">
+              <div className="table w-full border-collapse">
+                {highlightTsx(generatedCode)}
+              </div>
             </div>
           </div>
         </div>
