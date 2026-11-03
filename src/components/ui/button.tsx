@@ -13,8 +13,8 @@ import { cn } from "@/lib/utils"
 const buttonVariants = cva(
   [
     "inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-medium cursor-pointer",
-    "transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out",
-    "disabled:pointer-events-none disabled:opacity-40 active:scale-[0.96]",
+    "transition-[background-color,border-color,color,box-shadow] duration-200 ease-out",
+    "disabled:pointer-events-none disabled:opacity-40",
     "[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   ],
   {
@@ -77,8 +77,14 @@ export function Button({
     <motion.button
       type={type}
       disabled={disabled || busy}
-      whileTap={{ scale: 0.96 }}
-      transition={{ type: "spring", stiffness: 500, damping: 28 }}
+      whileHover={{ scale: 1.025 }}
+      whileTap={{ scale: 0.94 }}
+      transition={{
+        type: "spring",
+        stiffness: 550,
+        damping: 24,
+        mass: 0.6,
+      }}
       className={cn(buttonVariants({ variant, size }), className)}
       {...(props as HTMLMotionProps<"button">)}
     >
