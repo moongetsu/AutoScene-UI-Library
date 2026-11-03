@@ -33,9 +33,7 @@ export function IconsShowcase() {
     navigator.clipboard.writeText(code)
     setCopiedName(name)
     notify.success(`Copied <${name} />`, {
-      description: "Ready to paste into your JSX template.",
       snippet: code,
-      badge: "Icon JSX",
     })
     setTimeout(() => setCopiedName(null), 1800)
   }
@@ -130,7 +128,7 @@ export function IconsShowcase() {
 
                 {/* Copied indicator pill */}
                 {isCopied && (
-                  <span className="absolute top-1.5 right-1.5 flex items-center gap-0.5 text-[9px] font-mono text-accent bg-accent/15 px-1.5 py-0.5 rounded-full border border-accent/30">
+                  <span className="absolute top-2 right-2 flex items-center gap-1 text-[9px] font-mono text-accent bg-[#121118]/95 px-2 py-0.5 rounded-full border border-accent/40 shadow-lg shadow-black/60 pointer-events-none z-10">
                     <Check className="size-2.5" /> Copied
                   </span>
                 )}
