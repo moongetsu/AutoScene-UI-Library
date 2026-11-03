@@ -1,3 +1,6 @@
+import { ShowcasePageHeader } from "../ShowcasePageHeader"
+import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
+
 const SURFACES = [
   { name: "--bg-inset", hex: "#050506", label: "Inset / Well" },
   { name: "--bg-canvas", hex: "#09090b", label: "Canvas" },
@@ -22,71 +25,96 @@ const TEXTS = [
 
 export function TokensShowcase() {
   return (
-    <div className="flex flex-col gap-10">
-      <div>
-        <h2 className="text-3xl font-bold text-fg-1">Design Tokens</h2>
-        <p className="text-fg-2 mt-1">
-          AutoScene "Cinematic" design tokens: near-black theatre surfaces, warm white typography, and gold accent.
-        </p>
-      </div>
+    <div className="flex flex-col gap-8">
+      <ShowcasePageHeader
+        title="Design Tokens"
+        description="AutoScene cinematic design tokens: near-black theatre surfaces, warm white typography, and gold accent speculars."
+        importPath='@import "@/styles/tokens.css";'
+      />
 
-      {/* Surfaces */}
-      <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold text-fg-1">Surfaces</h3>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      {/* 1. Surfaces */}
+      <ShowcaseSectionStage
+        title="Surface Hierarchy"
+        description="Layered elevation palette designed to create depth without harsh outlines."
+        code={`/* CSS Variables */
+--bg-inset:   #050506; /* Cutouts and wells */
+--bg-canvas:  #09090b; /* Background viewport */
+--bg-panel:   #111114; /* Cards and sidebars */
+--bg-raised:  #18181c; /* Hovered surfaces */
+--bg-overlay: #202025; /* Menus and popovers */`}
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 w-full">
           {SURFACES.map((s) => (
-            <div key={s.name} className="rounded-2xl border border-white/[0.08] bg-canvas p-4 flex flex-col gap-3">
+            <div key={s.name} className="rounded-xl border border-white/[0.08] bg-[#0c0c0f] p-3 flex flex-col gap-2.5">
               <div
-                className="h-16 w-full rounded-xl border border-white/[0.1] shadow-inner"
+                className="h-12 w-full rounded-lg border border-white/[0.08] shadow-inner"
                 style={{ backgroundColor: s.hex }}
               />
               <div>
-                <span className="text-xs font-semibold text-fg-1 block">{s.label}</span>
-                <span className="text-[11px] font-mono text-fg-3">{s.name}</span>
+                <span className="text-xs font-semibold text-white block">{s.label}</span>
+                <span className="text-[10px] font-mono text-fg-3 block truncate">{s.name}</span>
                 <span className="text-[10px] font-mono text-accent block">{s.hex}</span>
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </ShowcaseSectionStage>
 
-      {/* Brand Accent */}
-      <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold text-fg-1">Brand Accent</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* 2. Brand Accent */}
+      <ShowcaseSectionStage
+        title="Brand Accent Palette"
+        description="Warm gold speculars and glowing state variants."
+        code={`/* Gold Accent Variables */
+--accent:        #e0b45c;
+--accent-hover:  #eac375;
+--accent-press:  #c99e48;
+--accent-subtle: rgba(224, 180, 92, 0.14);`}
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
           {ACCENTS.map((a) => (
-            <div key={a.name} className="rounded-2xl border border-white/[0.08] bg-canvas p-4 flex flex-col gap-3">
+            <div key={a.name} className="rounded-xl border border-white/[0.08] bg-[#0c0c0f] p-3 flex flex-col gap-2.5">
               <div
-                className="h-16 w-full rounded-xl border border-white/[0.1] shadow-inner"
+                className="h-12 w-full rounded-lg border border-white/[0.08] shadow-inner"
                 style={{ backgroundColor: a.hex }}
               />
               <div>
-                <span className="text-xs font-semibold text-fg-1 block">{a.label}</span>
-                <span className="text-[11px] font-mono text-fg-3">{a.name}</span>
+                <span className="text-xs font-semibold text-white block">{a.label}</span>
+                <span className="text-[10px] font-mono text-fg-3 block truncate">{a.name}</span>
                 <span className="text-[10px] font-mono text-accent block">{a.hex}</span>
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </ShowcaseSectionStage>
 
-      {/* Typography Hierarchy */}
-      <section className="flex flex-col gap-4">
-        <h3 className="text-lg font-semibold text-fg-1">Typography Hierarchy</h3>
-        <div className="rounded-2xl border border-white/[0.08] bg-canvas p-6 flex flex-col gap-4 max-w-xl">
+      {/* 3. Typography */}
+      <ShowcaseSectionStage
+        title="Typography & Text Hierarchy"
+        description="Warm-tinted grayscale ramp tuned for contrast against dark canvas."
+        code={`/* Typography Colors */
+--fg-1:        #f5f3ef; /* Primary */
+--fg-2:        #b4b1ac; /* Secondary */
+--fg-3:        #8a8783; /* Tertiary */
+--fg-disabled: #4f4d4a; /* Inactive */`}
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full">
           {TEXTS.map((t) => (
-            <div key={t.name} className="flex items-center justify-between border-b border-white/[0.06] pb-3">
-              <div>
-                <p className="text-sm font-medium" style={{ color: t.hex }}>
-                  The quick brown fox jumps over the lazy dog
-                </p>
-                <span className="text-[11px] text-fg-3 font-mono">{t.name} ({t.label})</span>
+            <div key={t.name} className="rounded-xl border border-white/[0.08] bg-[#0c0c0f] p-3 flex flex-col gap-2.5">
+              <div
+                className="h-12 w-full rounded-lg border border-white/[0.08] flex items-center justify-center font-bold text-base"
+                style={{ backgroundColor: "#0c0c0f", color: t.hex }}
+              >
+                Aa
               </div>
-              <span className="text-xs font-mono text-fg-3">{t.hex}</span>
+              <div>
+                <span className="text-xs font-semibold text-white block">{t.label}</span>
+                <span className="text-[10px] font-mono text-fg-3 block truncate">{t.name}</span>
+                <span className="text-[10px] font-mono text-accent block">{t.hex}</span>
+              </div>
             </div>
           ))}
         </div>
-      </section>
+      </ShowcaseSectionStage>
     </div>
   )
 }
