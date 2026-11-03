@@ -15,14 +15,14 @@ export function TogglesShowcase() {
       <ShowcasePageHeader
         title="Toggles & Sliders"
         description="Switches, range sliders, and sliding tab buttons."
-        importPath='import { Switch, Segmented, Slider } from "@/components/ui/..."'
+        importPath='import { Switch, Segmented, Slider } from "@moongetsu/autoscene-ui"'
       />
 
       {/* 1. Segmented */}
       <ShowcaseSectionStage
         title="Segmented Sliding Tabs"
         description="Fluid indicator bar slides underneath active tabs using spring physics."
-        code={`import { Segmented } from "@/components/ui/segmented"
+        code={`import { Segmented } from "@moongetsu/autoscene-ui"
 
 <Segmented
   value={tab}
@@ -55,7 +55,7 @@ export function TogglesShowcase() {
       <ShowcaseSectionStage
         title="Toggle Switches"
         description="High-contrast boolean toggles with smooth glow transitions."
-        code={`import { Switch } from "@/components/ui/switch"
+        code={`import { Switch } from "@moongetsu/autoscene-ui"
 
 <label className="flex items-center justify-between gap-4">
   <span className="text-sm font-medium text-fg-1">Hardware Acceleration</span>
@@ -78,7 +78,7 @@ export function TogglesShowcase() {
       <ShowcaseSectionStage
         title="Sliders & Range Controls"
         description="Continuous track sliders with numeric readout indicators."
-        code={`import { Slider } from "@/components/ui/slider"
+        code={`import { Slider } from "@moongetsu/autoscene-ui"
 
 <Slider
   value={[sliderVal]}

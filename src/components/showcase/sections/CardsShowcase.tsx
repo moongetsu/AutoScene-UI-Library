@@ -10,7 +10,7 @@ export function CardsShowcase() {
       <ShowcasePageHeader
         title="Composite Cards"
         description="Cards for character profiles, exports, and video clips."
-        importPath='import { Card } from "@/components/ui/card"'
+        importPath='import { Badge, Button } from "@moongetsu/autoscene-ui"'
       />
 
       {/* 1. Character Profile Card */}

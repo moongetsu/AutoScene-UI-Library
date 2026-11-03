@@ -13,7 +13,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Primary Action Pill",
     category: "Buttons",
     description: "White glassmorphic CTA pill with inner specular glow and spring press state.",
-    importStatement: 'import { Button } from "@/components/ui/button"',
+    importStatement: 'import { Button } from "@moongetsu/autoscene-ui"',
     showcaseSection: "buttons",
   },
   {
@@ -21,7 +21,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Accent Gold Button",
     category: "Buttons",
     description: "AutoScene brand gold with subtle backdrop glow for focal actions.",
-    importStatement: 'import { Button } from "@/components/ui/button"',
+    importStatement: 'import { Button } from "@moongetsu/autoscene-ui"',
     showcaseSection: "buttons",
   },
   {
@@ -29,7 +29,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Frosted Glass Pill",
     category: "Buttons",
     description: "Translucent backdrop pill designed to float over media footage.",
-    importStatement: 'import { Button } from "@/components/ui/button"',
+    importStatement: 'import { Button } from "@moongetsu/autoscene-ui"',
     showcaseSection: "buttons",
   },
   {
@@ -37,7 +37,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Danger Destructive Pill",
     category: "Buttons",
     description: "Muted crimson border with red glow hover for irreversible deletes.",
-    importStatement: 'import { Button } from "@/components/ui/button"',
+    importStatement: 'import { Button } from "@moongetsu/autoscene-ui"',
     showcaseSection: "buttons",
   },
   {
@@ -45,7 +45,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Segmented Sliding Tabs",
     category: "Toggles",
     description: "Spring-animated sliding tab switcher with zero layout shift.",
-    importStatement: 'import { Segmented } from "@/components/ui/segmented"',
+    importStatement: 'import { Segmented } from "@moongetsu/autoscene-ui"',
     showcaseSection: "toggles",
   },
   {
@@ -53,7 +53,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Hardware Switch",
     category: "Toggles",
     description: "High-contrast boolean switch with fluid thumb glide.",
-    importStatement: 'import { Switch } from "@/components/ui/switch"',
+    importStatement: 'import { Switch } from "@moongetsu/autoscene-ui"',
     showcaseSection: "toggles",
   },
   {
@@ -61,7 +61,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Confidence Slider",
     category: "Toggles",
     description: "Continuous drag threshold slider with live numeric chip feedback.",
-    importStatement: 'import { Slider } from "@/components/ui/slider"',
+    importStatement: 'import { Slider } from "@moongetsu/autoscene-ui"',
     showcaseSection: "toggles",
   },
   {
@@ -69,7 +69,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Glass Form Input",
     category: "Inputs",
     description: "Controlled text input with border focus states and placeholder styling.",
-    importStatement: 'import { Input } from "@/components/ui/input"',
+    importStatement: 'import { Input } from "@moongetsu/autoscene-ui"',
     showcaseSection: "inputs",
   },
   {
@@ -77,7 +77,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Search Bar with Icon",
     category: "Inputs",
     description: "Search bar with embedded magnifying glass icon and keyboard shortcut.",
-    importStatement: 'import { Input } from "@/components/ui/input"',
+    importStatement: 'import { Input } from "@moongetsu/autoscene-ui"',
     showcaseSection: "inputs",
   },
   {
@@ -85,7 +85,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Character Profile Card",
     category: "Cards",
     description: "Square actor profile card with clip badge and action menu trigger.",
-    importStatement: 'import { Card } from "@/components/ui/card"',
+    importStatement: 'import { Badge, Button } from "@moongetsu/autoscene-ui"',
     showcaseSection: "cards",
   },
   {
@@ -93,7 +93,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Export Summary Card",
     category: "Cards",
     description: "Export summary card with playback trigger and video format details.",
-    importStatement: 'import { Card } from "@/components/ui/card"',
+    importStatement: 'import { Badge, Button } from "@moongetsu/autoscene-ui"',
     showcaseSection: "cards",
   },
   {
@@ -101,7 +101,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Status Badges & Tags",
     category: "Feedback",
     description: "Semantic badge pills designed for status updates and timeline verification.",
-    importStatement: 'import { Badge } from "@/components/ui/badge"',
+    importStatement: 'import { Badge } from "@moongetsu/autoscene-ui"',
     showcaseSection: "badges",
   },
   {
@@ -109,7 +109,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Progress Bar",
     category: "Feedback",
     description: "Determinate percentage progress bar and indeterminate scanning beam.",
-    importStatement: 'import { Progress } from "@/components/ui/progress"',
+    importStatement: 'import { Progress } from "@moongetsu/autoscene-ui"',
     showcaseSection: "indicators",
   },
   {
@@ -117,7 +117,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Keyboard Shortcut Caps",
     category: "Feedback",
     description: "Physical specular keyboard shortcut caps for keybinding references.",
-    importStatement: 'import { Kbd } from "@/components/ui/kbd"',
+    importStatement: 'import { Kbd } from "@moongetsu/autoscene-ui"',
     showcaseSection: "indicators",
   },
   {
@@ -125,7 +125,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Dropdown Action Menu",
     category: "Feedback",
     description: "Glass floating context menu with item icons and destructive action separator.",
-    importStatement: 'import { DropdownMenu } from "@/components/ui/dropdown-menu"',
+    importStatement: 'import { DropdownMenu } from "@moongetsu/autoscene-ui"',
     showcaseSection: "overlays",
   },
   {
@@ -133,7 +133,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: "Hero Display Header",
     category: "Media",
     description: "Backdrop header designed for project and episode hero banners.",
-    importStatement: 'import { Hero } from "@/components/ui/hero"',
+    importStatement: 'import { Hero } from "@moongetsu/autoscene-ui"',
     showcaseSection: "media",
   },
 ]

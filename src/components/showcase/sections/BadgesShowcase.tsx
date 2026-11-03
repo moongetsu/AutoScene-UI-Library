@@ -8,14 +8,14 @@ export function BadgesShowcase() {
       <ShowcasePageHeader
         title="Badges & Tags"
         description="Tags and status badges for clips, episodes, and export states."
-        importPath='import { Badge } from "@/components/ui/badge"'
+        importPath='import { Badge } from "@moongetsu/autoscene-ui"'
       />
 
       {/* 1. Tones */}
       <ShowcaseSectionStage
         title="Tones"
         description="Semantic badge styles designed to communicate priority and operational state."
-        code={`import { Badge } from "@/components/ui/badge"
+        code={`import { Badge } from "@moongetsu/autoscene-ui"
 
 <Badge tone="neutral">Default Neutral</Badge>
 <Badge tone="accent">Accent Gold</Badge>

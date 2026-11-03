@@ -9,15 +9,14 @@ export function MediaShowcase() {
       <ShowcasePageHeader
         title="Media & Artwork"
         description="Image containers, aspect ratio frames, and hero headers."
-        importPath='import { Hero } from "@/components/ui/hero"'
+        importPath='import { Hero, Badge } from "@moongetsu/autoscene-ui"'
       />
 
       {/* 1. Hero */}
       <ShowcaseSectionStage
         title="Hero Display Header"
         description="Backdrop header designed for project and episode hero banners."
-        code={`import { Hero } from "@/components/ui/hero"
-import { Badge } from "@/components/ui/badge"
+        code={`import { Hero, Badge } from "@moongetsu/autoscene-ui"
 
 <Hero path={null}>
   <div className="p-8 flex flex-col gap-2">

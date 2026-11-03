@@ -18,15 +18,14 @@ export function OverlaysShowcase() {
       <ShowcasePageHeader
         title="Overlays & Menus"
         description="Tooltips, dropdown menus, and toast notifications."
-        importPath='import { Tooltip, DropdownMenu } from "@/components/ui/..."'
+        importPath='import { Tooltip, DropdownMenu } from "@moongetsu/autoscene-ui"'
       />
 
       {/* 1. Tooltips */}
       <ShowcaseSectionStage
         title="Tooltips"
         description="Delicate hovering hints with directional auto-alignment."
-        code={`import { Tooltip } from "@/components/ui/tooltip"
-import { Button } from "@/components/ui/button"
+        code={`import { Tooltip, Button } from "@moongetsu/autoscene-ui"
 
 <Tooltip label="Plays the source video at full resolution">
   <Button variant="secondary">Hover for Tooltip</Button>
@@ -57,7 +56,7 @@ import { Button } from "@/components/ui/button"
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
+} from "@moongetsu/autoscene-ui"
 
 <DropdownMenu>
   <DropdownMenuTrigger asChild>

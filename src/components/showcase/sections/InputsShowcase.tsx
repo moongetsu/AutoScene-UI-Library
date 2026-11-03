@@ -12,14 +12,14 @@ export function InputsShowcase() {
       <ShowcasePageHeader
         title="Inputs & Search"
         description="Text inputs and search bars with focus borders."
-        importPath='import { Input } from "@/components/ui/input"'
+        importPath='import { Input } from "@moongetsu/autoscene-ui"'
       />
 
       {/* 1. Standard Fields */}
       <ShowcaseSectionStage
         title="Standard Text Inputs"
         description="Controlled text fields with labels and active states."
-        code={`import { Input } from "@/components/ui/input"
+        code={`import { Input } from "@moongetsu/autoscene-ui"
 
 <div className="flex flex-col gap-1.5">
   <label className="text-xs font-medium text-fg-2">Project Name</label>

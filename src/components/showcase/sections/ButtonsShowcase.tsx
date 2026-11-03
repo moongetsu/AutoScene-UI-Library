@@ -12,14 +12,14 @@ export function ButtonsShowcase() {
       <ShowcasePageHeader
         title="Buttons & Pills"
         description="Buttons with glass backgrounds, border highlights, and click animations."
-        importPath='import { Button } from "@/components/ui/button"'
+        importPath='import { Button } from "@moongetsu/autoscene-ui"'
       />
 
       {/* 1. Variants Matrix */}
       <ShowcaseSectionStage
         title="Variants"
         description="Six tailored visual styles designed for hierarchy and focal actions."
-        code={`import { Button } from "@/components/ui/button"
+        code={`import { Button } from "@moongetsu/autoscene-ui"
 import { Play, Plus, DownloadSimple, Trash } from "@phosphor-icons/react"
 
 <Button variant="primary"><Play weight="fill" /> Primary Action</Button>

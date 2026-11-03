@@ -11,14 +11,14 @@ export function IndicatorsShowcase() {
       <ShowcasePageHeader
         title="Status & Progress"
         description="Progress bars, keyboard shortcuts, and empty states."
-        importPath='import { Progress, Kbd, EmptyState } from "@/components/ui/..."'
+        importPath='import { Progress, Kbd, EmptyState } from "@moongetsu/autoscene-ui"'
       />
 
       {/* 1. Progress */}
       <ShowcaseSectionStage
         title="Progress Indicators"
         description="Determinate percentage track and indeterminate scanning beam."
-        code={`import { Progress } from "@/components/ui/progress"
+        code={`import { Progress } from "@moongetsu/autoscene-ui"
 
 {/* Percentage */}
 <Progress value={65} />
@@ -48,7 +48,7 @@ export function IndicatorsShowcase() {
       <ShowcaseSectionStage
         title="Keyboard Shortcuts (Kbd)"
         description="Specular shortcut caps formatted for hotkey guides and tooltip prompts."
-        code={`import { Kbd } from "@/components/ui/kbd"
+        code={`import { Kbd } from "@moongetsu/autoscene-ui"
 
 <Kbd keys={["⌘", "K"]} />
 <Kbd keys={["Space"]} />
@@ -79,7 +79,7 @@ export function IndicatorsShowcase() {
       <ShowcaseSectionStage
         title="Empty & Error States"
         description="Informative fallback graphics with direct resolution actions."
-        code={`import { EmptyState } from "@/components/ui/empty-state"
+        code={`import { EmptyState } from "@moongetsu/autoscene-ui"
 
 <EmptyState
   title="No scenes detected"

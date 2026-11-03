@@ -195,7 +195,7 @@ export function ButtonPlayground() {
   const glowStyle = innerGlow !== 35 ? ` boxShadow: "inset 0 1px 0 rgba(255,255,255,${innerGlow / 100})",` : ""
   const hasCustomStyles = radiusStyle || blurStyle || glowStyle
 
-  const generatedCode = `import { Button } from "@/components/ui/button"${
+  const generatedCode = `import { Button } from "@moongetsu/autoscene-ui"${
     icon !== "none" ? `\nimport { ${icon === "play" ? "Play" : icon === "plus" ? "Plus" : icon === "download" ? "DownloadSimple" : "Trash"} } from "@phosphor-icons/react"` : ""
   }
 
@@ -219,7 +219,7 @@ export function ButtonPlayground() {
       <ShowcasePageHeader
         title="Playground"
         description="Change button properties, test on different backgrounds, and copy the React code."
-        importPath='import { Button } from "@/components/ui/button"'
+        importPath='import { Button } from "@moongetsu/autoscene-ui"'
       />
 
       {/* Preset Quick-Buttons - clean phosphor icon */}
