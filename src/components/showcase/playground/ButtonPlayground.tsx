@@ -354,11 +354,12 @@ export function ButtonPlayground() {
                 <span className="font-mono text-accent">{radius > 100 ? "Full Pill" : `${radius}px`}</span>
               </div>
               <Slider
-                value={[radius > 100 ? 50 : radius]}
+                label="Corner Radius"
+                value={radius > 100 ? 50 : radius}
                 max={50}
                 min={4}
                 step={2}
-                onValueChange={(val) => setRadius(val[0] === 50 ? 9999 : val[0])}
+                onChange={(val) => setRadius(val === 50 ? 9999 : val)}
               />
             </div>
 
@@ -369,11 +370,12 @@ export function ButtonPlayground() {
                 <span className="font-mono text-accent">{blurLevel}px</span>
               </div>
               <Slider
-                value={[blurLevel]}
+                label="Backdrop Blur"
+                value={blurLevel}
                 max={40}
                 min={0}
                 step={2}
-                onValueChange={(val) => setBlurLevel(val[0])}
+                onChange={(val) => setBlurLevel(val)}
               />
             </div>
 
@@ -384,11 +386,12 @@ export function ButtonPlayground() {
                 <span className="font-mono text-accent">{innerGlow}%</span>
               </div>
               <Slider
-                value={[innerGlow]}
+                label="Specular Glow"
+                value={innerGlow}
                 max={100}
                 min={0}
                 step={5}
-                onValueChange={(val) => setInnerGlow(val[0])}
+                onChange={(val) => setInnerGlow(val)}
               />
             </div>
           </div>

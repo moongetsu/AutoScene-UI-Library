@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Slot } from "radix-ui"
 import { cva, type VariantProps } from "class-variance-authority"
+import { CircleNotch } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 
 /**
@@ -44,15 +45,32 @@ const buttonVariants = cva(
 
 // No `title`: the browser's tooltip isn't the app's (wrap in `Tooltip`).
 export type ButtonProps = Omit<React.ComponentProps<"button">, "title"> &
-  VariantProps<typeof buttonVariants> & { asChild?: boolean }
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+    busy?: boolean
+  }
 
-export function Button({ className, variant, size, asChild, type = "button", ...props }: ButtonProps) {
+export function Button({
+  className,
+  variant,
+  size,
+  asChild,
+  type = "button",
+  busy,
+  disabled,
+  children,
+  ...props
+}: ButtonProps) {
   const Comp = asChild ? Slot.Root : "button"
   return (
     <Comp
       type={asChild ? undefined : type}
+      disabled={disabled || busy}
       className={cn(buttonVariants({ variant, size }), className)}
       {...props}
-    />
+    >
+      {busy && <CircleNotch className="size-4 animate-spin text-current" />}
+      {children}
+    </Comp>
   )
 }
