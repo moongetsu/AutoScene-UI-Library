@@ -31,10 +31,32 @@ const SECTION_LABELS: Record<ShowcaseSectionId, string> = {
 }
 
 export function ShowcaseLayout() {
-  const [active, setActive] = React.useState<ShowcaseSectionId>("buttons")
+  const getInitialSection = (): ShowcaseSectionId => {
+    const hash = window.location.hash
+    const match = hash.match(/section=([a-z-]+)/)
+    if (match && match[1] in SECTION_LABELS) {
+      return match[1] as ShowcaseSectionId
+    }
+    return "buttons"
+  }
+
+  const [active, setActive] = React.useState<ShowcaseSectionId>(getInitialSection)
   const [search, setSearch] = React.useState("")
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false)
   const [paletteOpen, setPaletteOpen] = React.useState(false)
+
+  // Listen to hash changes (e.g. from Command Palette navigation or direct URL)
+  React.useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash
+      const match = hash.match(/section=([a-z-]+)/)
+      if (match && match[1] in SECTION_LABELS) {
+        setActive(match[1] as ShowcaseSectionId)
+      }
+    }
+    window.addEventListener("hashchange", handleHash)
+    return () => window.removeEventListener("hashchange", handleHash)
+  }, [])
 
   return (
     <div className="min-h-screen bg-[#070709] text-fg-1 flex flex-col font-sans selection:bg-accent/30 selection:text-white">
