@@ -1,8 +1,8 @@
 import * as React from "react"
 import { Slot } from "radix-ui"
 import { cva, type VariantProps } from "class-variance-authority"
-import { CircleNotch } from "@phosphor-icons/react"
 import { motion, type HTMLMotionProps } from "motion/react"
+import { CircleNotch } from "@/components/icons"
 import { cn } from "@/lib/utils"
 
 /**
@@ -52,8 +52,26 @@ const buttonVariants = cva(
 export type ButtonProps = Omit<React.ComponentProps<"button">, "title"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    /**
+     * It is working: it can't be pressed, and a spinner takes the place of
+     * its first icon, or stands in front of the label when it has none.
+     */
     busy?: boolean
   }
+
+/** An icon among a button's children: a Phosphor icon (a ref-forwarding component) or a plain `svg`. */
+function isIcon(node: React.ReactNode): node is React.ReactElement {
+  return React.isValidElement(node) && (node.type === "svg" || typeof node.type === "object")
+}
+
+/** `children` while busy: the spinner in the first icon's place, or in front of them. */
+function withSpinner(children: React.ReactNode) {
+  const spinner = <CircleNotch key="busy" className="animate-spin text-current" />
+  const parts = React.Children.toArray(children)
+  const first = parts.findIndex(isIcon)
+  if (first < 0) return [spinner, ...parts]
+  return parts.map((part, i) => (i === first ? spinner : part))
+}
 
 export function Button({
   className,
@@ -81,6 +99,7 @@ export function Button({
     <motion.button
       type={type}
       disabled={disabled || busy}
+      aria-busy={busy || undefined}
       whileHover={{ scale: 1.025 }}
       whileTap={{ scale: 0.94 }}
       transition={{
@@ -92,8 +111,7 @@ export function Button({
       className={cn(buttonVariants({ variant, size }), className)}
       {...(props as HTMLMotionProps<"button">)}
     >
-      {busy && <CircleNotch className="size-4 animate-spin text-current" />}
-      {children}
+      {busy ? withSpinner(children) : children}
     </motion.button>
   )
 }

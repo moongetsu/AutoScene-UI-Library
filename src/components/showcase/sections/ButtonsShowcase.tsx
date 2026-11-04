@@ -81,13 +81,17 @@ import { Play, Plus, DownloadSimple, Trash } from "@phosphor-icons/react"
       {/* 3. States */}
       <ShowcaseSectionStage
         title="Interactive States"
-        description="Built-in busy spinner states and accessible disabled styles."
+        description="busy swaps the first icon for a spinner, or adds one in front of a label with no icon, and disables the button."
         code={`<Button variant="primary" busy>Saving...</Button>
+<Button variant="danger" busy><Trash /> Uninstall</Button>
 <Button variant="secondary" busy>Processing</Button>
 <Button variant="accent" disabled>Disabled Accent</Button>`}
       >
         <Button variant="primary" busy>
           Saving...
+        </Button>
+        <Button variant="danger" busy>
+          <Trash /> Uninstall
         </Button>
         <Button variant="secondary" busy>
           Processing
