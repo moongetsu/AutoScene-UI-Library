@@ -90,6 +90,11 @@ describe("an export's card", () => {
     expect(screen.queryByRole("progressbar")).toBeNull()
   })
 
+  it("says Queued without gold while it waits: waiting isn't working", () => {
+    show(exported("queued", [item(1, "queued")]), job("queued"))
+    expect(screen.getByText("Queued").className).not.toContain("text-accent")
+  })
+
   it("no longer says Queued once its job was cancelled", () => {
     show(exported("queued", [item(1, "queued")]), job("cancelled"))
     expect(screen.getByText("Cancelled")).toBeTruthy()
@@ -243,7 +248,7 @@ describe("an export's edit lists", () => {
 })
 
 describe("an export's plugin actions", () => {
-  const post = { id: "post", title: "Post to Discord", description: null, afterExport: false }
+  const post = { id: "post", title: "Post to Discord", description: null, afterExport: false, afterFailed: false }
   const entry = (name: RegExp) => screen.getByRole("menuitem", { name })
 
   it("runs a plugin's export action", async () => {
@@ -275,13 +280,22 @@ describe("an export's plugin actions", () => {
     show(exported("done", [item(1, "done")]))
     await openMenu()
     fireEvent.click(entry(/Post to Discord/))
-    await waitFor(() => expect(toast).toHaveBeenCalledWith("Post to Discord is already waiting or running", { description: "It's in Activity." }))
+    // Named by its plugin first: the action's title is the plugin's own words.
+    await waitFor(() =>
+      expect(toast).toHaveBeenCalledWith("Plugin “Discord Notify”: Post to Discord is already waiting or running", {
+        description: "It's in Activity.",
+      }),
+    )
     cleanup()
 
     pluginRun.mockRejectedValue({ code: "invalid", message: "Discord Notify is turned off." })
     show(exported("done", [item(1, "done")]))
     await openMenu()
     fireEvent.click(entry(/Post to Discord/))
-    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Couldn't run Post to Discord", { description: "Discord Notify is turned off." }))
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith("Plugin “Discord Notify”: Post to Discord couldn't start", {
+        description: "Discord Notify is turned off.",
+      }),
+    )
   })
 })

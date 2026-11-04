@@ -1,8 +1,9 @@
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { Outlet } from "@tanstack/react-router"
 import { NewProjectDialog } from "@/features/library/NewProjectDialog"
+import { InstallReviewDialog } from "@/features/plugins/InstallReviewDialog"
 import { RelinkDialog } from "@/features/project/RelinkDialog"
-import { useGlobalBindings } from "@/lib/actions"
+import { useAppActions, useGlobalBindings } from "@/lib/actions"
 import { installBrowserGuards } from "@/lib/browser-guards"
 import { startEventBridge } from "@/lib/events"
 import { useKeymapSync } from "@/lib/keymap"
@@ -16,6 +17,7 @@ import { CommandPalette } from "./CommandPalette"
 import { DropZone } from "./DropZone"
 import { Rail } from "./Rail"
 import { TextMenu } from "./TextMenu"
+import { FastScanNotice } from "./FastScanNotice"
 import { UpdateDialog } from "./UpdateDialog"
 import { WindowControls } from "./WindowControls"
 import { WindowTitle } from "./WindowTitle"
@@ -31,7 +33,13 @@ export function AppShell() {
   useKeymapSync()
   useLayerSafetyNet()
   useEffect(() => startUpdateSchedule(), [])
-  useEffect(() => startEventBridge(), [])
+  // The bridge lives as long as the window: it asks for where to go when it needs to.
+  const { goPlugins } = useAppActions()
+  const go = useRef(goPlugins)
+  useEffect(() => {
+    go.current = goPlugins
+  })
+  useEffect(() => startEventBridge({ goPlugins: () => go.current() }), [])
   useEffect(() => installBrowserGuards({ dev: import.meta.env.DEV }), [])
   const railHidden = useUi((s) => s.sidebarCollapsed)
 
@@ -40,6 +48,7 @@ export function AppShell() {
     return (
       <div className="min-h-screen w-full bg-[#070709] text-fg-1 selection:bg-accent/30 selection:text-white">
         <Outlet />
+        <InstallReviewDialog />
         <Toaster />
       </div>
     )
@@ -60,7 +69,9 @@ export function AppShell() {
         <UpdateDialog />
         <NewProjectDialog />
         <RelinkDialog />
+        <InstallReviewDialog />
         <DropZone />
+        <FastScanNotice />
         <TextMenu />
       </div>
     </AppMenu>

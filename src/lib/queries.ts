@@ -1,5 +1,5 @@
 import { QueryClient, useQuery } from "@tanstack/react-query"
-import { commands, type CharacterId, type FaceTrackItem, type MediaId, type ProjectId, type TrackFilter } from "./ipc"
+import { commands, type CharacterId, type FaceTrackItem, type MediaId, type PluginInfo, type ProjectId, type TrackFilter } from "./ipc"
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,6 +16,8 @@ export const queryClient = new QueryClient({
 export const qk = {
   appInfo: ["appInfo"] as const,
   settings: ["settings"] as const,
+  scanDefaults: ["scanDefaults"] as const,
+  hardware: ["hardware"] as const,
   mediaTools: ["mediaTools"] as const,
   presets: ["exportPresets"] as const,
   projects: ["projects"] as const,
@@ -35,6 +37,9 @@ export const qk = {
   characterShots: (pid: ProjectId, cid: CharacterId) => ["cast", pid, "shots", cid] as const,
   // Under the cast: a pack is made from it, so every cast change refreshes it.
   pack: (pid: ProjectId, cid: CharacterId) => ["cast", pid, "pack", cid] as const,
+  // The pack the filters make, and its names and sizes: one query per filters (their spec follows).
+  packPreviews: (pid: ProjectId, cid: CharacterId) => ["cast", pid, "pack", cid, "preview"] as const,
+  packPlans: (pid: ProjectId, cid: CharacterId) => ["cast", pid, "pack", cid, "plan"] as const,
   // Under the cast: a name waits only for a character still shown and
   // unnamed. The look-up says it began and ended with `anilist:changed`.
   anilistNames: (pid: ProjectId) => ["cast", pid, "anilist"] as const,
@@ -42,7 +47,23 @@ export const qk = {
   plugins: ["plugins"] as const,
   // Under the plugins: `plugins:changed` refreshes both.
   pluginSettings: (id: string) => ["plugins", id, "settings"] as const,
+  // Outside the plugins: `plugins:changed` fires on every settings save, and
+  // a banner is up to 512 KB. Another picture comes with another hash.
+  pluginBanner: (id: string, hash: string | null) => ["pluginBanner", id, hash] as const,
+  // Outside the plugins, but what it offers is worked out against them:
+  // `plugins:changed` and `catalog:changed` refresh it.
+  catalog: ["catalog"] as const,
 }
+
+/**
+ * A pack as the filters make it - its preview or its plan - of any
+ * character in any project. It shows what the plugins do (their filters,
+ * whether they are on), so what changes them (`plugins:changed`) makes
+ * every one again, also those not on screen. The settings it was made with
+ * are not part of it.
+ */
+export const isMadePack = (q: { queryKey: readonly unknown[] }) =>
+  q.queryKey[0] === "cast" && q.queryKey[2] === "pack" && (q.queryKey[4] === "preview" || q.queryKey[4] === "plan")
 
 export function useAppInfo() {
   return useQuery({ queryKey: qk.appInfo, queryFn: () => commands.appInfo() })
@@ -50,6 +71,23 @@ export function useAppInfo() {
 
 export function useSettings() {
   return useQuery({ queryKey: qk.settings, queryFn: () => commands.settingsGet() })
+}
+
+/**
+ * The scan new projects start with, and why. Read afresh wherever it is shown:
+ * a choice in Settings or the faceless-people switch changes it.
+ */
+export function useScanDefaults() {
+  return useQuery({ queryKey: qk.scanDefaults, queryFn: () => commands.scanDefaultsGet(), staleTime: 0 })
+}
+
+/**
+ * The graphics the analysis can run on, and the one it does. The first ask
+ * of a session starts the engine to look (a second or so); `hardware:changed`
+ * refreshes it after that, and a failure waits for Try again.
+ */
+export function useHardware() {
+  return useQuery({ queryKey: qk.hardware, queryFn: () => commands.hardwareInfo(), retry: false })
 }
 
 export function useMediaTools() {
@@ -146,6 +184,11 @@ export function usePresence(pid: ProjectId, mid: MediaId, enabled: boolean) {
   return useQuery({ queryKey: qk.presence(pid, mid), queryFn: () => commands.mediaPresence(pid, mid), enabled })
 }
 
+/** AutoScene's plugin catalog as it holds it: never the network (`checkCatalog` asks it). */
+export function useCatalog() {
+  return useQuery({ queryKey: qk.catalog, queryFn: () => commands.catalogList() })
+}
+
 /** The installed plugins, broken ones too. */
 export function usePlugins() {
   return useQuery({ queryKey: qk.plugins, queryFn: () => commands.pluginsList() })
@@ -154,6 +197,26 @@ export function usePlugins() {
 /** A plugin's settings: the person's value of each, else its default. */
 export function usePluginSettings(id: string) {
   return useQuery({ queryKey: qk.pluginSettings(id), queryFn: () => commands.pluginSettingsGet(id) })
+}
+
+/** What a plugin's banner may be: its PNG, JPEG or WebP as a base64 `data:` URL (the backend reads and checks the file). */
+const BANNER_URL = /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/
+
+/** `url` while it is a banner in hand. One function, so a query checks each answer once. */
+const pictureOnly = (url: string | null) => (url != null && BANNER_URL.test(url) ? url : null)
+
+/**
+ * A plugin's banner as a `data:` URL: fetched once for each of its hashes,
+ * never without one, and only ever a picture in hand, never a link.
+ */
+export function usePluginBanner(p: Pick<PluginInfo, "id" | "bannerHash">) {
+  return useQuery({
+    queryKey: qk.pluginBanner(p.id, p.bannerHash),
+    queryFn: () => commands.pluginBanner(p.id),
+    enabled: p.bannerHash != null,
+    staleTime: Infinity,
+    select: pictureOnly,
+  })
 }
 
 type Refetchable = { isError: boolean; error: unknown; data?: unknown; refetch: () => unknown }

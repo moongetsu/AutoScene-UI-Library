@@ -1,4 +1,5 @@
 import * as React from "react"
+import { AppMenu } from "@/components/shell/AppMenu"
 import { COMPONENT_DEMO_PREVIEWS } from "@/registry/component-previews"
 import { DISCOVERED_COMPONENTS } from "@/registry/discovery"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
@@ -24,7 +25,10 @@ export function FeaturesShowcase() {
         description="Whole parts of the AutoScene app, kept in step with it. They run here on the mock backend with made-up data, so what you press is answered, but nothing leaves the page."
       />
 
-      {GROUPS.map((group) => (
+      {/* The app's right-click menu, which the rest of this site leaves to the browser. */}
+      <AppMenu>
+        <div className="flex flex-col gap-10">
+          {GROUPS.map((group) => (
         <section key={group} className="flex flex-col gap-6">
           <h3 className="text-sm font-semibold text-fg-3">{group}</h3>
           {FEATURES.filter((c) => (c.feature ?? "Other") === group).map((c) => (
@@ -41,7 +45,9 @@ export function FeaturesShowcase() {
             </article>
           ))}
         </section>
-      ))}
+          ))}
+        </div>
+      </AppMenu>
     </div>
   )
 }

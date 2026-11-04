@@ -1,7 +1,7 @@
 /**
  * Browser mock backend. When the UI runs outside Tauri (plain `vite`, Vitest,
  * Playwright), IPC calls are answered here so every screen is reachable
- * without the Rust side. Keep handlers shaped exactly like the real commands —
+ * without the Rust side. Keep handlers shaped exactly like the real commands -
  * `bindings.ts` types are the contract.
  *
  * Playback uses the barcoded fixture `cfr24_h264.mp4` (served by Vite from
@@ -10,6 +10,8 @@
  */
 import { emit } from "@tauri-apps/api/event"
 import { mockIPC, mockWindows } from "@tauri-apps/api/mocks"
+import { isFinished } from "@/state/activity"
+import { catalogAtStart, catalogCancel, catalogGet, catalogList, catalogRefresh } from "./catalog"
 import {
   castEdit,
   castGet,
@@ -21,8 +23,10 @@ import {
   setMockBodies,
   seedCast,
 } from "./cast"
+import { accelCalls, analysisRuns, hardwareInfo, initialAccelOn, initialGpu, mockPlatform, thisComputer } from "./hardware"
 import {
   fileProblem,
+  giveVerdicts,
   packChoices,
   packFileName,
   packGet,
@@ -31,26 +35,41 @@ import {
   packPlan,
   packPreview,
   packSave,
+  shotsToJudge,
   templateProblem,
 } from "./pack"
 import {
   MOCK_PLUGIN_FOLDER,
   afterExportRuns,
+  clearPluginSecret,
+  closePage,
   discardTicket,
   inspectFolder,
   inspectPackage,
   installPlugin,
   mockPlugin,
   nextPluginPackage,
+  openPage,
+  packFilterHosts,
+  packAction,
+  pageCall,
+  pagesOf,
+  pluginBanner,
   pluginRun,
   pluginValues,
   pluginsList,
   reviewed,
+  runnableName,
   setAfterExport,
+  setEvent,
   setPluginEnabled,
+  setPluginSecret,
   setPluginValues,
+  takeOpenedPackages,
+  tellPageServer,
   uninstallPlugin,
 } from "./plugins"
+import type { PagePlaces } from "./plugins"
 import type {
   ActionKind,
   AniListMedia,
@@ -81,8 +100,11 @@ import type {
   NewProject,
   ProjectKind,
   ProjectSummary,
+  ScanChoice,
+  ScanDefaults,
   Segment,
   SettingValue,
+  ThisComputer,
   TrackFilter,
   CastEdit,
   UpdateStatus,
@@ -93,10 +115,29 @@ type Handler = (args: Record<string, unknown>) => unknown
 const FIXTURES = (import.meta.env.VITE_FIXTURES_URL as string | undefined) ?? ""
 const VIDEO = `${FIXTURES}cfr24_h264.mp4`
 const FRAMES = 586
+/**
+ * The frames the player is told an episode has: the fixture's, or as many
+ * as `localStorage["autoscene.mock.frames"]` says, so the layout check
+ * (`npm run check:player-layout`) can show a 2-hour film's numbers.
+ */
+function playerFrames(): number {
+  try {
+    const n = Number(localStorage.getItem("autoscene.mock.frames"))
+    return Number.isSafeInteger(n) && n > 0 ? n : FRAMES
+  } catch {
+    return FRAMES
+  }
+}
 const FPS = { num: 24, den: 1 }
 const ROOT = String.raw`C:\Users\you\Documents\AutoScene Library`
 
-/** What shot detection makes of the fixture (taken from a real run of the app). */
+/**
+ * What shot detection made of the fixture before the fusion of #59 (taken
+ * from a real run of the app), as a library analysed then still holds it.
+ * Its wipe at 335-346 is a dissolve here; the fusion now keeps it inside one
+ * shot (crates/as-analysis/tests/shots.rs). The rows stay as they are, so
+ * the mock characters keep the shots they are seeded with.
+ */
 const SEGMENTS: Segment[] = (
   [
     [0, 48, "shot"],
@@ -134,10 +175,78 @@ const appInfo: AppInfo = {
 }
 
 let mockClipboard: string | null = null
-let settings: AppSettings = { libraryRoot: ROOT, exportPresetId: "prores-hq", audioLanguage: "eng", allowUnreviewedPlugins: false }
+
+// -- this computer: Fast Scan's default for new projects ----------------------
+// `?mockMachine=` (before the `#`) is the computer the mock analyses on; see
+// `./hardware`. The platform follows it.
+if (mockPlatform) appInfo.platform = mockPlatform
+/** What Fast Scan's default sees: the graphics chosen in Settings (`AppSettings.gpu`). */
+const machine = (): ThisComputer => thisComputer(settings.gpu ?? "")
+/** The person's choice: only `scan_default_set` changes it, as in the library. */
+let scanChoice: ScanChoice = "auto"
+/** The first-start notice is done ("Don't show this again", or a default met in Settings): one flag, whatever the graphics. */
+let noticeDone = false
+
+/** Like `as_project::scan::defaults`: what a new project of `content` starts with. */
+function startsFast(content: ContentKind): boolean {
+  if (scanChoice !== "auto") return scanChoice === "fast"
+  if (!["notForAi", "integrated", "processor"].includes(machine().class)) return false
+  if (content === "animation") return false
+  return content === "anime" || !(settings.findBodies ?? false)
+}
+
+function scanDefaults(): ScanDefaults {
+  const footage = (["live", "mixed", "animation", "anime"] as const).map((content) => ({ content, fast: startsFast(content) }))
+  const computer = machine()
+  const fastHere = ["notForAi", "integrated", "processor"].includes(computer.class)
+  const notice = scanChoice === "auto" && fastHere && !noticeDone
+  return { computer, choice: scanChoice, footage, notice }
+}
+
+let settings: AppSettings = {
+  libraryRoot: ROOT,
+  exportPresetId: "prores-hq",
+  audioLanguage: "eng",
+  allowUnreviewedPlugins: false,
+  gpu: initialGpu,
+  pluginCatalogChecks: true,
+  nvidiaAcceleration: initialAccelOn,
+}
+/** A graphics card chosen while an analysis runs applies from the next one (`?mockHardware=busy`). */
+let gpuPending = false
+/** As the library answers it, `fastScan` says what live action starts with here. */
+const followFastScan = () => void (settings = { ...settings, fastScan: startsFast("live") })
+followFastScan()
 
 /** Whether plugins AutoScene hasn't reviewed may run (changed only by `plugins_allow_unreviewed`). */
 const allows = () => settings.allowUnreviewedPlugins ?? false
+/** Whether the plugin catalog is checked every day (on by default). */
+const checksCatalog = () => settings.pluginCatalogChecks ?? true
+
+/** GitHub's own pages, which no account's name can be (as-plugin's `GITHUB_PAGES`). */
+const GITHUB_PAGES = new Set([
+  "login", "logout", "settings", "apps", "marketplace", "sponsors", "orgs", "organizations", "users",
+  "account", "sessions", "oauth", "codespaces", "notifications", "new", "join", "signup", "features",
+  "enterprise", "pricing", "security", "site", "explore", "topics", "search", "copilot", "github-copilot",
+  "enterprises", "redeem", "contact", "dashboard", "stars", "collections", "trending", "about", "readme",
+])
+
+/**
+ * Whether a plugin's source opens without asking, as the backend's
+ * `source_link` says: a plain GitHub repository, or a folder or file in one
+ * (a trailing slash too). A part under tree/blob has none of the characters
+ * a browser would escape or read otherwise (`"`, `<`, `>`, `` ` ``, `{`,
+ * `}`, `\`, `%`), as the backend's `url.as_str() == link` check says.
+ */
+function githubRepository(link: string): boolean {
+  const m =
+    /^https:\/\/github\.com\/([A-Za-z0-9-]{1,39})\/([A-Za-z0-9._-]{1,100})(\/|\/(?:tree|blob)(?:\/[!$&-.0-;=@-[\]^_a-z|~]+)+\/?)?$/.exec(
+      link,
+    )
+  const owner = m?.[1] ?? ""
+  const plain = /^[A-Za-z0-9](?:-?[A-Za-z0-9])*$/.test(owner) && !GITHUB_PAGES.has(owner.toLowerCase())
+  return plain && !link.split("/").some((part) => part === "." || part === "..")
+}
 
 /** Canned AniList answers (no network in the mock). */
 const ANILIST_SERIES: AniListMedia[] = [
@@ -230,7 +339,7 @@ const presets: ExportPreset[] = [
   preset("dnxhr-hq", "DNxHR HQ", "Edit-grade intra codec, popular with Premiere and Resolve on Windows.", "mov"),
   preset("h264-edit", "H.264 · Editing", "Visually lossless H.264 with a short GOP for smooth scrubbing. Works everywhere.", "mp4"),
   preset("h264-mobile", "H.264 · Mobile (CapCut, Alight Motion)", "1080p H.264 with stereo sound that imports cleanly into phone editors.", "mp4"),
-  preset("h264-intra", "H.264 · All-Intra (Twixtor)", "Every frame a keyframe — ideal for Twixtor and frame-by-frame work.", "mp4"),
+  preset("h264-intra", "H.264 · All-Intra (Twixtor)", "Every frame a keyframe - ideal for Twixtor and frame-by-frame work.", "mp4"),
   preset("hevc10", "HEVC 10-bit (keeps HDR)", "Smaller files that preserve 10-bit colour and HDR.", "mp4"),
   {
     ...preset("bit-perfect", "Bit-Perfect (lossless)", "Every frame exactly as in the episode: the same pixels, colour and HDR, and its own sound. Stored without loss as HEVC, which After Effects and other editors open (FFV1 for the rare pictures HEVC can't hold). Very large files.", "mov"),
@@ -439,6 +548,14 @@ let rev = 0
  */
 const onCancel = new Map<string, () => void>()
 
+/**
+ * The kinds of work that run one job at a time, as the backend's analysis
+ * class does: a second one waits `queued` until the one before it ends.
+ */
+const ONE_AT_A_TIME: JobKind[] = ["analyze"]
+/** How each waiting job starts once its turn comes, by job. */
+const waiting = new Map<string, () => void>()
+
 function startJob(
   kind: JobKind,
   title: string,
@@ -450,6 +567,8 @@ function startJob(
     /** Under the title; the project's by default. */
     subtitle?: string
     stage: string
+    /** What its work marks as it begins (a job that waits begins once its turn comes). */
+    began?: () => void
     cancelled?: () => void
     /** Tells the job's stage, progress, time left and frames `elapsed` ms in, as its kind of work does. */
     tick?: (job: JobInfo, elapsed: number) => void
@@ -458,6 +577,7 @@ function startJob(
   },
   done: () => void,
 ): JobInfo {
+  // As the backend queues it: no stage, no progress and no time left until it runs.
   const job: JobInfo = {
     id: id(),
     kind,
@@ -466,45 +586,65 @@ function startJob(
     projectId: p?.id ?? null,
     mediaId: opts.mediaId ?? null,
     exportId: opts.exportId ?? null,
-    state: "running",
-    progress: 0,
-    stage: opts.stage,
-    etaMs: ms,
+    state: "queued",
+    progress: null,
+    stage: null,
+    etaMs: null,
     error: null,
     message: null,
     createdAt: Date.now(),
     finishedAt: null,
     rev: ++rev,
   }
-  opts.tick?.(job, 0)
+  const run = () => {
+    Object.assign(job, { state: "running", progress: 0, stage: opts.stage, etaMs: ms, rev: ++rev })
+    opts.began?.()
+    opts.tick?.(job, 0)
+    void emit("job:changed", { ...job })
+    const t0 = Date.now()
+    const timer = window.setInterval(() => {
+      if (job.state !== "running") return window.clearInterval(timer)
+      const elapsed = Date.now() - t0
+      const f = Math.min(1, elapsed / ms)
+      job.progress = f
+      job.etaMs = Math.max(0, ms - elapsed)
+      if (f < 1) opts.tick?.(job, elapsed)
+      job.rev = ++rev
+      const { progress, stage, etaMs, frames } = job
+      void emit("job:progress", { id: job.id, rev: job.rev, progress, stage, etaMs, frames: frames ?? null })
+      if (f >= 1) {
+        window.clearInterval(timer)
+        job.state = "done"
+        job.message = opts.message ?? null
+        job.finishedAt = Date.now()
+        job.etaMs = null
+        job.frames = null
+        job.rev = ++rev
+        onCancel.delete(job.id)
+        done()
+        void emit("job:changed", { ...job })
+        nextTurn(kind)
+      }
+    }, 250)
+  }
+  const busy = ONE_AT_A_TIME.includes(kind) && jobs.some((j) => j.kind === kind && !isFinished(j))
   jobs.unshift(job)
   if (opts.cancelled) onCancel.set(job.id, opts.cancelled)
-  void emit("job:changed", { ...job })
-  const t0 = Date.now()
-  const timer = window.setInterval(() => {
-    if (job.state !== "running") return window.clearInterval(timer)
-    const elapsed = Date.now() - t0
-    const f = Math.min(1, elapsed / ms)
-    job.progress = f
-    job.etaMs = Math.max(0, ms - elapsed)
-    if (f < 1) opts.tick?.(job, elapsed)
-    job.rev = ++rev
-    const { progress, stage, etaMs, frames } = job
-    void emit("job:progress", { id: job.id, rev: job.rev, progress, stage, etaMs, frames: frames ?? null })
-    if (f >= 1) {
-      window.clearInterval(timer)
-      job.state = "done"
-      job.message = opts.message ?? null
-      job.finishedAt = Date.now()
-      job.etaMs = null
-      job.frames = null
-      job.rev = ++rev
-      onCancel.delete(job.id)
-      done()
-      void emit("job:changed", { ...job })
-    }
-  }, 250)
+  if (busy) {
+    waiting.set(job.id, run)
+    void emit("job:changed", { ...job })
+  } else run()
   return job
+}
+
+/** The slot of `kind` came free: the job that has waited longest starts, if none runs. */
+function nextTurn(kind: JobKind) {
+  if (!ONE_AT_A_TIME.includes(kind) || jobs.some((j) => j.kind === kind && j.state === "running")) return
+  const next = jobs.findLast((j) => j.kind === kind && j.state === "queued")
+  const run = next && waiting.get(next.id)
+  if (!next || !run) return
+  waiting.delete(next.id)
+  run()
 }
 
 /** Each running plugin job's plugin, and what it runs on (one run of the same at a time). */
@@ -512,11 +652,19 @@ const pluginJobs = new Map<string, { pluginId: string; run: string }>()
 
 /**
  * A plugin run as a job of its own, as `queue_run` queues it: `null` when
- * the same run runs already. It ends with what the plugin says.
+ * the same run (with the same input from a page) runs already. It ends
+ * with what the plugin says.
  */
-function startPluginJob(pluginId: string, actionId: string, kind: ActionKind, projectId: string | null, exportId: string | null) {
+function startPluginJob(
+  pluginId: string,
+  actionId: string,
+  kind: ActionKind,
+  projectId: string | null,
+  exportId: string | null,
+  input: unknown = null,
+) {
   const run = pluginRun(pluginId, kind, actionId, projectId, exportId, allows())
-  const key = [pluginId, kind, actionId, projectId, exportId].join(" ")
+  const key = [pluginId, kind, actionId, projectId, exportId, JSON.stringify(input)].join(" ")
   if (jobs.some((j) => j.state === "running" && pluginJobs.get(j.id)?.run === key)) return null
   const p = projectId ? find(projectId) : null
   const job = startJob(
@@ -537,26 +685,152 @@ function startPluginJob(pluginId: string, actionId: string, kind: ActionKind, pr
   return job.id
 }
 
-/** Stop the runs of the plugins `of` matches. */
-function stopPlugins(of: (pluginId: string) => boolean) {
-  cancelJobs((j) => j.kind === "plugin" && of(pluginJobs.get(j.id)?.pluginId ?? ""))
+/** Checks of plugins' filters that wait or run, and those that failed with the basis they had (the backend's `Checks`): by pack and filter. */
+const filterChecks = new Set<string>()
+const failedChecks = new Map<string, string>()
+const checkOf = (p: MockProject, cid: string, key: string) => [p.id, cid, key].join(" ")
+
+/** The pack `spec` makes, with what the plugins' filters have judged of it (as `pack_preview` makes it). */
+function previewOf(p: MockProject, cid: string, spec: PackSpec) {
+  const hosts = packFilterHosts(allows(), spec.pluginFilters ?? [])
+  return packPreview(p.id, cid, spec, p.media, SEGMENTS, hosts, (key) => {
+    const at = checkOf(p, cid, key)
+    if (filterChecks.has(at)) return "checking"
+    return failedChecks.get(at) === hosts.find((h) => h.key === key)?.basis ? "failed" : "ready"
+  })
+}
+
+/** Why an export of `preview` waits, as `export_waits` words it: a filter it turns on checks shots. */
+function exportWaits(preview: ReturnType<typeof previewOf>, spec: PackSpec): string | null {
+  const f = preview.filters.find((x) => x.state === "checking" && (spec.pluginFilters ?? []).includes(x.key))
+  return f ? `The pack waits for “${f.title}” to check its shots.` : null
 }
 
 /**
- * Cancel the running jobs `of` matches. `record` false: without what a
- * cancel leaves behind (a restart or a removal follows, as in the backend).
+ * As `queue_check`: a chain of runs, one episode each, that gives the
+ * filter's verdicts on the shots the pack takes. `true` while it waits or
+ * runs. A check that failed with the basis it has now starts only `again`.
+ * The plugin's "Fail the check" setting makes it give half of an episode's
+ * words, then fail. Each run is a job in Activity; the pack hears
+ * `pack:changed` once per run.
+ */
+function startFilterCheck(p: MockProject, cid: string, key: string, spec: PackSpec, again: boolean): boolean {
+  const f = packFilterHosts(allows(), [key]).find((x) => x.key === key)
+  if (!f) throw { code: "not_found", message: "No plugin has such a filter." }
+  if (!f.active) throw { code: "invalid", message: `${f.plugin} is turned off.` }
+  const at = checkOf(p, cid, key)
+  if (filterChecks.has(at)) return true
+  if (!again && failedChecks.get(at) === f.basis) return false
+  failedChecks.delete(at)
+  const episodes = shotsToJudge(p.id, cid, spec, p.media, SEGMENTS, f)
+  if (episodes.length === 0) return false
+  filterChecks.add(at)
+  const label = characterLabel(p.id, cid)
+  const heard = () => void emit("pack:changed", { projectId: p.id, characterId: cid })
+  const over = (failed: boolean) => {
+    filterChecks.delete(at)
+    if (failed) failedChecks.set(at, f.basis)
+    heard()
+  }
+  const run = (i: number) => {
+    const shots = episodes[i]
+    const job: JobInfo = startJob(
+      "plugin",
+      `${f.title} · ${label}`,
+      p,
+      1500,
+      {
+        subtitle: f.plugin,
+        stage: `Checking ${shots.length} shots`,
+        cancelled: () => over(true),
+      },
+      () => {
+        pluginJobs.delete(job.id)
+        if (f.fails) {
+          giveVerdicts(p.id, cid, f, shots, Math.ceil(shots.length / 2))
+          Object.assign(job, { state: "failed", error: "There is no sound in this episode." })
+          over(true)
+        } else {
+          giveVerdicts(p.id, cid, f, shots)
+          if (i + 1 < episodes.length) {
+            heard()
+            run(i + 1)
+          } else over(false)
+        }
+      },
+    )
+    pluginJobs.set(job.id, { pluginId: key.split("/")[0], run: at })
+  }
+  run(0)
+  return true
+}
+
+/** Stop the runs of the plugins `of` matches, and close their pages, saying `why`. */
+function stopPlugins(of: (pluginId: string) => boolean, why = "It was turned off.") {
+  cancelJobs((j) => j.kind === "plugin" && of(pluginJobs.get(j.id)?.pluginId ?? ""))
+  for (const session of pagesOf(of)) void emit("plugin-page:event", { session, event: { type: "closed", reason: why } })
+}
+
+/** What a plugin page's calls read here: the projects, their episodes and exports, as a page sees them. */
+const pagePlaces: PagePlaces = {
+  project(id) {
+    const p = projects.find((x) => x.id === id)
+    if (!p) return null
+    const episodes = p.media.map((m) => ({
+      id: m.id,
+      name: m.label || m.fileName,
+      frames: m.frames,
+      fps: m.fps ? `${m.fps.num}/${m.fps.den}` : null,
+      missing: m.status === "missing",
+    }))
+    return { id: p.id, title: p.title, episodes }
+  },
+  exports(id) {
+    const p = projects.find((x) => x.id === id)
+    return (p?.exports ?? []).map((e) => ({
+      id: e.id,
+      label: e.label,
+      preset: e.preset.id,
+      createdAt: e.createdAt,
+      merged: e.merged != null,
+      clips: e.items.map((it) => {
+        const m = p?.media.find((x) => x.id === it.mediaId)
+        const fps = m?.fps ? `${m.fps.num}/${m.fps.den}` : null
+        return { name: it.name, status: it.status, mediaId: it.mediaId, episode: m ? m.label || m.fileName : "", start: it.start, end: it.end, fps }
+      }),
+    }))
+  },
+  fixture: "cfr24_h264.mp4",
+  tell: (session, event) => void emit("plugin-page:event", { session, event }),
+  run: (pluginId, kind, action, projectId, exportId, input) => startPluginJob(pluginId, action, kind, projectId, exportId, input),
+}
+
+/**
+ * Cancel the queued and running jobs `of` matches. `record` false: without
+ * what a cancel leaves behind (a restart or a removal follows, as in the
+ * backend). The work that waited for them gets its turn after.
  */
 function cancelJobs(of: (j: JobInfo) => boolean, record = true) {
-  for (const j of jobs) {
-    if (j.state !== "running" || !of(j)) continue
+  const hit = jobs.filter((j) => !isFinished(j) && of(j))
+  for (const j of hit) {
     j.state = "cancelled"
     j.rev = ++rev
     j.finishedAt = Date.now()
+    waiting.delete(j.id)
     const after = onCancel.get(j.id)
     onCancel.delete(j.id)
     void emit("job:changed", { ...j })
     if (record) after?.()
   }
+  for (const kind of new Set(hit.map((j) => j.kind))) nextTurn(kind)
+}
+
+/**
+ * Is a job of `kind` for the media queued or running? A mock cancel ends a
+ * job at once, so none is still stopping, as a backend one may be.
+ */
+function underWay(kind: JobKind, mediaId: string) {
+  return jobs.some((j) => j.kind === kind && j.mediaId === mediaId && (j.state === "queued" || j.state === "running"))
 }
 
 function ingest(p: MockProject, m: MediaItem) {
@@ -609,17 +883,56 @@ function indexingTick(job: JobInfo, elapsed: number) {
   job.frames = { done: Math.round(READ_FRAMES * read), total: STATED_FRAMES, rate: 24000 / 1001, perSec }
 }
 
+/**
+ * A first analysis as the backend tells it, stage by stage, each from 0 to 1
+ * (`null`: how far isn't told): its shots, the face model's download (a
+ * moment with no value until the response comes, then a jump back to 0),
+ * its characters, then the grouping, which tells no value at all. A
+ * characters-only run starts at its characters, the model already there.
+ */
+export const ANALYSIS: { stage: string; ms: number; told: boolean }[] = [
+  { stage: "Finding shots", ms: 2000, told: true },
+  { stage: "Downloading AI model", ms: 300, told: false },
+  { stage: "Downloading AI model", ms: 700, told: true },
+  { stage: "Finding characters", ms: 2500, told: true },
+  { stage: "Grouping characters", ms: 2000, told: false },
+]
+
+/** The stages a run goes through: all of them, or from its characters on. */
+export const analysisSteps = (facesOnly: boolean) => (facesOnly ? ANALYSIS.slice(3) : ANALYSIS)
+
+/** Tells where an analysis is `elapsed` ms in: its stage, how far that stage is, and its time left once its pace is known (after 1 s). */
+export function analysisTick(steps: typeof ANALYSIS) {
+  return (job: JobInfo, elapsed: number) => {
+    let from = 0
+    const last = steps[steps.length - 1]
+    const step = steps.find((s) => (from += s.ms) > elapsed) ?? last
+    const begun = from - step.ms
+    const into = Math.max(0, elapsed - begun)
+    job.stage = step.stage
+    // A stage tells its 1 with its last sample (every 250 ms), as the backend's stages end on theirs.
+    job.progress = step.told ? Math.min(1, into / (step.ms - 250)) : null
+    job.etaMs = step.told && into >= 1000 ? Math.max(0, step.ms - into) : null
+  }
+}
+
 function analyze(p: MockProject, m: MediaItem) {
   const facesOnly = m.shots === "ready"
-  if (facesOnly) m.faces = "running"
-  else m.shots = "running"
-  const stage = facesOnly ? "Finding characters" : "Finding shots"
-  const cancelled = () => {
-    if (m.shots === "running") m.shots = "stopped"
-    if (m.faces === "running") m.faces = "stopped"
+  const steps = analysisSteps(facesOnly)
+  const ms = steps.reduce((sum, s) => sum + s.ms, 0)
+  const began = () => {
+    if (facesOnly) m.faces = "running"
+    else m.shots = "running"
     void emit("media:changed", { projectId: p.id, mediaId: m.id })
   }
-  startJob("analyze", `Analysing ${m.label ? `${m.label} · ` : ""}${m.fileName}`, p, 4000, { mediaId: m.id, stage, cancelled }, () => {
+  // Stopped where it is, or (cancelled while it waited) where it would have
+  // begun, as the backend records it (I06): a failed or stopped stage stays.
+  const cancelled = () => {
+    const stage = m.shots !== "ready" ? "shots" : m.faces !== "ready" ? "faces" : null
+    if (stage && (m[stage] === "running" || m[stage] === "pending")) m[stage] = "stopped"
+    void emit("media:changed", { projectId: p.id, mediaId: m.id })
+  }
+  startJob("analyze", `Analysing ${m.label ? `${m.label} · ` : ""}${m.fileName}`, p, ms, { mediaId: m.id, stage: steps[0].stage, began, cancelled, tick: analysisTick(steps) }, () => {
     m.shots = "ready"
     m.shotCount = SHOT_COUNT
     m.faces = "ready"
@@ -803,19 +1116,46 @@ const handlers: Record<string, Handler> = {
   models: () => MODELS,
   settings_get: () => settings,
   settings_update: ({ settings: s }) => {
-    // Like the backend: only plugins_allow_unreviewed changes this one.
+    // Like the backend: only plugins_allow_unreviewed changes this one, and
+    // only scan_default_set Fast Scan's default (`fastScan` is read only).
+    const bodiesChanged = ((s as AppSettings).findBodies ?? false) !== (settings.findBodies ?? false)
+    const gpuChanged = ((s as AppSettings).gpu ?? "") !== (settings.gpu ?? "")
+    const accelChanged = ((s as AppSettings).nvidiaAcceleration ?? true) !== (settings.nvidiaAcceleration ?? true)
     settings = { ...(s as AppSettings), allowUnreviewedPlugins: allows() }
+    followFastScan()
+    // Changed in Settings, where Fast Scan's row says why it is on: the notice is met.
+    if ((bodiesChanged || gpuChanged) && scanDefaults().notice) noticeDone = true
+    if (gpuChanged || accelChanged) {
+      gpuPending = analysisRuns
+      void emit("hardware:changed", null)
+    }
     setMockBodies(settings.findBodies ?? false)
     return settings
   },
+  scan_defaults_get: () => scanDefaults(),
+  hardware_info: () => hardwareInfo(settings.gpu ?? "", gpuPending, settings.nvidiaAcceleration ?? true),
+  ...accelCalls(() => {
+    settings = { ...settings, nvidiaAcceleration: true }
+  }),
+  scan_default_set: ({ choice }) => {
+    scanChoice = choice as ScanChoice
+    // The person met the setting (Settings, or the notice's Turn off): the notice is done.
+    noticeDone = true
+    followFastScan()
+    return scanDefaults()
+  },
+  scan_notice_done: () => {
+    noticeDone = true
+    return null
+  },
   projects_list: () => [...projects].sort((a, b) => b.updatedAt - a.updatedAt).map(summary),
   project_get: ({ projectId }) => summary(find(projectId)),
-  project_create: ({ req }) => {
+  project_create: ({ req, fastScan }) => {
     const r = req as NewProject
     const items = scan(r.files, r.kind).map((c) => media(c.fileName, [c.season, c.episode], { status: "queued", path: c.path }))
     const p = project(r.title, r.kind, r.content, items, 0)
-    // Like the library: projects made while Fast Scan is on keep it.
-    p.fastScan = settings.fastScan ?? false
+    // Like the library: what the dialog sent, else the footage's default here.
+    p.fastScan = (fastScan as boolean | null | undefined) ?? startsFast(r.content)
     projects.unshift(p)
     items.forEach((m) => ingest(p, m))
     void emit("library:changed", { projectId: p.id })
@@ -872,6 +1212,8 @@ const handlers: Record<string, Handler> = {
   },
   media_retry: ({ projectId, mediaId }) => {
     const p = find(projectId)
+    // An indexing under way does it already, as in the backend.
+    if (underWay("ingest", String(mediaId))) return null
     ingest(p, findMedia(p, mediaId))
     void emit("media:changed", { projectId: p.id, mediaId })
     return null
@@ -915,12 +1257,16 @@ const handlers: Record<string, Handler> = {
   media_frame_map: ({ projectId, mediaId }): FrameMap => {
     const m = findMedia(find(projectId), mediaId)
     if (m.status !== "ready") throw { code: "not_ready", message: "Still indexing." }
-    return { mediaId: m.id, src: VIDEO, isProxy: m.proxy === "ready", frames: FRAMES, fps: FPS, dropFrame: false, offset: 0, step: 1 / 24, times: null }
+    return { mediaId: m.id, src: VIDEO, isProxy: m.proxy === "ready", frames: playerFrames(), fps: FPS, dropFrame: false, offset: 0, step: 1 / 24, times: null }
   },
   media_segments: ({ projectId, mediaId }): Segment[] => (findMedia(find(projectId), mediaId).shots === "ready" ? SEGMENTS : []),
   media_analyze: ({ projectId, mediaId, redo }) => {
     const p = find(projectId)
     const m = findMedia(p, mediaId)
+    // As in the backend: what an analysis under way finds itself (every
+    // stage that isn't ready) isn't started over, and going on is what it does.
+    const stage = redo === "shots" ? m.shots : redo === "faces" ? m.faces : null
+    if (underWay("analyze", m.id) && stage !== "ready") return null
     // A running analysis restarts from the stage asked for, as in the backend.
     if (redo) cancelJobs((j) => j.kind === "analyze" && j.mediaId === mediaId, false)
     if (redo === "shots") Object.assign(m, { shots: "pending", shotCount: null })
@@ -1074,34 +1420,77 @@ const handlers: Record<string, Handler> = {
     return null
   },
   pack_preview: ({ projectId, characterId, spec }) =>
-    packPreview(find(projectId).id, String(characterId), spec as PackSpec, find(projectId).media, SEGMENTS),
+    previewOf(find(projectId), String(characterId), spec as PackSpec),
   pack_override: ({ projectId, characterId, picks, spec }) => {
     const p = find(projectId)
     for (const { shots, include } of picks as PackPicks[]) packOverride(p.id, String(characterId), shots, include)
-    return packChoices(packPreview(p.id, String(characterId), spec as PackSpec, p.media, SEGMENTS))
+    return packChoices(previewOf(p, String(characterId), spec as PackSpec))
   },
   pack_plan: ({ projectId, characterId, spec, naming }) => {
     const n = naming as PackNaming
-    const problem = templateProblem(n.template) ?? (n.merge ? fileProblem(n.file) : null)
+    // The one file's name first, as the backend checks them.
+    const problem = (n.merge ? fileProblem(n.file) : null) ?? templateProblem(n.template)
     if (problem) throw { code: "invalid", message: problem }
     const p = find(projectId)
     const cid = String(characterId)
-    const preview = packPreview(p.id, cid, spec as PackSpec, p.media, SEGMENTS)
+    const preview = previewOf(p, cid, spec as PackSpec)
     const names = packNames(p.id, cid, p.title, preview, n, p.media, tcName)
     const folder = n.folder && !n.merge ? characterLabel(p.id, cid) : null
     const file = n.merge ? packFileName(p.id, cid, p.title, n) : null
     return packPlan(names.slice(0, 3), preview, BYTES_PER_FRAME, folder, file)
   },
+  pack_filter_check: ({ projectId, characterId, filter, spec, again }) =>
+    startFilterCheck(find(projectId), String(characterId), String(filter), spec as PackSpec, Boolean(again)),
+  // As `queue_pack_action`: the pack as the grid showed it, then the
+  // browser's prompt stands in for the save dialog, in the project's
+  // exports. Closed, nothing runs; a name of a kind that runs, or one too
+  // long, is refused. Then a run that says where it saved. One run of a pack
+  // action per pack at a time, waiting or running. Not while a filter it
+  // turns on checks shots.
+  pack_action_run: ({ projectId, characterId, action, spec, naming, stamp }) => {
+    const p = find(projectId)
+    const cid = String(characterId)
+    const [pluginId, actionId = ""] = String(action).split("/")
+    const label = characterLabel(p.id, cid)
+    const a = packAction(pluginId, actionId, label, allows())
+    const key = [pluginId, "packAction", actionId, p.id, cid].join(" ")
+    const busy = (j: JobInfo) => j.state === "running" || j.state === "queued"
+    if (jobs.some((j) => busy(j) && pluginJobs.get(j.id)?.run === key)) return { kind: "waits" }
+    const preview = previewOf(p, cid, spec as PackSpec)
+    const waits = exportWaits(preview, spec as PackSpec)
+    if (waits) throw { code: "invalid", message: waits }
+    if (preview.stamp !== stamp) throw { code: "invalid", message: "The pack changed meanwhile. Check it and export again." }
+    if (!preview.clips.some((c) => c.included)) throw { code: "invalid", message: "There's nothing in the pack to export." }
+    const problem = templateProblem((naming as PackNaming).template)
+    if (problem) throw { code: "invalid", message: problem }
+    const file = window.prompt(`Plugin “${a.name}” saves ${label}'s scenepack. Save as:`, a.file)?.trim()
+    if (!file) return { kind: "cancelled" }
+    if (runnableName(file)) throw { code: "invalid", message: "A plugin can't save a program, a script or a shortcut." }
+    if (new TextEncoder().encode(file).length > 240) {
+      throw { code: "invalid", message: "That file name is too long. Choose a shorter one." }
+    }
+    const path = `${settings.libraryRoot}\\Exports\\${p.title}\\${file}`
+    const title = `${a.title.replace(/[….\s]+$/u, "")} · ${label}`
+    const opts = { subtitle: a.name, stage: `Saving ${file}`, message: `Saved ${file}` }
+    const job = startJob("plugin", title, p, 2500, opts, () => pluginJobs.delete(job.id))
+    pluginJobs.set(job.id, { pluginId, run: key })
+    return { kind: "queued", job: job.id, path }
+  },
   pack_export: ({ projectId, characterId, req }) => {
     const p = find(projectId)
     const r = req as PackExportRequest
     const cid = String(characterId)
-    const preview = packPreview(p.id, cid, r.spec, p.media, SEGMENTS)
+    // In the backend's order: the names' template, the pack as shown, then the one file's name.
+    const template = templateProblem(r.naming.template)
+    if (template) throw { code: "invalid", message: template }
+    const preview = previewOf(p, cid, r.spec)
+    const waits = exportWaits(preview, r.spec)
+    if (waits) throw { code: "invalid", message: waits }
     if (preview.stamp !== r.stamp) throw { code: "invalid", message: "The pack changed meanwhile. Check it and export again." }
     const taken = preview.clips.filter((c) => c.included)
     if (taken.length === 0) throw { code: "invalid", message: "There's nothing in the pack to export." }
-    const problem = templateProblem(r.naming.template) ?? (r.naming.merge ? fileProblem(r.naming.file) : null)
-    if (problem) throw { code: "invalid", message: problem }
+    const file = r.naming.merge ? fileProblem(r.naming.file) : null
+    if (file) throw { code: "invalid", message: file }
     const names = packNames(p.id, cid, p.title, preview, r.naming, p.media, tcName)
     const label = characterLabel(p.id, cid)
     packSave(p.id, cid, { spec: r.spec, naming: r.naming })
@@ -1117,7 +1506,26 @@ const handlers: Record<string, Handler> = {
     })
   },
   // Plugins: one reviewed is installed; each .asp picked offers another (see mocks/plugins.ts).
-  plugins_list: () => pluginsList(allows()),
+  plugins_list: () => {
+    checkAtStart()
+    return pluginsList(allows())
+  },
+  plugin_banner: ({ pluginId }) => pluginBanner(String(pluginId)),
+  // The browser's confirm stands in for the system's dialog, as for a page's ui.openExternal.
+  plugin_open_source: ({ pluginId }) => {
+    const p = mockPlugin(String(pluginId))
+    if (!p) throw { code: "not_found", message: `${String(pluginId)} isn't installed.` }
+    const url = p.repository
+    if (!url) throw { code: "not_found", message: "Its plugin.json names no source." }
+    const asked = `Open this link in your browser?
+
+Plugin “${p.name}” links to its source at:
+
+${url}`
+    if (!githubRepository(url) && !window.confirm(asked)) return false
+    window.open(url, "_blank", "noopener")
+    return true
+  },
   plugins_allow_unreviewed: ({ on }) => {
     const before = allows()
     settings = { ...settings, allowUnreviewedPlugins: Boolean(on) }
@@ -1128,6 +1536,8 @@ const handlers: Record<string, Handler> = {
   },
   plugin_inspect: ({ path }) => inspectPackage(String(path), allows()),
   plugin_inspect_folder: ({ path }) => inspectFolder(String(path), allows()),
+  // `?mockOpened=1`: AutoScene was started with a package, taken once.
+  plugins_take_opened: () => takeOpenedPackages(),
   plugin_install: ({ ticketId, acceptUnreviewed }) => {
     const p = installPlugin(String(ticketId), allows(), Boolean(acceptUnreviewed))
     void emit("plugins:changed", { pluginId: p.id })
@@ -1158,11 +1568,58 @@ const handlers: Record<string, Handler> = {
     void emit("plugins:changed", { pluginId: p.id })
     return p
   },
+  plugin_set_event: ({ pluginId, eventId, on }) => {
+    const p = setEvent(String(pluginId), String(eventId), Boolean(on), allows())
+    void emit("plugins:changed", { pluginId: p.id })
+    return p
+  },
   plugin_settings_get: ({ pluginId }) => pluginValues(String(pluginId)),
   plugin_settings_set: ({ pluginId, values }) => {
     const v = setPluginValues(String(pluginId), values as Record<string, SettingValue>)
     void emit("plugins:changed", { pluginId })
     return v
+  },
+  plugin_secret_set: ({ pluginId, key, value }) => {
+    const p = setPluginSecret(String(pluginId), String(key), String(value), allows())
+    void emit("plugins:changed", { pluginId: p.id })
+    return p
+  },
+  plugin_secret_clear: ({ pluginId, key }) => {
+    const p = clearPluginSecret(String(pluginId), String(key), allows())
+    void emit("plugins:changed", { pluginId: p.id })
+    return p
+  },
+  // Its frame loads from the mock's page server, which hears of it first. Its
+  // plugin's service starts, and is ready 300 ms later.
+  plugin_page_open: async ({ pluginId, pageId, projectId }) => {
+    const mount = openPage(String(pluginId), String(pageId), (projectId as string | null) ?? null, allows())
+    await tellPageServer({ session: mount.session, pluginId: mount.plugin.id })
+    if (mount.service) {
+      const state = (state: "starting" | "ready") => pagePlaces.tell(mount.session, { type: "serviceState", state, message: null })
+      window.setTimeout(() => state("starting"), 0)
+      window.setTimeout(() => state("ready"), 300)
+    }
+    return mount
+  },
+  plugin_page_close: ({ session }) => {
+    closePage(String(session))
+    return null
+  },
+  plugin_page_call: ({ session, method, params }) => pageCall(String(session), String(method), String(params), pagePlaces),
+  plugin_page_heartbeat: () => null,
+  // The catalog: an index checked an hour ago (see mocks/catalog.ts, `?mockCatalog=`).
+  catalog_list: () => catalogList(checksCatalog()),
+  catalog_refresh: () => {
+    const { view, withdrawn } = catalogRefresh(checksCatalog())
+    void emit("catalog:changed", { withdrawn })
+    if (withdrawn.length > 0) void emit("plugins:changed", { pluginId: null })
+    return view
+  },
+  catalog_get: ({ pluginId }) =>
+    catalogGet(String(pluginId), allows(), (done, total) => void emit("catalog:progress", { pluginId, done, total })),
+  catalog_cancel: ({ pluginId }) => {
+    catalogCancel(String(pluginId))
+    return null
   },
   plugin_run: ({ pluginId, actionId, kind, projectId, exportId }) =>
     startPluginJob(String(pluginId), String(actionId), kind as ActionKind, (projectId as string | null) ?? null, (exportId as string | null) ?? null),
@@ -1208,6 +1665,19 @@ const handlers: Record<string, Handler> = {
   "plugin:dialog|save": ({ options }) => (options as { defaultPath?: string } | undefined)?.defaultPath ?? null,
 }
 
+/**
+ * The check AutoScene makes at start tells of a withdrawal (once, and
+ * `?mockCatalog=withdrawn` only) when the window first asks for its
+ * plugins: a moment later it listens.
+ */
+let checkedAtStart = false
+function checkAtStart() {
+  if (checkedAtStart) return
+  checkedAtStart = true
+  const withdrawn = catalogAtStart()
+  if (withdrawn.length > 0) window.setTimeout(() => void emit("catalog:changed", { withdrawn }), 800)
+}
+
 export function installMockBackend() {
   // `?mockFail=cast_get,media_list` (before the `#`) makes those commands fail
   // the way a broken project database does, to see every error screen.
@@ -1227,9 +1697,11 @@ export function installMockBackend() {
     },
     { shouldMockEvents: true },
   )
+  // `?mockEmpty=1`: a library with nothing in it yet, as at the first start.
+  if (new URLSearchParams(window.location.search).get("mockEmpty")) projects.splice(0)
   // A running ingest so the activity UI has something to show.
-  const f = projects[0]
-  const m = f.media.find((x) => x.status === "indexing")
-  if (m) window.setTimeout(() => ingest(f, m), 500)
+  const f = projects.at(0)
+  const m = f?.media.find((x) => x.status === "indexing")
+  if (f && m) window.setTimeout(() => ingest(f, m), 500)
   console.info("[mock] AutoScene mock backend installed")
 }

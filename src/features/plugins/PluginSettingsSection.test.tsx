@@ -18,16 +18,27 @@ const { state } = vi.hoisted(() => ({
 vi.mock("@/lib/ipc", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/lib/ipc")>()),
   commands: {
+    settingsGet: vi.fn(() => Promise.resolve({ allowUnreviewedPlugins: false })),
     pluginsList: vi.fn(() => Promise.resolve(state.plugin ? [state.plugin] : [])),
     pluginSettingsGet: vi.fn(() => Promise.resolve(state.values)),
     pluginSettingsSet: vi.fn(async (_: string, v: Record<string, SettingValue>) => ({ ...(await state.values), ...v })),
     pluginSetAfterExport: vi.fn(),
+    pluginSetEvent: vi.fn(),
+    pluginSecretSet: vi.fn(),
+    pluginSecretClear: vi.fn(),
   },
 }))
 vi.mock("@/lib/actions", () => ({ useAppActions: () => ({ goSettings: vi.fn() }) }))
 vi.mock("sonner", () => ({ toast: Object.assign(vi.fn(), { success: vi.fn(), error: vi.fn() }) }))
 const { reveal } = vi.hoisted(() => ({ reveal: vi.fn() }))
 vi.mock("@/lib/os", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/lib/os")>()), reveal }))
+const { platform } = vi.hoisted(() => ({ platform: { mac: false } }))
+vi.mock("@/lib/platform", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/platform")>()),
+  get isMac() {
+    return platform.mac
+  },
+}))
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>
@@ -60,6 +71,7 @@ const saved = () => vi.mocked(commands.pluginSettingsSet).mock.calls.map((c) => 
 beforeEach(() => {
   queryClient.clear()
   vi.clearAllMocks()
+  platform.mac = false
 })
 afterEach(cleanup)
 
@@ -69,6 +81,50 @@ describe("a plugin's settings", () => {
     await screen.findByText("Its folder")
     for (const button of screen.getAllByRole("button", { name: "Reveal" })) fireEvent.click(button)
     expect(reveal.mock.calls).toEqual([[state.plugin!.folder], [state.plugin!.logPath]])
+  })
+
+  it("says what its downloaded files take, when it has some", async () => {
+    show({ resourceBytes: 327_155_712 })
+    await screen.findByText("Its folder")
+    expect(screen.getByText("Downloaded files")).toBeTruthy()
+    expect(screen.getByText("312 MB. AutoScene keeps them in its cache and removes them with the plugin.")).toBeTruthy()
+    // Revealing is for its folder and logs: nothing more to reveal for the files.
+    expect(screen.getAllByRole("button", { name: "Reveal" })).toHaveLength(2)
+    cleanup()
+
+    // None got yet, or it names none: no row.
+    for (const resourceBytes of [0, null]) {
+      queryClient.clear()
+      show({ resourceBytes })
+      await screen.findByText("Its folder")
+      expect(screen.queryByText("Downloaded files")).toBeNull()
+      cleanup()
+    }
+  })
+
+  it("says AutoScene enforces what a sandboxed plugin may use", async () => {
+    show({ runtime: "wasm", uvScript: false, sandbox: { memoryMb: 512, minutes: 30 }, permissions: ["exports:write", "network"], networkHosts: ["discord.com"] })
+    expect(await screen.findByText("It runs in a sandbox. AutoScene enforces these.")).toBeTruthy()
+    expect(screen.getByText("Reads, changes and deletes files in the export's folder")).toBeTruthy()
+    expect(screen.getByText("Talks to these sites, over https only:")).toBeTruthy()
+    expect(screen.getByText("discord.com")).toBeTruthy()
+    expect(screen.queryByText(/user rights/)).toBeNull()
+    cleanup()
+    queryClient.clear()
+    // A program's line stays as it is.
+    show({ permissions: ["exports:read"] })
+    expect(await screen.findByText(/^Its program runs with your user rights\./)).toBeTruthy()
+    expect(screen.getByText("Reads the exported clips")).toBeTruthy()
+  })
+
+  it("says a broken WebAssembly plugin ran in the sandbox, in the sandbox's words", async () => {
+    // As info() gives one whose plugin.json can't be read: the agreed runtime, no limits.
+    show({ runtime: "wasm", uvScript: false, sandbox: null, broken: "Its files are missing. Install it again.", permissions: ["exports:write", "network"] })
+    expect(await screen.findByText("It runs in a sandbox. AutoScene enforces these.")).toBeTruthy()
+    expect(screen.getByText("Reads, changes and deletes files in the export's folder")).toBeTruthy()
+    expect(screen.getByText("May use the network, but names no site: every request is refused.")).toBeTruthy()
+    expect(screen.queryByText(/user rights/)).toBeNull()
+    expect(screen.queryByText("Changes or adds files beside the exported clips")).toBeNull()
   })
 
   it("saves a number within its bounds", async () => {
@@ -198,7 +254,7 @@ describe("a plugin's settings", () => {
   })
 
   it("turns on Run after every export", async () => {
-    const action = { id: "hello", title: "Say hello", description: null, afterExport: false }
+    const action = { id: "hello", title: "Say hello", description: null, afterExport: false, afterFailed: false }
     show({ exportActions: [action] })
     const on = await screen.findByRole("switch", { name: "Run Say hello after every export" })
     expect(on.getAttribute("aria-checked")).toBe("false")
@@ -210,9 +266,196 @@ describe("a plugin's settings", () => {
     expect(commands.pluginSetAfterExport).toHaveBeenCalledExactlyOnceWith("dev.a.hello", "hello", true)
   })
 
+  const analysisDone = {
+    id: "done",
+    title: "Post when an analysis finishes",
+    description: null,
+    on: "analysisFinished" as const,
+    turnedOn: false,
+  }
+
+  it("an event is off until the person turns it on", async () => {
+    show({ events: [analysisDone] })
+    const name = "Run Post when an analysis finishes, when a project's episodes are all analysed"
+    const on = await screen.findByRole("switch", { name })
+    expect(on.getAttribute("aria-checked")).toBe("false")
+    vi.mocked(commands.pluginSetEvent).mockResolvedValue({ ...state.plugin!, events: [{ ...analysisDone, turnedOn: true }] })
+    fireEvent.click(on)
+    await waitFor(() => expect(screen.getByRole("switch", { name }).getAttribute("aria-checked")).toBe("true"))
+    expect(commands.pluginSetEvent).toHaveBeenCalledExactlyOnceWith("dev.a.hello", "done", true)
+    expect(commands.pluginSetAfterExport).not.toHaveBeenCalled()
+  })
+
+  it("after-export actions and events share one group", async () => {
+    const actions = [
+      { id: "post", title: "Post to Discord", description: "Posts the clip list.", afterExport: true, afterFailed: true },
+      { id: "tag", title: "Tag the clips", description: null, afterExport: false, afterFailed: false },
+    ]
+    show({ exportActions: actions, events: [analysisDone] })
+    const group = (await screen.findByText("Runs by itself")).closest("section")!
+    const rows = within(group).getAllByRole("switch").map((s) => s.getAttribute("aria-label"))
+    expect(rows).toEqual([
+      "Run Post to Discord after every export, also one that failed",
+      "Run Tag the clips after every export",
+      "Run Post when an analysis finishes, when a project's episodes are all analysed",
+    ])
+    // Each row says when it runs, and what it does when its plugin says so.
+    expect(within(group).getByText("After every export, also one that failed")).toBeTruthy()
+    expect(within(group).getByText("Posts the clip list.")).toBeTruthy()
+    expect(within(group).getByText("After every export")).toBeTruthy()
+    expect(within(group).getByText("When a project's episodes are all analysed")).toBeTruthy()
+    expect(screen.queryByText("After every export", { selector: "h2, h3" })).toBeNull()
+  })
+
+  it("has no Runs by itself group without actions or events", async () => {
+    show({ settings: [number("count", "Count", {})] })
+    await screen.findByText("Settings")
+    expect(screen.queryByText("Runs by itself")).toBeNull()
+  })
+
+  const secret = (key: string, title: string): SettingSpec => ({
+    key,
+    title,
+    description: null,
+    kind: { type: "secret", placeholder: "https://…" },
+  })
+
+  it("sets a secret without ever showing it", async () => {
+    const user = userEvent.setup()
+    show({ settings: [secret("token", "Token")] })
+    expect(await screen.findByText("Not set")).toBeTruthy()
+    expect(screen.queryByRole("button", { name: "Remove Token" })).toBeNull()
+    vi.mocked(commands.pluginSecretSet).mockImplementation(async () => ({ ...state.plugin!, secretsSet: ["token"] }))
+    await user.click(screen.getByRole("button", { name: "Set Token" }))
+    const field = (await screen.findByLabelText("Token", { selector: "input" })) as HTMLInputElement
+    expect([field.type, field.value]).toEqual(["password", ""])
+    // Nothing to save until something is typed.
+    expect((screen.getByRole("button", { name: "Save" }) as HTMLButtonElement).disabled).toBe(true)
+    await user.type(field, "hunter2")
+    await user.click(screen.getByRole("button", { name: "Save" }))
+    await waitFor(() => expect(commands.pluginSecretSet).toHaveBeenCalledExactlyOnceWith("dev.a.hello", "token", "hunter2"))
+    expect(await screen.findByText("Saved in your system's keychain")).toBeTruthy()
+    // The dialog went, and what was typed with it; it never goes in as a setting's value.
+    expect(screen.queryByLabelText("Token", { selector: "input" })).toBeNull()
+    expect(document.body.innerHTML).not.toContain("hunter2")
+    expect(commands.pluginSettingsSet).not.toHaveBeenCalled()
+    // Set again, the field starts empty.
+    await user.click(screen.getByRole("button", { name: "Set Token" }))
+    expect(((await screen.findByLabelText("Token", { selector: "input" })) as HTMLInputElement).value).toBe("")
+  })
+
+  it("refuses a secret too long for the keychain, never cutting it short", async () => {
+    const user = userEvent.setup()
+    show({ settings: [secret("token", "Token")] })
+    await user.click(await screen.findByRole("button", { name: "Set Token" }))
+    const field = (await screen.findByLabelText("Token", { selector: "input" })) as HTMLInputElement
+    await user.click(field)
+    await user.paste("x".repeat(1025))
+    // All of it stays in the field, and it says why it can't be saved.
+    expect(field.value).toHaveLength(1025)
+    expect(screen.getByText("A secret can be at most 1024 characters.")).toBeTruthy()
+    const save = screen.getByRole("button", { name: "Save" }) as HTMLButtonElement
+    expect(save.disabled).toBe(true)
+    fireEvent.submit(field.form!)
+    expect(commands.pluginSecretSet).not.toHaveBeenCalled()
+    // One shorter goes.
+    await user.keyboard("{Backspace}")
+    expect(screen.queryByText("A secret can be at most 1024 characters.")).toBeNull()
+    expect(save.disabled).toBe(false)
+  })
+
+  it("says when a secret is read, and on macOS that the Keychain may ask again", async () => {
+    show({ settings: [secret("token", "Token"), { ...secret("hook", "Hook"), description: "From Discord." }] })
+    expect(await screen.findByText("Each run gets them as they are when it starts, and a secret each time it asks for it.")).toBeTruthy()
+    expect(screen.queryByText(/macOS may ask/)).toBeNull()
+    cleanup()
+    platform.mac = true
+    show({ settings: [secret("token", "Token"), { ...secret("hook", "Hook"), description: "From Discord." }] })
+    expect(await screen.findAllByText("macOS may ask you to allow it again after AutoScene updates.")).toHaveLength(2)
+    expect(screen.getByText("From Discord.")).toBeTruthy()
+  })
+
+  it("removes a secret once asked, and only once", async () => {
+    const user = userEvent.setup()
+    show({ settings: [secret("token", "Token"), secret("webhook", "Webhook")], secretsSet: ["token", "webhook"] })
+    expect(await screen.findAllByText("Saved in your system's keychain")).toHaveLength(2)
+    // Asked first; Cancel keeps it.
+    await user.click(screen.getByRole("button", { name: "Remove Token" }))
+    expect(await screen.findByText("Remove Token?")).toBeTruthy()
+    await user.click(screen.getByRole("button", { name: "Cancel" }))
+    await waitFor(() => expect(screen.queryByText("Remove Token?")).toBeNull())
+    expect(commands.pluginSecretClear).not.toHaveBeenCalled()
+    // While it goes, Remove waits: a second click sends nothing.
+    let done!: (p: PluginInfo) => void
+    vi.mocked(commands.pluginSecretClear).mockReturnValueOnce(new Promise((resolve) => (done = resolve)))
+    await user.click(screen.getByRole("button", { name: "Remove Token" }))
+    const confirm = await screen.findByRole("button", { name: "Remove" })
+    await user.click(confirm)
+    expect((confirm as HTMLButtonElement).disabled).toBe(true)
+    fireEvent.click(confirm)
+    done({ ...state.plugin!, secretsSet: ["webhook"] })
+    await waitFor(() => expect(screen.queryByText("Remove Token?")).toBeNull())
+    expect(commands.pluginSecretClear).toHaveBeenCalledExactlyOnceWith("dev.a.hello", "token")
+    expect(screen.queryByRole("button", { name: "Remove Token" })).toBeNull()
+    expect(screen.getByText("Not set")).toBeTruthy()
+    // One the keychain won't remove stays, and says why.
+    const locked = "Your system's keychain can't be used: it is locked, or refused AutoScene."
+    vi.mocked(commands.pluginSecretClear).mockRejectedValueOnce({ code: "not_ready", message: locked })
+    await user.click(screen.getByRole("button", { name: "Remove Webhook" }))
+    await user.click(await screen.findByRole("button", { name: "Remove" }))
+    await waitFor(() => expect(toast.error).toHaveBeenCalledWith("Couldn't remove the secret", { description: locked }))
+    expect((screen.getByRole("button", { name: "Remove" }) as HTMLButtonElement).disabled).toBe(false)
+    await user.click(screen.getByRole("button", { name: "Cancel" }))
+    expect(await screen.findByRole("button", { name: "Remove Webhook" })).toBeTruthy()
+  })
+
   it("says so for a plugin that isn't installed", async () => {
     state.plugin = null
     render(<PluginSettingsSection id="dev.a.gone" />, { wrapper })
     expect(await screen.findByText("This plugin isn't installed")).toBeTruthy()
+  })
+})
+
+describe("a choice setting", () => {
+  const withLabels = (labels: string[]): SettingSpec => ({
+    key: "pick",
+    title: "Pick",
+    description: null,
+    kind: {
+      type: "select",
+      default: labels[0].toLowerCase(),
+      options: labels.map((l) => ({ value: l.toLowerCase(), label: l })),
+    },
+  })
+
+  it("is a segmented control for three short choices", async () => {
+    show({ settings: [withLabels(["Low", "Mid", "High"])] })
+    const group = await screen.findByRole("radiogroup", { name: "Pick" })
+    expect(within(group).getAllByRole("radio")).toHaveLength(3)
+    expect(within(group).getByRole("radio", { name: "Low" }).getAttribute("aria-checked")).toBe("true")
+    expect(screen.queryByRole("combobox", { name: "Pick" })).toBeNull()
+  })
+
+  it("is a menu for three long choices", async () => {
+    // 11 + 11 + 11 = 33 characters, one over what fits side by side.
+    show({ settings: [withLabels(["Very quiet.", "Fairly loud", "Really loud"])] })
+    await screen.findByRole("combobox", { name: "Pick" })
+    expect(screen.queryByRole("radiogroup", { name: "Pick" })).toBeNull()
+  })
+
+  it("stays a segmented control at exactly 32 characters", async () => {
+    show({ settings: [withLabels(["Very quiet", "Fairly loud", "Really loud"])] })
+    await screen.findByRole("radiogroup", { name: "Pick" })
+  })
+
+  it("is a menu for one choice of 33 characters", async () => {
+    show({ settings: [withLabels(["A label that runs to 33 character"])] })
+    await screen.findByRole("combobox", { name: "Pick" })
+  })
+
+  it("is a menu for four choices", async () => {
+    show({ settings: [withLabels(["A", "B", "C", "D"])] })
+    await screen.findByRole("combobox", { name: "Pick" })
+    expect(screen.queryByRole("radiogroup", { name: "Pick" })).toBeNull()
   })
 })

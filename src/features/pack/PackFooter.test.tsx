@@ -1,5 +1,5 @@
 import type * as React from "react"
-import { cleanup, fireEvent, render, screen } from "@testing-library/react"
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { PackFooter } from "./PackFooter"
@@ -62,5 +62,224 @@ describe("PackFooter", () => {
     exporting("queued", null)
     expect(screen.getByRole("button", { name: "Export queued" })).toBeTruthy()
     expect(screen.queryByRole("button", { name: /^Export$/ })).toBeNull()
+  })
+
+  it("shows a waiting export's ring empty and still: no arc, no spinner", () => {
+    const ring = (state: "queued" | "running", progress: number | null) => {
+      cleanup()
+      render(
+        <PackFooter
+          totals={totals}
+          bytes={null}
+          format={null}
+          picks={0}
+          canExport={false}
+          exporting={{ state, progress }}
+          onClearPicks={() => {}}
+          onExport={() => {}}
+          onShowExport={() => {}}
+        />,
+        { wrapper },
+      )
+      const svg = screen.getByRole("button", { name: /Export/ }).querySelector("svg[role=progressbar]")!
+      const [, arc, spinner] = svg.querySelectorAll("circle")
+      return { arc: arc as SVGCircleElement, spinner }
+    }
+    const queued = ring("queued", null)
+    expect(queued.arc.style.opacity).toBe("0")
+    expect(queued.spinner).toBeUndefined()
+    // Gold only while it runs.
+    expect(screen.getByRole("button", { name: "Export queued" }).className).not.toContain("text-accent")
+    const running = ring("running", 0.12)
+    expect(running.arc.style.opacity).toBe("1")
+    expect(running.spinner).toBeUndefined()
+    expect(screen.getByRole("button", { name: /Exporting/ }).className).toContain("text-accent")
+    // A running export that has just started, at 0, keeps its start arc.
+    expect(ring("running", 0).arc.style.opacity).toBe("1")
+  })
+
+  it("export waits while a plugin checks shots", () => {
+    const onExport = vi.fn()
+    render(
+      <PackFooter
+        totals={totals}
+        bytes={null}
+        format={null}
+        picks={0}
+        canExport={false}
+        check={{ kind: "checking", checked: 120, total: 312 }}
+        onClearPicks={() => {}}
+        onExport={onExport}
+        onShowExport={() => {}}
+      />,
+      { wrapper },
+    )
+    expect(screen.getByText("Checking 120 of 312 shots")).toBeTruthy()
+    const exportButton = screen.getByRole("button", { name: "Export, waits for the check" })
+    expect((exportButton as HTMLButtonElement).disabled).toBe(true)
+    fireEvent.click(exportButton)
+    expect(onExport).not.toHaveBeenCalled()
+    // What holds it says why, to the keyboard too (a disabled button takes no focus).
+    fireEvent.focus(exportButton.parentElement!)
+    expect(screen.getAllByText("Waits for the check").length).toBeGreaterThan(0)
+  })
+
+  it("a failed check offers Try again and lets Export go", () => {
+    const [onExport, onTryAgain] = [vi.fn(), vi.fn()]
+    render(
+      <PackFooter
+        totals={totals}
+        bytes={null}
+        format={null}
+        picks={0}
+        canExport
+        check={{ kind: "failed", unchecked: 120 }}
+        onClearPicks={() => {}}
+        onTryAgain={onTryAgain}
+        onExport={onExport}
+        onShowExport={() => {}}
+      />,
+      { wrapper },
+    )
+    const status = screen.getByText(/Couldn.t check 120 shots/)
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }))
+    expect(onTryAgain).toHaveBeenCalledOnce()
+    // The shots it did not judge keep its word from before, or are in: as the grid shows them.
+    fireEvent.focus(status)
+    expect(screen.getAllByText(/keep what the filter said with its settings before, or stay in/).length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByRole("button", { name: /^Export$/ }))
+    expect(onExport).toHaveBeenCalledOnce()
+  })
+
+  it("says nothing of checks when there are none", () => {
+    footer(null, null)
+    expect(screen.queryByText(/Checking|check/)).toBeNull()
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull()
+  })
+
+  const fcpxml = {
+    key: "dev.example.fcpxml.fcpxml",
+    pluginId: "dev.example.fcpxml",
+    // Not the title's words: what stands beside an entry is its plugin's name.
+    pluginName: "Cutroom Bridge",
+    icon: null,
+    actionId: "fcpxml",
+    title: "Save as FCPXML…",
+  }
+  const withActions = (o: { canSave?: boolean; onSave?: () => void; canExport?: boolean } = {}) =>
+    render(
+      <PackFooter
+        totals={totals}
+        bytes={null}
+        format={null}
+        picks={0}
+        canExport={o.canExport ?? true}
+        actions={[fcpxml]}
+        canSave={o.canSave ?? true}
+        onSave={o.onSave}
+        onClearPicks={() => {}}
+        onExport={() => {}}
+        onShowExport={() => {}}
+      />,
+      { wrapper },
+    )
+
+  it("pack actions sit in ⋯ with their plugin mark", async () => {
+    const onSave = vi.fn()
+    withActions({ onSave })
+    // Nothing shows until the menu opens, and the menu is not Export's.
+    expect(screen.queryByText("Save as FCPXML…")).toBeNull()
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Save the pack with a plugin" }), { button: 0, ctrlKey: false })
+    const item = screen.getByRole("menuitem", { name: /Save as FCPXML…/ })
+    // Its plugin's name stands beside it, and the puzzle piece stands for an icon it hasn't.
+    expect(item.textContent).toContain("Cutroom Bridge")
+    expect(item.querySelector("svg")).not.toBeNull()
+    expect(item.querySelector("img")).toBeNull()
+    fireEvent.click(item)
+    // The menu hands the entry on once it has closed.
+    await waitFor(() => expect(onSave).toHaveBeenCalledExactlyOnceWith(fcpxml))
+  })
+
+  it("a plugin's own icon stands for it, as a picture", () => {
+    const icon = "data:image/png;base64,iVBORw0KGgo="
+    render(
+      <PackFooter
+        totals={totals}
+        bytes={null}
+        format={null}
+        picks={0}
+        canExport
+        actions={[{ ...fcpxml, icon }]}
+        canSave
+        onClearPicks={() => {}}
+        onExport={() => {}}
+        onShowExport={() => {}}
+      />,
+      { wrapper },
+    )
+    fireEvent.pointerDown(screen.getByRole("button", { name: "Save the pack with a plugin" }), { button: 0, ctrlKey: false })
+    const item = screen.getByRole("menuitem", { name: /Save as FCPXML…/ })
+    expect(item.querySelector("img")?.getAttribute("src")).toBe(icon)
+    expect(item.querySelector("svg")).toBeNull()
+    // The menu's heading doesn't start the sentence the entry's title ends.
+    expect(screen.getByText("Save with a plugin")).toBeTruthy()
+  })
+
+  it("no ⋯ without pack actions", () => {
+    footer(null, null)
+    expect(screen.queryByRole("button", { name: "Save the pack with a plugin" })).toBeNull()
+    cleanup()
+    render(
+      <PackFooter totals={totals} bytes={null} format={null} picks={0} canExport actions={[]} onClearPicks={() => {}} onExport={() => {}} onShowExport={() => {}} />,
+      { wrapper },
+    )
+    expect(screen.queryByRole("button", { name: "Save the pack with a plugin" })).toBeNull()
+  })
+
+  it("⋯ says what it waits for", () => {
+    render(
+      <PackFooter
+        totals={totals}
+        bytes={null}
+        format={null}
+        picks={0}
+        canExport={false}
+        check={{ kind: "checking", checked: 3, total: 10 }}
+        actions={[fcpxml]}
+        canSave={false}
+        onClearPicks={() => {}}
+        onExport={() => {}}
+        onShowExport={() => {}}
+      />,
+      { wrapper },
+    )
+    // The disabled button takes no pointer: what holds it can be focused and says why.
+    const holder = screen.getByRole("button", { name: "Save the pack with a plugin" }).parentElement as HTMLElement
+    fireEvent.focus(holder)
+    expect(screen.getAllByText("Waits for the check").length).toBeGreaterThan(0)
+  })
+
+  it("⋯ waits while the pack can't be saved, and goes on while it exports", () => {
+    withActions({ canSave: false })
+    expect((screen.getByRole("button", { name: "Save the pack with a plugin" }) as HTMLButtonElement).disabled).toBe(true)
+    cleanup()
+    // An export under way doesn't hold a save back: the footer says it can.
+    render(
+      <PackFooter
+        totals={totals}
+        bytes={null}
+        format={null}
+        picks={0}
+        canExport={false}
+        exporting={{ state: "running", progress: 0.4 }}
+        actions={[fcpxml]}
+        canSave
+        onClearPicks={() => {}}
+        onExport={() => {}}
+        onShowExport={() => {}}
+      />,
+      { wrapper },
+    )
+    expect((screen.getByRole("button", { name: "Save the pack with a plugin" }) as HTMLButtonElement).disabled).toBe(false)
   })
 })

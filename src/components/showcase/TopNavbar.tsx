@@ -132,14 +132,14 @@ export function TopNavbar({
             href="https://github.com/moongetsu/AutoScene-UI-Library"
             target="_blank"
             rel="noreferrer"
-            className="size-8 rounded-lg flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.04] transition-colors"
+            className="hidden size-8 rounded-lg sm:flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.04] transition-colors"
             aria-label="GitHub Repository"
           >
             <GithubLogo className="size-4 sm:size-5" />
           </a>
 
           {/* CLI Copy / CTA Button */}
-          <Button variant="primary" size="sm" onClick={copyCli} className="text-xs px-2.5 sm:px-3.5">
+          <Button variant="primary" size="sm" onClick={copyCli} className="hidden sm:inline-flex text-xs px-2.5 sm:px-3.5">
             {copied ? (
               <>
                 <Check className="size-3.5 text-accent mr-1 animate-pop-in" />

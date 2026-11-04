@@ -4,6 +4,7 @@ import { useNavigate, useRouterState } from "@tanstack/react-router"
 import { Command } from "cmdk"
 import { Dialog as D } from "radix-ui"
 import {
+  ArrowsClockwise,
   DownloadSimple,
   FileText,
   FilmStrip,
@@ -24,13 +25,14 @@ import {
 } from "@/components/icons"
 import { Artwork } from "@/components/ui/artwork"
 import { Kbd } from "@/components/ui/kbd"
+import { checkCatalog } from "@/features/plugins/catalog-actions"
 import { PluginIcon } from "@/features/plugins/PluginIcon"
 import { runPlugin } from "@/features/plugins/plugin-actions"
 import { useAppActions } from "@/lib/actions"
 import { useCast, useMediaList, usePlugins, useProjects } from "@/lib/queries"
 import { useShortcutKeys } from "@/lib/shortcuts"
 import { useUi } from "@/state/ui"
-import { type ProjectEntry, characterEntries, episodeEntries, pluginCommandEntries } from "./palette-items"
+import { type ProjectEntry, characterEntries, episodeEntries, pluginCommandEntries, pluginPageEntries } from "./palette-items"
 
 type Item = {
   id: string
@@ -60,6 +62,7 @@ export function CommandPalette() {
   const a = useAppActions()
   const { data: projects } = useProjects()
   const { data: plugins } = usePlugins()
+  const navigate = useNavigate()
   const path = useRouterState({ select: (s) => s.location.pathname })
   const pid = path.match(/^\/p\/([^/]+)/)?.[1]
   const current = projects?.find((p) => p.id === pid)
@@ -82,7 +85,8 @@ export function CommandPalette() {
     { id: "library", label: "Library", icon: <SquaresFour />, run: a.goLibrary, keys: keys("global.library") },
     { id: "settings", label: "Settings", icon: <GearSix />, run: () => a.goSettings(), keys: keys("global.settings") },
     { id: "shortcuts", label: "Keyboard shortcuts", icon: <Keyboard />, run: () => a.goSettings("shortcuts") },
-    { id: "plugins", label: "Plugins", icon: <PuzzlePiece />, run: () => a.goSettings("plugins") },
+    { id: "plugins", label: "Plugins", icon: <PuzzlePiece />, run: a.goPlugins },
+    { id: "browse-plugins", label: "Browse plugins", icon: <PuzzlePiece />, run: a.goBrowsePlugins },
     { id: "about", label: "About AutoScene", icon: <Info />, run: () => a.goSettings("about") },
   ]
   const projectItems: Item[] = (projects ?? []).map((p) => ({
@@ -93,20 +97,32 @@ export function CommandPalette() {
     hint: p.kind === "movie" ? "Movie" : `${p.mediaCount} ${p.mediaCount === 1 ? "episode" : "episodes"}`,
     run: () => a.goProject(p.id),
   }))
-  // Run in the open project, if any: a command that needs one shows only there.
-  const pluginItems: Item[] = pluginCommandEntries(plugins, pid).map((c) => ({
-    id: c.id,
-    label: c.label,
-    icon: <PluginIcon src={c.icon} />,
-    hint: c.hint,
-    keywords: c.keywords,
-    run: () => void runPlugin({ ...c, title: c.label }, "command", pid ?? null, null),
-  }))
+  // Run in the open project, if any: a command that needs one shows only
+  // there, and so does a project's page.
+  const pluginItems: Item[] = [
+    ...pluginPageEntries(plugins, pid).map((e) => ({
+      id: e.id,
+      label: e.label,
+      icon: <PluginIcon src={e.icon} />,
+      hint: e.hint,
+      keywords: e.keywords,
+      run: () => void navigate({ to: e.to }),
+    })),
+    ...pluginCommandEntries(plugins, pid).map((c) => ({
+      id: c.id,
+      label: c.label,
+      icon: <PluginIcon src={c.icon} />,
+      hint: c.hint,
+      keywords: c.keywords,
+      run: () => void runPlugin({ ...c, pluginName: c.hint, title: c.label }, "command", pid ?? null, null),
+    })),
+  ]
   const actions: Item[] = [
     { id: "new-project", label: "New project…", icon: <Plus />, run: a.newProject, keys: keys("global.newProject") },
     { id: "activity", label: "Show activity", icon: <Queue />, run: a.toggleActivity, keys: keys("global.activity") },
     { id: "sidebar", label: "Show or hide the rail", icon: <SidebarSimple />, run: a.toggleSidebar, keys: keys("global.sidebar") },
     { id: "updates", label: "Check for updates", icon: <DownloadSimple />, run: a.checkUpdates },
+    { id: "plugin-updates", label: "Check for plugin updates", icon: <ArrowsClockwise />, run: () => void checkCatalog() },
     { id: "logs", label: "Open logs folder", icon: <FileText />, run: () => void a.openLogs() },
   ]
 

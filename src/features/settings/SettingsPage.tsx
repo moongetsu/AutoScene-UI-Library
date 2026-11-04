@@ -1,19 +1,14 @@
 import type * as React from "react"
 import { Link, useNavigate, useParams } from "@tanstack/react-router"
-import { DownloadSimple, Info, Keyboard, PuzzlePiece, SlidersHorizontal, Users } from "@/components/icons"
+import { DownloadSimple, Info, Keyboard, SlidersHorizontal, Users } from "@/components/icons"
 import { ContextArea } from "@/components/ui/context-area"
 import { ContextMenuItem, ContextMenuRadioGroup, ContextMenuRadioItem, ContextMenuSeparator } from "@/components/ui/context-menu"
 import { TopBar } from "@/components/ui/topbar"
-import { PluginIcon } from "@/features/plugins/PluginIcon"
-import { PluginName, PluginSettingsSection } from "@/features/plugins/PluginSettingsSection"
-import { pluginPages } from "@/features/plugins/plugin-items"
-import { type PluginSection, SETTINGS_SECTIONS, type SettingsSection, isPluginSection, useAppActions } from "@/lib/actions"
-import { usePlugins } from "@/lib/queries"
+import { SETTINGS_SECTIONS, type SettingsSection, isAppSection, useAppActions } from "@/lib/actions"
 import { cn } from "@/lib/utils"
 import { AboutSection } from "./sections/AboutSection"
 import { ContributorsSection } from "./sections/ContributorsSection"
 import { GeneralSection } from "./sections/GeneralSection"
-import { PluginsSection } from "./sections/PluginsSection"
 import { ShortcutsSection } from "./sections/ShortcutsSection"
 import { UpdatesSection } from "./sections/UpdatesSection"
 import { SETTINGS_LABELS } from "./sections"
@@ -22,19 +17,16 @@ const META: Record<SettingsSection, { icon: React.ReactNode; render: () => React
   general: { icon: <SlidersHorizontal />, render: () => <GeneralSection /> },
   shortcuts: { icon: <Keyboard />, render: () => <ShortcutsSection /> },
   updates: { icon: <DownloadSimple />, render: () => <UpdatesSection /> },
-  plugins: { icon: <PuzzlePiece />, render: () => <PluginsSection /> },
   about: { icon: <Info />, render: () => <AboutSection /> },
   contributors: { icon: <Users />, render: () => <ContributorsSection /> },
 }
 
 export function SettingsPage() {
-  const { section } = useParams({ from: "/settings/$section" })
+  const params = useParams({ from: "/settings/$section" })
+  // An old link to plugins went to Plugins before this page was shown.
+  const section: SettingsSection = isAppSection(params.section) ? params.section : "general"
   const navigate = useNavigate()
   const { checkUpdates } = useAppActions()
-  // A plugin's page, else one of the app's.
-  const plugin = isPluginSection(section) ? section.slice("plugin.".length) : null
-  const { data: plugins } = usePlugins()
-  const pages = pluginPages(plugins)
   const menu = (
     <>
       <ContextMenuRadioGroup
@@ -66,21 +58,12 @@ export function SettingsPage() {
                   {SETTINGS_LABELS[s]}
                 </NavLink>
               ))}
-              {pages.length > 0 && <div role="separator" className="mx-2 my-2 h-px bg-white/[0.06]" />}
-              {pages.map((p) => (
-                <NavLink key={p.id} section={`plugin.${p.id}`} current={section} icon={<PluginIcon src={p.icon} />}>
-                  {/* One that can't run now stays, dimmed: its page says why. */}
-                  <span className={cn("truncate", !p.active && "opacity-50")}>{p.name}</span>
-                </NavLink>
-              ))}
             </div>
           </nav>
           <div className="min-w-0 flex-1 overflow-y-auto">
             <div key={section} className="mx-auto max-w-3xl animate-rise-in px-10 pt-8 pb-14">
-              <h2 className="display mb-8 text-5xl text-fg-1">
-                {plugin ? <PluginName id={plugin} /> : SETTINGS_LABELS[section as SettingsSection]}
-              </h2>
-              {plugin ? <PluginSettingsSection id={plugin} /> : META[section as SettingsSection].render()}
+              <h2 className="display mb-8 text-5xl text-fg-1">{SETTINGS_LABELS[section]}</h2>
+              {META[section].render()}
             </div>
           </div>
         </div>
@@ -95,7 +78,7 @@ function NavLink({
   icon,
   children,
 }: {
-  section: SettingsSection | PluginSection
+  section: SettingsSection
   current: string
   icon: React.ReactNode
   children: React.ReactNode

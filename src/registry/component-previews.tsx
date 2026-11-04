@@ -291,18 +291,20 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
       <Banner
         tone="accent"
         icon={<Warning weight="fill" />}
-        title="1 episode can't be found"
-        actions={<Button size="sm">Locate folder…</Button>}
+        title="1 episode is missing"
+        actions={<Button size="sm">Locate…</Button>}
+        className="flex-nowrap px-4 py-3"
       />
       <Banner
         tone="danger"
         icon={<ShieldWarning weight="fill" />}
-        title="This plugin was withdrawn"
+        title="Plugin withdrawn"
         actions={
           <Button size="sm" variant="danger">
             Uninstall…
           </Button>
         }
+        className="flex-nowrap px-4 py-3"
       />
     </div>
   ),
@@ -343,7 +345,6 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
   "path-text": () => (
     <div className="w-full max-w-xs space-y-1.5 text-center">
       <PathText path={String.raw`C:\Users\you\Videos\Tears of Steel.autoscene`} />
-      <p className="text-[10px] text-fg-3">Right-click the path</p>
     </div>
   ),
   ...FEATURE_PREVIEWS,

@@ -23,8 +23,12 @@ export function useAppActions() {
       newProject: () => useNewProject.getState().show(),
       goProject: (pid: string, page: "overview" | "episodes" | "cast" | "exports" = "overview") =>
         void navigate({ to: page === "overview" ? "/p/$pid" : `/p/$pid/${page}`, params: { pid } }),
-      goSettings: (section: SettingsSection | PluginSection = "general") =>
-        void navigate({ to: "/settings/$section", params: { section } }),
+      goPlugins: () => void navigate({ to: "/plugins" }),
+      /** What AutoScene's plugin catalog offers. */
+      goBrowsePlugins: () => void navigate({ to: "/plugins", search: { view: "browse" } }),
+      /** A plugin's settings: its own screen under Plugins. */
+      goPlugin: (id: string) => void navigate({ to: "/plugins/$id", params: { id } }),
+      goSettings: (section: SettingsSection = "general") => void navigate({ to: "/settings/$section", params: { section } }),
       checkUpdates: () => void useUpdates.getState().check(true, true),
       openLogs: () => commands.openLogsDir().catch((e) => toast.error("Couldn't open logs", { description: errorMessage(e) })),
     }),
@@ -45,23 +49,44 @@ function currentProjectId(): string | undefined {
   return m?.[1]
 }
 
-export const SETTINGS_SECTIONS = ["general", "shortcuts", "updates", "plugins", "about", "contributors"] as const
+export const SETTINGS_SECTIONS = ["general", "shortcuts", "updates", "about", "contributors"] as const
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number]
-/** A plugin's own page in Settings: `plugin.<its id>`. */
-export type PluginSection = `plugin.${string}`
+/**
+ * What an old link names in Settings: its Plugins section, or a plugin's
+ * settings (`plugin.<its id>`). Both have their own place under Plugins now.
+ */
+export type LegacySettingsSection = "plugins" | `plugin.${string}`
 
-/** Whether `section` is a plugin's page, not one of the app's. */
-export function isPluginSection(section: string): section is PluginSection {
-  return /^plugin\.[a-z0-9.-]{3,200}$/.test(section)
+/** Whether `section` is one of the app's own sections of Settings. */
+export function isAppSection(section: string): section is SettingsSection {
+  return (SETTINGS_SECTIONS as readonly string[]).includes(section)
+}
+
+/** The plugin an old link to its settings names (`plugin.<its id>`), else null. */
+function legacyPlugin(section: string): string | null {
+  return /^plugin\.[a-z0-9.-]{3,200}$/.test(section) ? section.slice("plugin.".length) : null
 }
 
 /**
- * The page of Settings a link names: one of the app's, a plugin's (whether
- * it is installed shows on the page), else General.
+ * The section of Settings a link names: one of the app's, an old link's
+ * (which goes to Plugins, see `legacySettingsTarget`), else General.
  */
-export function settingsSection(section: string): SettingsSection | PluginSection {
-  if ((SETTINGS_SECTIONS as readonly string[]).includes(section)) return section as SettingsSection
-  return isPluginSection(section) ? section : "general"
+export function settingsSection(section: string): SettingsSection | LegacySettingsSection {
+  if (isAppSection(section)) return section
+  if (section === "plugins") return section
+  return legacyPlugin(section) != null ? (section as `plugin.${string}`) : "general"
+}
+
+/**
+ * Where an old link into Settings goes now: its Plugins to Plugins, a
+ * plugin's settings to that plugin under Plugins. None for the app's own sections.
+ */
+export function legacySettingsTarget(
+  section: string,
+): { to: "/plugins" } | { to: "/plugins/$id"; params: { id: string } } | null {
+  if (section === "plugins") return { to: "/plugins" }
+  const id = legacyPlugin(section)
+  return id != null ? { to: "/plugins/$id", params: { id } } : null
 }
 
 /** Wire global keyboard shortcuts (non-macOS-native) and macOS menu events to actions. */
@@ -69,7 +94,7 @@ export function useGlobalBindings() {
   const a = useAppActions()
 
   // On macOS desktop the native menu owns these accelerators and emits menu
-  // events instead — except for a key the person chose that it can't carry.
+  // events instead - except for a key the person chose that it can't carry.
   const page =
     (id: GlobalId, run: () => void) =>
     (): boolean | void => {
@@ -106,6 +131,7 @@ export function useGlobalBindings() {
       // The native ⌘E accelerator swallows the keystroke; the player listens for this instead.
       "file:export": () => window.dispatchEvent(new CustomEvent(EXPORT_REQUEST)),
       "view:activity": a.toggleActivity,
+      "view:plugins": calm(a.goPlugins),
       "view:toggle-sidebar": calm(a.toggleSidebar),
       "file:reveal": () => window.dispatchEvent(new CustomEvent(REVEAL_REQUEST)),
       "edit:copy-timecodes": () => window.dispatchEvent(new CustomEvent(COPY_TIMECODES_REQUEST)),

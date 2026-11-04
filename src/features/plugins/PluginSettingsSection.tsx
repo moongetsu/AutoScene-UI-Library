@@ -1,8 +1,11 @@
+import type * as React from "react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useNavigate } from "@tanstack/react-router"
 import { toast } from "sonner"
-import type { PluginInfo, SettingKind, SettingSpec, SettingValue } from "@/bindings"
-import { FolderOpen, PuzzlePiece } from "@/components/icons"
+import type { EventKind, PluginInfo, SettingKind, SettingSpec, SettingValue } from "@/bindings"
+import { AppWindow, ArrowCounterClockwise, CircleNotch, FolderOpen, GraphicsCard, PuzzlePiece, ShieldCheck } from "@/components/icons"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Input } from "@/components/ui/input"
 import { Segmented } from "@/components/ui/segmented"
@@ -13,8 +16,14 @@ import { PathText, SettingRow, SettingsGroup } from "@/features/settings/primiti
 import { useAppActions } from "@/lib/actions"
 import { commands, errorMessage } from "@/lib/ipc"
 import { reveal } from "@/lib/os"
-import { qk, queryClient, usePluginSettings, usePlugins } from "@/lib/queries"
-import { keepPlugin } from "./plugin-actions"
+import { isMac } from "@/lib/platform"
+import { qk, queryClient, usePluginSettings, usePlugins, useSettings } from "@/lib/queries"
+import { cn } from "@/lib/utils"
+import { useLoadAgain } from "./load-again"
+import { pageLink } from "./page-items"
+import { allowUnreviewed, keepPlugin } from "./plugin-actions"
+import { checkedWhen, downloadSize, permissionLabel } from "./plugin-items"
+import { WithdrawnNotice } from "./WithdrawnBanner"
 
 type Values = Partial<Record<string, SettingValue>>
 type NumberKind = Extract<SettingKind, { type: "number" }>
@@ -22,26 +31,33 @@ type NumberKind = Extract<SettingKind, { type: "number" }>
 /** How long a slider rests before what it shows is saved. */
 const SETTLE_MS = 400
 
-/** The window title's name of a plugin's page in Settings. */
-export function PluginCrumb({ id }: { id: string }) {
-  return <>Settings · <PluginName id={id} /></>
+/**
+ * The longest secret the keychain keeps (`MAX_SECRET_CHARS`), in UTF-16 units
+ * as `length` counts them. Not a `maxLength`: a pasted token would be cut
+ * short without a word, in a field that hides it.
+ */
+const MAX_SECRET = 1024
+
+/** When an event of each kind runs, as its row says it. */
+const EVENT_WHEN: Record<EventKind, string> = {
+  analysisFinished: "When a project's episodes are all analysed",
 }
 
-/** A plugin's name, as its page in Settings is headed. */
-export function PluginName({ id }: { id: string }) {
-  const { data } = usePlugins()
-  return <>{data?.find((p) => p.id === id)?.name ?? "Plugin"}</>
-}
+/** What a blocked plugin's screen says of it, beside "Allow them…". */
+const NOT_REVIEWED = "AutoScene hasn't reviewed this plugin, so it doesn't run."
 
 /**
- * A plugin's page in Settings: its own settings, the export actions to run
- * after every export, and where its files and log are.
+ * A plugin's settings, under its hero (`PluginSettingsPage`): what needs
+ * fixing, with the control that fixes it; what it lets the person set (a
+ * secret only into the system's keychain), what runs by itself once turned
+ * on (export actions after every export, events), its pages, what it may
+ * use, and where its files and log are.
  */
 export function PluginSettingsSection({ id }: { id: string }) {
-  const { data: plugins, isPending, error } = usePlugins()
-  const { goSettings } = useAppActions()
+  const { data: plugins, isPending, error, refetch, isFetching } = usePlugins()
+  const { goPlugins } = useAppActions()
   const p = plugins?.find((x) => x.id === id)
-  if (p) return <PluginPage p={p} />
+  if (p) return <PluginSettings p={p} />
   if (isPending) return null
   return (
     <EmptyState
@@ -49,14 +65,26 @@ export function PluginSettingsSection({ id }: { id: string }) {
       tone={error ? "danger" : "accent"}
       title={error ? "Couldn't read the plugins" : "This plugin isn't installed"}
       description={error ? errorMessage(error) : "It was uninstalled, or this link is to another one."}
-      actions={<Button onClick={() => goSettings("plugins")}>Go to Plugins</Button>}
+      actions={
+        <>
+          {error && (
+            <Button disabled={isFetching} onClick={() => void refetch()}>
+              {isFetching ? <CircleNotch className="animate-spin" /> : <ArrowCounterClockwise />} Try again
+            </Button>
+          )}
+          <Button variant={error ? "ghost" : undefined} onClick={goPlugins}>
+            Go to Plugins
+          </Button>
+        </>
+      }
+      className="mt-24"
     />
   )
 }
 
-function PluginPage({ p }: { p: PluginInfo }) {
+function PluginSettings({ p }: { p: PluginInfo }) {
   const { data: values, error: unread } = usePluginSettings(p.id)
-  const { goSettings } = useAppActions()
+  const { goPlugins } = useAppActions()
   const save = async (key: string, value: SettingValue) => {
     // Shown at once; read again when it couldn't be saved. Not before the
     // others were read: they would show their defaults meanwhile.
@@ -75,45 +103,77 @@ function PluginPage({ p }: { p: PluginInfo }) {
       toast.error("Couldn't save the setting", { description: errorMessage(e) })
     }
   }
-  const why = p.broken ?? (p.enabled ? p.blockedReason : `${p.name} is turned off.`)
+  const setEvent = async (eventId: string, on: boolean) => {
+    try {
+      keepPlugin(await commands.pluginSetEvent(p.id, eventId, on))
+    } catch (e) {
+      toast.error("Couldn't save the setting", { description: errorMessage(e) })
+    }
+  }
   return (
     <>
-      {p.description && <p className="-mt-4 mb-8 text-md text-fg-2">{p.description}</p>}
-      {why && (
-        <div className="mb-8 flex items-center justify-between gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.03] px-5 py-4">
-          <p className="text-md text-fg-1">{why}</p>
-          <Button size="sm" variant="ghost" onClick={() => goSettings("plugins")}>
-            Go to Plugins
-          </Button>
-        </div>
-      )}
+      {/* Gone, the plugin leaves this screen for Plugins. */}
+      <WithdrawnNotice p={p} onUninstalled={goPlugins} className="mb-8" />
+      <Fix p={p} />
 
       {p.settings.length > 0 && (
-        <SettingsGroup title="Settings" description="Each run gets them as they are when it starts.">
+        <SettingsGroup
+          title="Settings"
+          description={
+            p.settings.some((s) => s.kind.type === "secret")
+              ? "Each run gets them as they are when it starts, and a secret each time it asks for it."
+              : "Each run gets them as they are when it starts."
+          }
+        >
           {unread && values === undefined && (
             <p className="px-5 py-3.5 text-sm text-danger">Couldn't read its settings: {errorMessage(unread)}</p>
           )}
           {p.settings.map((s) => (
-            <SettingRow key={`${s.key}:${s.kind.type}`} label={s.title} description={s.description ?? undefined}>
-              <SettingControl spec={s} value={valueOf(s, values)} ready={values !== undefined} onSave={(v) => void save(s.key, v)} />
+            <SettingRow key={`${s.key}:${s.kind.type}`} label={s.title} description={about(s)}>
+              {s.kind.type === "secret" ? (
+                <SecretSetting p={p} spec={s} placeholder={s.kind.placeholder} />
+              ) : (
+                <SettingControl
+                  spec={s}
+                  value={valueOf(s, values)}
+                  ready={values !== undefined && p.withdrawn == null}
+                  onSave={(v) => void save(s.key, v)} />
+              )}
             </SettingRow>
           ))}
         </SettingsGroup>
       )}
 
-      {p.exportActions.length > 0 && (
-        <SettingsGroup title="After every export" description="Runs by itself each time an export finishes with every clip made.">
+      {/* A withdrawn plugin never runs again: nothing here would do anything. */}
+      {(p.exportActions.length > 0 || p.events.length > 0) && p.withdrawn == null && (
+        <SettingsGroup title="Runs by itself" description="Each runs without being asked once you turn it on, as a job in Activity.">
           {p.exportActions.map((a) => (
-            <SettingRow key={a.id} label={a.title} description={a.description ?? undefined}>
+            <SettingRow
+              key={`action-${a.id}`}
+              label={a.title}
+              description={runsWhen(a.description, a.afterFailed ? "After every export, also one that failed" : "After every export")}
+            >
               <Switch
-                aria-label={`Run ${a.title} after every export`}
+                aria-label={a.afterFailed ? `Run ${a.title} after every export, also one that failed` : `Run ${a.title} after every export`}
                 checked={a.afterExport}
                 onCheckedChange={(on) => void setAfterExport(a.id, on)}
               />
             </SettingRow>
           ))}
+          {p.events.map((e) => (
+            <SettingRow key={`event-${e.id}`} label={e.title} description={runsWhen(e.description, EVENT_WHEN[e.on])}>
+              <Switch
+                aria-label={`Run ${e.title}, ${lowerFirst(EVENT_WHEN[e.on])}`}
+                checked={e.turnedOn}
+                onCheckedChange={(on) => void setEvent(e.id, on)}
+              />
+            </SettingRow>
+          ))}
         </SettingsGroup>
       )}
+
+      {p.pages.length > 0 && <Pages p={p} />}
+      {(p.pages.length > 0 || p.permissions.length > 0 || p.gpu) && <MayUse p={p} />}
 
       <SettingsGroup title="Files">
         <SettingRow label="Its folder" description={<PathText path={p.folder} />}>
@@ -126,6 +186,19 @@ function PluginPage({ p }: { p: PluginInfo }) {
             <FolderOpen /> Reveal
           </Button>
         </SettingRow>
+        {p.serviceLogPath && (
+          <SettingRow label="Its service log" description={<PathText path={p.serviceLogPath} />}>
+            <Button size="sm" variant="ghost" onClick={() => reveal(p.serviceLogPath!)}>
+              <FolderOpen /> Reveal
+            </Button>
+          </SettingRow>
+        )}
+        {(p.resourceBytes ?? 0) > 0 && (
+          <SettingRow
+            label="Downloaded files"
+            description={`${downloadSize(p.resourceBytes ?? 0)}. AutoScene keeps them in its cache and removes them with the plugin.`}
+          />
+        )}
       </SettingsGroup>
 
       {p.warnings.length > 0 && (
@@ -137,6 +210,161 @@ function PluginPage({ p }: { p: PluginInfo }) {
           ))}
         </SettingsGroup>
       )}
+    </>
+  )
+}
+
+/**
+ * What keeps a plugin from running, and the control that changes it: one
+ * AutoScene hasn't reviewed while they are off, and a broken one. A loaded
+ * folder is loaded again through its review, the one way to agree to a
+ * changed program; a broken package's reason says what to do. One that is
+ * turned off says so by its switch and its dimmed picture.
+ *
+ * Blocked is a choice of the person's, not a fault: its words are this
+ * screen's own (the backend's `blockedReason` sends people to Plugins, where
+ * this screen already is), on a calm banner. Broken is a fault, in red.
+ */
+function Fix({ p }: { p: PluginInfo }) {
+  const { checking, loadAgain } = useLoadAgain()
+  // The backend refuses a folder's review while unreviewed plugins are off.
+  const allowed = useSettings().data?.allowUnreviewedPlugins ?? false
+  const blocked = p.broken == null && p.enabled && p.blockedReason != null
+  // The withdrawn banner above says why it doesn't run, and nothing here would change that.
+  if (p.withdrawn != null || (p.broken == null && !blocked)) return null
+  return (
+    <div
+      role="status"
+      className={cn(
+        "mb-8 flex items-center justify-between gap-4 rounded-2xl border px-5 py-4",
+        blocked ? "border-white/10 bg-white/[0.04]" : "border-danger/30 bg-danger-subtle",
+      )}
+    >
+      <p className="text-md text-fg-1">{blocked ? NOT_REVIEWED : p.broken}</p>
+      {blocked ? (
+        // The backend asks in a dialog of the system's own before it allows any.
+        <Button size="sm" variant="ghost" onClick={() => void allowUnreviewed(true)}>
+          Allow them…
+        </Button>
+      ) : (
+        p.source === "folder" &&
+        allowed && (
+          <Button size="sm" variant="ghost" disabled={checking} onClick={() => void loadAgain(p)}>
+            {checking && <CircleNotch className="animate-spin" />}
+            Load its folder again…
+          </Button>
+        )
+      )}
+    </div>
+  )
+}
+
+/** A plugin's pages: one of its own opens from here, a project's from that project. */
+function Pages({ p }: { p: PluginInfo }) {
+  const navigate = useNavigate()
+  return (
+    <SettingsGroup title="Pages" description="Each opens full screen. What is on it is the plugin's.">
+      {p.pages.map((pg) => (
+        <SettingRow
+          key={pg.id}
+          label={pg.title}
+          description={pg.scope === "project" ? "Open it from a project's More menu." : (pg.description ?? undefined)}
+        >
+          {pg.scope === "global" && (
+            <Button
+              size="sm"
+              variant="ghost"
+              aria-label={`Open ${pg.title}`}
+              disabled={!p.active}
+              onClick={() => void navigate({ to: pageLink({ pluginId: p.id, pageId: pg.id }) })}
+            >
+              <AppWindow /> Open
+            </Button>
+          )}
+        </SettingRow>
+      ))}
+    </SettingsGroup>
+  )
+}
+
+/**
+ * What a plugin may use: what it asked for and the person agreed to, the
+ * hosts it reaches, and the secrets set for it. What checks that depends on
+ * how it runs: its pages always ask AutoScene, a program needn't, and the
+ * sandbox holds a WebAssembly plugin to them, in the review's words.
+ */
+function MayUse({ p }: { p: PluginInfo }) {
+  const secrets = p.settings.filter((s) => s.kind.type === "secret" && p.secretsSet.includes(s.key))
+  const when = checkedWhen(p)
+  // By how the person agreed it runs: a broken one has no limits to show, but stays a WebAssembly plugin.
+  const sandbox = p.runtime === "wasm" ? { hosts: p.networkHosts } : undefined
+  const checked =
+    p.runtime === "none" || sandbox
+      ? (when ?? undefined)
+      : `Its program runs with your user rights. ${when ?? "AutoScene doesn't check these: they are what it says it does."}`
+  return (
+    <SettingsGroup title="What it may use" description={checked}>
+      {p.permissions.map((perm) => (
+        <SettingRow
+          key={perm}
+          leading={<ShieldCheck className="size-5 shrink-0 text-fg-3" />}
+          label={permissionLabel(perm, sandbox)}
+          description={perm === "network" && p.networkHosts.length > 0 ? p.networkHosts.join(", ") : undefined}
+        />
+      ))}
+      {p.gpu && (
+        <SettingRow
+          leading={<GraphicsCard className="size-5 shrink-0 text-fg-3" />}
+          label="Uses the graphics card"
+          description="Its runs wait while an analysis runs."
+        />
+      )}
+      {p.permissions.length === 0 && !p.gpu && (
+        <p className="px-5 py-3.5 text-sm text-fg-2">Nothing beyond its own settings.</p>
+      )}
+      {secrets.map((s) => (
+        <SettingRow
+          key={s.key}
+          leading={<ShieldCheck className="size-5 shrink-0 text-fg-3" />}
+          label={s.title}
+          description="Saved in your system's keychain"
+        />
+      ))}
+    </SettingsGroup>
+  )
+}
+
+/**
+ * What the row of something that runs by itself says under its title: what
+ * it does, as its plugin says, and `when` it runs.
+ */
+function runsWhen(description: string | null, when: string): React.ReactNode {
+  if (!description) return when
+  return (
+    <>
+      <span className="block">{description}</span>
+      <span className="block">{when}</span>
+    </>
+  )
+}
+
+/** `text` with its first letter small, to follow a comma. */
+function lowerFirst(text: string): string {
+  return text.charAt(0).toLowerCase() + text.slice(1)
+}
+
+/**
+ * What the row of `s` says under its title. On macOS a secret also says that
+ * the Keychain may ask again: each update of AutoScene is signed anew.
+ */
+function about(s: SettingSpec): React.ReactNode {
+  const again = s.kind.type === "secret" && isMac ? "macOS may ask you to allow it again after AutoScene updates." : null
+  if (!again) return s.description ?? undefined
+  if (!s.description) return again
+  return (
+    <>
+      <span className="block">{s.description}</span>
+      <span className="block">{again}</span>
     </>
   )
 }
@@ -158,6 +386,8 @@ function valueOf(s: SettingSpec, values: Values | undefined): SettingValue {
       return typeof v === "string" ? v : (k.default ?? "")
     case "select":
       return typeof v === "string" && k.options.some((o) => o.value === v) ? v : k.default
+    case "secret":
+      return null
   }
 }
 
@@ -194,7 +424,9 @@ function SettingControl({
     }
     case "select": {
       const current = typeof value === "string" ? value : undefined
-      return k.options.length <= 3 ? (
+      const totalChars = k.options.reduce((sum, o) => sum + o.label.length, 0)
+      const fitsInSegmented = k.options.length <= 3 && totalChars <= 32
+      return fitsInSegmented ? (
         <Segmented aria-label={spec.title} value={current ?? ""} disabled={!ready} onChange={onSave} options={k.options} />
       ) : (
         <Select
@@ -210,7 +442,133 @@ function SettingControl({
     }
     case "string":
       return <TextSetting spec={spec} kind={k} value={value} ready={ready} onSave={onSave} />
+    case "secret":
+      // Never a value here: see SecretSetting.
+      return null
   }
+}
+
+/**
+ * A secret setting: whether the keychain holds one, set in a dialog of its
+ * own and never shown again, and removed once the person says so.
+ */
+function SecretSetting({ p, spec, placeholder }: { p: PluginInfo; spec: SettingSpec; placeholder: string | null }) {
+  const [setting, setSetting] = useState(false)
+  const [removing, setRemoving] = useState(false)
+  const stored = p.secretsSet.includes(spec.key)
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-sm text-fg-2">{stored ? "Saved in your system's keychain" : "Not set"}</span>
+      <Button size="sm" variant="ghost" aria-label={`Set ${spec.title}`} disabled={p.withdrawn != null} onClick={() => setSetting(true)}>
+        Set…
+      </Button>
+      {stored && (
+        <Button size="sm" variant="ghost" aria-label={`Remove ${spec.title}`} onClick={() => setRemoving(true)}>
+          Remove…
+        </Button>
+      )}
+      {setting && <SecretDialog p={p} spec={spec} placeholder={placeholder} onDone={() => setSetting(false)} />}
+      {removing && <RemoveSecretDialog p={p} spec={spec} onDone={() => setRemoving(false)} />}
+    </div>
+  )
+}
+
+/**
+ * Asks before a secret leaves the keychain: many services show a token only
+ * once. While it goes the dialog stays, and Remove waits.
+ */
+function RemoveSecretDialog({ p, spec, onDone }: { p: PluginInfo; spec: SettingSpec; onDone: () => void }) {
+  const [busy, setBusy] = useState(false)
+  const remove = async () => {
+    setBusy(true)
+    try {
+      keepPlugin(await commands.pluginSecretClear(p.id, spec.key))
+      onDone()
+    } catch (e) {
+      toast.error("Couldn't remove the secret", { description: errorMessage(e) })
+      setBusy(false)
+    }
+  }
+  return (
+    <Dialog open onOpenChange={(open) => !open && !busy && onDone()}>
+      <DialogContent
+        title={`Remove ${spec.title}?`}
+        description="It goes from your system's keychain, and the plugin can't use it until you enter it again."
+      >
+        <DialogFooter>
+          <Button variant="ghost" disabled={busy} onClick={onDone}>
+            Cancel
+          </Button>
+          <Button variant="danger" disabled={busy} onClick={() => void remove()}>
+            {busy && <CircleNotch className="animate-spin" />}
+            Remove
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+/** Asks for a secret, hidden as it is typed. It goes to the keychain and leaves with the dialog. */
+function SecretDialog({
+  p,
+  spec,
+  placeholder,
+  onDone,
+}: {
+  p: PluginInfo
+  spec: SettingSpec
+  placeholder: string | null
+  onDone: () => void
+}) {
+  const [value, setValue] = useState("")
+  const [busy, setBusy] = useState(false)
+  const tooLong = value.length > MAX_SECRET
+  const save = async () => {
+    if (value === "" || tooLong) return
+    setBusy(true)
+    try {
+      keepPlugin(await commands.pluginSecretSet(p.id, spec.key, value))
+      onDone()
+    } catch (e) {
+      toast.error("Couldn't save the secret", { description: errorMessage(e) })
+      setBusy(false)
+    }
+  }
+  return (
+    <Dialog open onOpenChange={(open) => !open && onDone()}>
+      <DialogContent title={spec.title} description="Kept in your system's keychain. AutoScene never shows it again.">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            void save()
+          }}
+        >
+          <Input
+            type="password"
+            autoFocus
+            autoComplete="off"
+            spellCheck={false}
+            aria-label={spec.title}
+            aria-invalid={tooLong}
+            value={value}
+            placeholder={placeholder ?? undefined}
+            disabled={busy}
+            onChange={(e) => setValue(e.target.value)}
+          />
+          {tooLong && <p className="mt-2 text-sm text-danger">A secret can be at most {MAX_SECRET} characters.</p>}
+          <DialogFooter>
+            <Button variant="ghost" onClick={onDone} disabled={busy}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" disabled={busy || value === "" || tooLong}>
+              Save
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
 }
 
 /** A text field that saves once it is left (Enter leaves it). */

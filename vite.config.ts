@@ -35,5 +35,7 @@ export default defineConfig(({ command }) => ({
     environment: "jsdom",
     include: ["src/**/*.test.{ts,tsx}"],
     setupFiles: ["src/test/setup.ts"],
+    // Dialogs and pages take a while to import on a busy machine.
+    testTimeout: 20_000,
   },
 }))

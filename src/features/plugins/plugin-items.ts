@@ -1,14 +1,18 @@
-import type { Permission, PluginInfo, PluginUpdate, Trust } from "@/bindings"
+import type { Permission, PluginInfo, PluginReview, PluginSandbox, PluginUpdate, Trust } from "@/bindings"
+import { formatBytes } from "@/lib/format"
 
 /**
- * How far a plugin is trusted, as its badge says it. A loaded folder says
- * that first: it is never reviewed. A signature proves no one's name (the
- * key may come in the package), so a signed plugin isn't marked as vouched for.
+ * How far a plugin is trusted, as its badge says it. A plugin AutoScene
+ * withdrew says that before anything: whatever else it is, it doesn't run.
+ * A loaded folder says that next: it is never reviewed. A signature proves
+ * no one's name (the key may come in the package), so a signed plugin isn't
+ * marked as vouched for.
  */
-export function trustLabel(p: Pick<PluginInfo, "trust" | "source">): {
+export function trustLabel(p: Pick<PluginInfo, "trust" | "source"> & Partial<Pick<PluginInfo, "withdrawn">>): {
   label: string
   tone: "neutral" | "danger" | "outline"
 } {
+  if (p.withdrawn != null) return { label: "Withdrawn", tone: "danger" }
   if (p.source === "folder") return { label: "Loaded from a folder", tone: "outline" }
   return TRUST[p.trust]
 }
@@ -17,6 +21,15 @@ const TRUST: Record<Trust, { label: string; tone: "neutral" | "danger" | "outlin
   reviewed: { label: "Reviewed by AutoScene", tone: "neutral" },
   pinned: { label: "Signed, not reviewed", tone: "outline" },
   unreviewed: { label: "Not reviewed", tone: "danger" },
+}
+
+/**
+ * What a withdrawn plugin's banner says under its title: the catalog's
+ * `reason` (AutoScene's words, as a sentence), then what that means.
+ */
+export function withdrawnLine(reason: string): string {
+  const said = reason.trim()
+  return `${said}${/[.!?]$/.test(said) ? "" : "."} It is turned off.`
 }
 
 /**
@@ -38,9 +51,90 @@ export function trustLine(p: Pick<PluginInfo, "trust" | "source">, update?: Pick
   }
 }
 
+/** "a", "a and b", "a, b and c". */
+export function joinWords(items: string[]): string {
+  if (items.length < 2) return items.join("")
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`
+}
+
+/** When a program first needs what it downloads: its first run, or a service's first start. */
+export const firstTime = (runtime: string) => (runtime === "service" ? "first start" : "first run")
+
+/** When a program next needs what it downloads: its next run, or a service's next start (an update's files). */
+export const nextTime = (runtime: string) => (runtime === "service" ? "next start" : "next run")
+
+/**
+ * A size as a download review says it: whole units below a gigabyte ("312
+ * MB"), one digit from there ("1.5 GB", "3 GB"), so a big download is never
+ * rounded down by half a unit.
+ */
+export function downloadSize(bytes: number): string {
+  if (bytes < 1024 ** 3) return formatBytes(bytes, 0)
+  return formatBytes(bytes, 1).replace(".0 ", " ")
+}
+
+/**
+ * What a review says of the large files a plugin names, none when it names
+ * none: how much its first run still downloads and from where, and that
+ * AutoScene checks each file by its hash. When AutoScene keeps them all
+ * already (an update that names the same files), only where they come from.
+ * An update's plugin has run before: it downloads at its next run.
+ */
+export function resourceLine(
+  r: Pick<PluginReview, "resourceBytes" | "resourceHosts">,
+  runtime: string,
+  update = false,
+): string | null {
+  const bytes = r.resourceBytes ?? 0
+  const from = r.resourceHosts.length > 0 ? ` from ${joinWords(r.resourceHosts)}` : ""
+  if (bytes > 0) return `It downloads ${downloadSize(bytes)}${from} at its ${update ? nextTime(runtime) : firstTime(runtime)}. AutoScene keeps the files in its cache and checks each one by its hash.`
+  if (r.resourceHosts.length > 0) return `The large files it names come${from}. AutoScene already has them, and checks each one by its hash.`
+  return null
+}
+
 /** Whether AutoScene stands behind what a plugin says of itself, its author's name too: only its review does. */
 export function reviewedPackage(p: Pick<PluginInfo, "trust" | "source">): boolean {
   return p.source === "package" && p.trust === "reviewed"
+}
+
+/**
+ * The menu entry that opens a plugin's source, none when its plugin.json
+ * names none. Only a reviewed package's is its source: AutoScene's review
+ * signed that plugin.json. Of any other, nothing shows that its code came
+ * from there, as "Says it is by" says of its author.
+ */
+export function sourceLabel(p: Pick<PluginInfo, "trust" | "source" | "repository">): string | null {
+  if (!p.repository) return null
+  return reviewedPackage(p) ? "Show its source" : "Show the source it names"
+}
+
+/**
+ * What a plugin's picture may be: its icon (PNG or SVG) or its banner (PNG,
+ * JPEG or WebP) as a base64 `data:` URL. The backend reads and checks the file.
+ */
+const PICTURE_URL = /^data:image\/(?:png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+/]+={0,2}$/
+
+/** `src` while it is a plugin's picture in hand, never a link: else null. */
+export function pluginPicture(src: string | null | undefined): string | null {
+  return src != null && PICTURE_URL.test(src) ? src : null
+}
+
+/** A plugin package by its name: `.asp`, in any case. */
+export const isPluginPackage = (path: string) => path.toLowerCase().endsWith(".asp")
+
+/** From how many installed plugins Plugins offers to find one, as Cast does from six characters. */
+export const FIND_FROM = 6
+
+/**
+ * Whether `p` is a plugin `query` looks for: each of its words is in its
+ * name, what it says it does, its author or its id, whatever the case. An
+ * empty query finds every plugin. A catalog entry is found the same way.
+ */
+export function pluginMatches(p: Pick<PluginInfo, "name" | "description" | "author" | "id">, query: string): boolean {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean)
+  if (words.length === 0) return true
+  const text = [p.name, p.description, p.author, p.id].join("\n").toLowerCase()
+  return words.every((w) => text.includes(w))
 }
 
 const PERMISSIONS = new Map<Permission, string>([
@@ -50,19 +144,56 @@ const PERMISSIONS = new Map<Permission, string>([
   ["network", "Talks to the internet"],
 ])
 
-/** A permission a plugin declares, in plain words. */
-export function permissionLabel(p: Permission): string {
-  return PERMISSIONS.get(p) ?? p
+/** What each permission lets a plugin in AutoScene's sandbox do: a wall, not a promise. */
+const SANDBOXED = new Map<Permission, string>([
+  ["exports:read", "Reads the files in the export's folder"],
+  ["exports:write", "Reads, changes and deletes files in the export's folder"],
+  ["project:read", "Reads the project's folder"],
+  ["network", "Talks to these sites, over https only:"],
+])
+
+/** The network of a plugin in the sandbox that names no site: it may reach none. */
+const NO_SITE = "May use the network, but names no site: every request is refused."
+
+/**
+ * A permission a plugin declares, in plain words: what it says it does, or,
+ * for a plugin that runs in AutoScene's sandbox (`sandbox`, with the sites
+ * it may reach), what the sandbox lets it do.
+ */
+export function permissionLabel(p: Permission, sandbox?: { hosts: readonly string[] }): string {
+  if (!sandbox) return PERMISSIONS.get(p) ?? p
+  if (p === "network" && sandbox.hosts.length === 0) return NO_SITE
+  return SANDBOXED.get(p) ?? p
 }
 
-/** Whether a plugin has a page of its own in Settings: its settings, or its export actions to run after every export. */
-export function hasPage(p: Pick<PluginInfo, "settings" | "exportActions">): boolean {
-  return p.settings.length > 0 || p.exportActions.length > 0
+/** `n` of `unit`, as a person says it: "1 minute", "30 minutes". */
+const count = (n: number, unit: string) => `${n} ${unit}${n === 1 ? "" : "s"}`
+
+/**
+ * The limits of a plugin in AutoScene's sandbox, in one line: "It may use up
+ * to 512 MB of memory. A run stops after 30 minutes." Whole hours are said
+ * as hours.
+ */
+export function limitsLine(s: PluginSandbox): string {
+  const after = s.minutes % 60 === 0 ? count(s.minutes / 60, "hour") : count(s.minutes, "minute")
+  return `It may use up to ${s.memoryMb} MB of memory. A run stops after ${after}.`
 }
 
-/** The plugins Settings lists a page of: each that has one, also while it can't run (its page says why). */
-export function pluginPages(plugins: PluginInfo[] | undefined): PluginInfo[] {
-  return (plugins ?? []).filter(hasPage)
+/**
+ * When AutoScene holds a plugin to its permissions: always for one in its
+ * sandbox, each time the pages of another ask, and each time its program
+ * asks AutoScene for something (protocol 2). None for a program that does
+ * neither: they are only what it says it does.
+ */
+export function checkedWhen(p: Pick<PluginInfo, "runtime" | "pages" | "protocol">): string | null {
+  if (p.runtime === "wasm") return "It runs in a sandbox. AutoScene enforces these."
+  if (p.runtime === "none") return "AutoScene checks these each time its pages ask."
+  const pages = p.pages.length > 0
+  const calls = p.protocol >= 2
+  if (pages && calls) return "AutoScene checks these each time its pages or its program ask it for something."
+  if (pages) return "AutoScene checks these each time its pages ask."
+  if (calls) return "AutoScene checks these each time its program asks it for something."
+  return null
 }
 
 /** An entry a plugin adds to each export's menu. */
@@ -90,3 +221,25 @@ export function exportActionItems(plugins: PluginInfo[] | undefined): ExportActi
       })),
     )
 }
+
+/** An entry a plugin adds to a scenepack's ⋯ menu: the same shape as an export's. */
+export type PackActionItem = ExportActionItem
+
+/** The pack actions of the plugins that may run now, plugin by plugin, in the order each lists them. */
+export function packActionItems(plugins: PluginInfo[] | undefined): PackActionItem[] {
+  return (plugins ?? [])
+    .filter((p) => p.active)
+    .flatMap((p) =>
+      p.packActions.map((a) => ({
+        key: `${p.id}.${a.id}`,
+        pluginId: p.id,
+        pluginName: p.name,
+        icon: p.icon,
+        actionId: a.id,
+        title: a.title,
+      })),
+    )
+}
+
+/** Whether the rail's Plugins tile is lit at `path`: a plugin's settings are under Plugins. */
+export const pluginsLit = (path: string) => path === "/plugins" || path.startsWith("/plugins/")

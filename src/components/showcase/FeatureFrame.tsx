@@ -47,15 +47,16 @@ function Credit({ text }: { text: string }) {
  * Shows a feature component at its real size in the showcase, and scaled to
  * fit on a registry card. `card`: a piece of a screen, `width` wide, as high
  * as it needs. `page`: a whole view, drawn `width` by `height`; on a registry
- * card it is a picture of itself that opens the showcase, and on a phone it
- * lays out at `minWidth` and scales down, so it never pushes the page wider.
+ * card it is a picture of itself that opens the showcase. Narrower than
+ * `minWidth` (a phone), either lays out at `minWidth` and scales down, so it
+ * keeps the layout it was made for and never pushes the page wider.
  */
 export function FeatureFrame({
   id,
   kind = "card",
   width,
   height = 640,
-  minWidth = 640,
+  minWidth = kind === "page" ? 640 : 0,
   credit,
   children,
 }: {
@@ -125,10 +126,17 @@ export function FeatureFrame({
   }
 
   if (kind === "card") {
+    const scale = box.width > 0 && box.width < minWidth ? box.width / minWidth : 1
     return (
       <div ref={outerRef} className="flex w-full flex-col items-center gap-2.5">
-        <div className="w-full" style={{ maxWidth: width }}>
-          {seen && children}
+        <div className="w-full" style={{ maxWidth: width, height: scale < 1 ? inner.height * scale : undefined }}>
+          <div
+            ref={innerRef}
+            className="origin-top-left"
+            style={scale < 1 ? { width: minWidth, transform: `scale(${scale})` } : undefined}
+          >
+            {seen && children}
+          </div>
         </div>
         {credit && <Credit text={credit} />}
       </div>

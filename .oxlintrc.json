@@ -84,6 +84,8 @@
               "Shelf",
               "NotReady",
               "Hero",
+              "Banner",
+              "CleanToastCapsule",
               "ShowcasePageHeader",
               "ShowcaseSectionStage"
             ],

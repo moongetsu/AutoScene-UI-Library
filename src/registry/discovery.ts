@@ -21,7 +21,9 @@ export interface ComponentMeta {
  * entry, or an entry has no preview.
  */
 export function getDiscoveredComponents(): ComponentMeta[] {
-  return (catalog.entries as ComponentMeta[]).toSorted((a, b) => a.name.localeCompare(b.name))
+  // By name, the primitives before the features: they are what the library is for.
+  const late = (c: ComponentMeta) => (c.category === "Features" ? 1 : 0)
+  return (catalog.entries as ComponentMeta[]).toSorted((a, b) => late(a) - late(b) || a.name.localeCompare(b.name))
 }
 
 export const DISCOVERED_COMPONENTS = getDiscoveredComponents()
