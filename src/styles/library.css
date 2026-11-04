@@ -68,5 +68,16 @@
   --text-2xl--line-height: 32px;
   --text-3xl: 32px;
   --text-3xl--line-height: 40px;
+
+  --animate-indeterminate: indeterminate 1.4s var(--ease-in-out) infinite;
+}
+
+@keyframes indeterminate {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
 }
 

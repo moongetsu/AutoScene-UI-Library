@@ -15,13 +15,14 @@ import { notify } from "@/components/ui/toaster"
 import { Check, SlidersHorizontal } from "@phosphor-icons/react"
 import { motion } from "motion/react"
 
-// Category mapping for the 82 curated Phosphor icons in AutoScene
+// Category mapping for the 88 curated Phosphor icons in AutoScene
 const ICON_CATEGORIES: Record<string, string[]> = {
   Media: [
     "Play",
     "Pause",
     "SkipBack",
     "SkipForward",
+    "FastForward",
     "Scissors",
     "FilmSlate",
     "FilmStrip",
@@ -40,6 +41,7 @@ const ICON_CATEGORIES: Record<string, string[]> = {
     "ArrowSquareOut",
     "ArrowUUpLeft",
     "ArrowUUpRight",
+    "ArrowsClockwise",
     "ArrowsDownUp",
     "ArrowsMerge",
     "ArrowsOutLineHorizontal",
@@ -255,7 +257,7 @@ export function IconsShowcase() {
       <FilterBar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="Search 82 icons... (press / to focus)"
+        searchPlaceholder="Search 88 icons... (press / to focus)"
         filterGroups={filterGroups}
         selectedFilters={{ category: selectedCategory, weight }}
         onFilterChange={handleFilterChange}

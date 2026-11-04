@@ -9,6 +9,9 @@ import { cn } from "@/lib/utils"
  * Glass pills. `primary` is the one main action of a screen (bright white
  * glass); `secondary` and `glass` are dark glass that sits back, on the dark
  * and on pictures; `accent` (gold glass) is for what is selected or running.
+ * `cta` is the solid warm-white pill with near-black text (DESIGN.md "The main
+ * action"), for the answer most people give on a surface that leads with a
+ * picture (the first-start notice).
  */
 const buttonVariants = cva(
   [
@@ -20,6 +23,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        cta: "bg-cta font-semibold text-on-cta shadow-[0_10px_30px_-12px_rgb(255_255_255/0.5)] hover:bg-cta-hover active:bg-cta/90",
         primary:
           "border border-white/40 bg-white/[0.18] font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-xl hover:border-white/60 hover:bg-white/[0.26] active:bg-white/[0.22]",
         accent:

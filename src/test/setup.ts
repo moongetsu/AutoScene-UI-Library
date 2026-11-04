@@ -26,6 +26,20 @@ if (!window.matchMedia) {
     }) as MediaQueryList
 }
 
+// Animate UI's stagger plays its rows with the Web Animations API.
+if (!Element.prototype.animate) {
+  Element.prototype.animate = () =>
+    ({
+      finished: Promise.resolve(),
+      cancel() {},
+      finish() {},
+      play() {},
+      pause() {},
+      addEventListener() {},
+      removeEventListener() {},
+    }) as unknown as Animation
+}
+
 if (!("ResizeObserver" in globalThis)) {
   globalThis.ResizeObserver = class {
     observe() {}

@@ -121,13 +121,18 @@ function Preview({
   )
 }
 
-/** The same pill for moving between a view's sections (links). */
+/** A link or button of the nav: no sliding pill there, so the place it is on draws its own. */
+const navItem = cn(item, "text-fg-2 data-[state=on]:bg-white/[0.14] data-[state=on]:text-fg-1 data-[state=on]:shadow-1")
+
+/** The same pill for moving between a view's sections (links), and after them `children` (a menu of more). */
 export function SegmentedNav({
   items,
+  children,
   className,
   "aria-label": ariaLabel,
 }: {
   items: { to: string; label: React.ReactNode; icon?: React.ReactNode; active: boolean }[]
+  children?: React.ReactNode
   className?: string
   "aria-label": string
 }) {
@@ -139,12 +144,26 @@ export function SegmentedNav({
           to={i.to}
           aria-current={i.active ? "page" : undefined}
           data-state={i.active ? "on" : "off"}
-          className={item}
+          className={navItem}
         >
           {i.icon}
           {i.label}
         </Link>
       ))}
+      {children}
     </nav>
+  )
+}
+
+/** A control at the end of the nav's pill (a menu of more places), on while one of them is open. */
+export function SegmentedNavButton({ active, className, ...props }: React.ComponentProps<"button"> & { active: boolean }) {
+  return (
+    <button
+      type="button"
+      {...props}
+      aria-current={active ? "page" : undefined}
+      data-state={active ? "on" : "off"}
+      className={cn(navItem, className)}
+    />
   )
 }

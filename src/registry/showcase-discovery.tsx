@@ -42,7 +42,7 @@ const SECTION_CONFIG: Record<
   shell: { label: "Shell & Headers", group: "Layout & Media", icon: <Sidebar className="size-4" />, order: 9 },
   features: { label: "Features", group: "Features", icon: <SquaresFour className="size-4" />, order: 10 },
   tokens: { label: "Colors & Tokens", group: "Tokens", icon: <Palette className="size-4" />, order: 11 },
-  icons: { label: "Icons (80+)", group: "Tokens", icon: <Image className="size-4" />, overrideCount: 82, order: 12 },
+  icons: { label: "Icons (80+)", group: "Tokens", icon: <Image className="size-4" />, overrideCount: 88, order: 12 },
 }
 
 /**
