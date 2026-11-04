@@ -19,6 +19,7 @@ import {
   ArrowRight,
   X,
   Compass,
+  SquaresFour,
 } from "@phosphor-icons/react"
 import { REGISTRY_COMPONENTS } from "@/data/registry-items"
 
@@ -38,6 +39,7 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
   media: <Image className="size-4 text-accent" />,
   cards: <Cards className="size-4 text-accent" />,
   shell: <Sidebar className="size-4 text-accent" />,
+  features: <SquaresFour className="size-4 text-accent" />,
   tokens: <Palette className="size-4 text-accent" />,
   icons: <Image className="size-4 text-accent" />,
   playground: <SlidersHorizontal className="size-4 text-accent" />,
@@ -49,6 +51,7 @@ const QUICK_LINKS = [
   { id: "toggles", label: "Toggles & Sliders", section: "toggles" },
   { id: "inputs", label: "Search & Form Inputs", section: "inputs" },
   { id: "cards", label: "Composite Cards", section: "cards" },
+  { id: "features", label: "Features", section: "features" },
   { id: "playground", label: "Button Playground", section: "playground" },
 ]
 
@@ -81,12 +84,12 @@ export function ShowcaseCommandPalette({
     }
   }, [open])
 
-  const navigateTo = (view: "registry" | "showcase", sectionId?: string) => {
+  const navigateTo = (view: "registry" | "showcase", sectionId?: string, itemId?: string) => {
     onOpenChange(false)
     if (view === "registry") {
       window.location.hash = "#/"
     } else {
-      const targetHash = sectionId ? `#/showcase?section=${sectionId}` : "#/showcase"
+      const targetHash = sectionId ? `#/showcase?section=${sectionId}${itemId ? `&item=${itemId}` : ""}` : "#/showcase"
       window.location.hash = targetHash
       if (sectionId && onNavigateSection) {
         onNavigateSection(sectionId)
@@ -268,7 +271,7 @@ export function ShowcaseCommandPalette({
                       >
                         <Command.Item
                           value={`${item.title} ${item.category} ${item.description}`}
-                          onSelect={() => navigateTo("showcase", item.showcaseSection)}
+                          onSelect={() => navigateTo("showcase", item.showcaseSection, item.category === "Features" ? item.id : undefined)}
                           className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-fg-2 hover:bg-white/[0.06] hover:text-white cursor-pointer data-[selected=true]:bg-white/[0.08] data-[selected=true]:text-white transition-colors group"
                         >
                           <div className="flex items-center gap-2.5 min-w-0">

@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Select } from "@/components/ui/select"
 import { Tooltip, TooltipProvider } from "@/components/ui/tooltip"
 import { toast, notify, CleanToastCapsule } from "@/components/ui/toaster"
+import { FEATURE_PREVIEWS } from "./feature-previews"
 
 export interface ComponentCardData {
   id: string
@@ -282,16 +283,5 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
       ))}
     </div>
   ),
-}
-
-/**
- * Returns a fallback interactive demo for any newly discovered component
- */
-export function getFallbackComponentPreview(_id: string, name: string): React.ReactNode {
-  return (
-    <div className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/[0.06] bg-white/[0.02] text-center gap-2">
-      <span className="text-xs font-medium text-fg-2">{name} Component</span>
-      <span className="text-[10px] font-mono text-fg-3">import &#123; {name.replace(/\s+/g, "")} &#125; from "@moongetsu/autoscene-ui"</span>
-    </div>
-  )
+  ...FEATURE_PREVIEWS,
 }

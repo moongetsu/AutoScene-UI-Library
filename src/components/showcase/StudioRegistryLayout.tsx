@@ -14,11 +14,8 @@ import { motion } from "motion/react"
 import { SPRING_FAST } from "@/lib/motion"
 import { cn } from "@/lib/utils"
 import { DISCOVERED_COMPONENTS, TOTAL_UI_COMPONENTS_COUNT } from "@/registry/discovery"
-import {
-  COMPONENT_DEMO_PREVIEWS,
-  getFallbackComponentPreview,
-  type ComponentCardData,
-} from "@/registry/component-previews"
+import { COMPONENT_DEMO_PREVIEWS, type ComponentCardData } from "@/registry/component-previews"
+import { PreviewPlace } from "@/registry/preview-place"
 
 export function StudioRegistryLayout() {
   const [copied, setCopied] = React.useState(false)
@@ -59,25 +56,22 @@ export function StudioRegistryLayout() {
   // Dynamically generated component cards from the discovery engine
   const components: ComponentCardData[] = React.useMemo(() => {
     return DISCOVERED_COMPONENTS.map((meta) => {
-      const demoRenderer = COMPONENT_DEMO_PREVIEWS[meta.id]
-      const componentNode = demoRenderer
-        ? demoRenderer({
-            demoTab,
-            setDemoTab,
-            demoSwitch,
-            setDemoSwitch,
-            demoSlider,
-            setDemoSlider,
-            demoInput,
-            setDemoInput,
-            demoFilterStatus,
-            setDemoFilterStatus,
-            demoFilterSort,
-            setDemoFilterSort,
-            demoFilterSearch,
-            setDemoFilterSearch,
-          })
-        : getFallbackComponentPreview(meta.id, meta.name)
+      const componentNode = COMPONENT_DEMO_PREVIEWS[meta.id]({
+        demoTab,
+        setDemoTab,
+        demoSwitch,
+        setDemoSwitch,
+        demoSlider,
+        setDemoSlider,
+        demoInput,
+        setDemoInput,
+        demoFilterStatus,
+        setDemoFilterStatus,
+        demoFilterSort,
+        setDemoFilterSort,
+        demoFilterSearch,
+        setDemoFilterSearch,
+      })
 
       return {
         id: meta.id,
@@ -290,7 +284,7 @@ export function StudioRegistryLayout() {
               >
                 {/* Visual Stage */}
                 <div className="relative aspect-[4/3] w-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/[0.04] via-transparent to-transparent flex items-center justify-center p-8 border-b border-white/[0.06]">
-                  {item.component}
+                  <PreviewPlace.Provider value="gallery">{item.component}</PreviewPlace.Provider>
                 </div>
 
                 {/* Card Info Footer */}
