@@ -26,6 +26,7 @@ export function StudioRegistryLayout() {
   // Interactive state for live demo components
   const [demoTab, setDemoTab] = React.useState("cast")
   const [demoSwitch, setDemoSwitch] = React.useState(true)
+  const [demoCheckbox, setDemoCheckbox] = React.useState(true)
   const [demoSlider, setDemoSlider] = React.useState(85)
   const [demoInput, setDemoInput] = React.useState("")
   const [demoFilterStatus, setDemoFilterStatus] = React.useState("ready")
@@ -61,6 +62,8 @@ export function StudioRegistryLayout() {
         setDemoTab,
         demoSwitch,
         setDemoSwitch,
+        demoCheckbox,
+        setDemoCheckbox,
         demoSlider,
         setDemoSlider,
         demoInput,
@@ -84,6 +87,7 @@ export function StudioRegistryLayout() {
   }, [
     demoTab,
     demoSwitch,
+    demoCheckbox,
     demoSlider,
     demoInput,
     demoFilterStatus,

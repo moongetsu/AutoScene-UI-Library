@@ -1,7 +1,9 @@
 import * as React from "react"
-import { Play } from "@/components/icons"
+import { Play, ShieldWarning, Warning } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Banner } from "@/components/ui/banner"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
@@ -13,6 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Select } from "@/components/ui/select"
 import { Tooltip, TooltipProvider } from "@/components/ui/tooltip"
 import { toast, notify, CleanToastCapsule } from "@/components/ui/toaster"
+import { PathText, SettingRow, SettingsGroup } from "@/features/settings/primitives"
 import { FEATURE_PREVIEWS } from "./feature-previews"
 
 export interface ComponentCardData {
@@ -281,6 +284,66 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
           #{i}
         </div>
       ))}
+    </div>
+  ),
+  banner: () => (
+    <div className="w-full max-w-md space-y-2.5">
+      <Banner
+        tone="accent"
+        icon={<Warning weight="fill" />}
+        title="1 episode can't be found"
+        actions={<Button size="sm">Locate folder…</Button>}
+      />
+      <Banner
+        tone="danger"
+        icon={<ShieldWarning weight="fill" />}
+        title="This plugin was withdrawn"
+        actions={
+          <Button size="sm" variant="danger">
+            Uninstall…
+          </Button>
+        }
+      />
+    </div>
+  ),
+  checkbox: (h) => (
+    <Checkbox
+      label="Don't show this again"
+      checked={h?.demoCheckbox ?? true}
+      onCheckedChange={(v) => h?.setDemoCheckbox?.(v === true)}
+    />
+  ),
+  "settings-group": (h) => (
+    <div className="-mb-10 w-full max-w-md">
+      <SettingsGroup title="Playback">
+        <SettingRow label="Start where you left off">
+          <Switch
+            aria-label="Start where you left off"
+            checked={h?.demoSwitch ?? true}
+            onCheckedChange={(c) => h?.setDemoSwitch?.(c)}
+          />
+        </SettingRow>
+        <SettingRow label="Loop the clip">
+          <Switch aria-label="Loop the clip" checked={false} onCheckedChange={() => {}} />
+        </SettingRow>
+      </SettingsGroup>
+    </div>
+  ),
+  "setting-row": (h) => (
+    <div className="w-full max-w-md rounded-2xl border border-white/[0.07] bg-white/[0.03]">
+      <SettingRow label="Hardware decoding" description="Plays heavy files more smoothly.">
+        <Switch
+          aria-label="Hardware decoding"
+          checked={h?.demoSwitch ?? true}
+          onCheckedChange={(c) => h?.setDemoSwitch?.(c)}
+        />
+      </SettingRow>
+    </div>
+  ),
+  "path-text": () => (
+    <div className="w-full max-w-xs space-y-1.5 text-center">
+      <PathText path={String.raw`C:\Users\you\Videos\Tears of Steel.autoscene`} />
+      <p className="text-[10px] text-fg-3">Right-click the path</p>
     </div>
   ),
   ...FEATURE_PREVIEWS,

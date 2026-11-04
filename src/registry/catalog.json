@@ -27,6 +27,11 @@
     {"id": "tooltip", "name": "Tooltip", "category": "Overlays", "section": "overlays", "description": "Instant micro-tooltip that appears on hover with custom offset.", "file": "src/components/ui/tooltip.tsx", "exports": ["Tooltip", "TooltipProvider"]},
     {"id": "topbar", "name": "Topbar", "category": "Navigation", "section": "shell", "description": "Universal desktop header bar with branding, navigation, and controls.", "file": "src/components/ui/topbar.tsx"},
     {"id": "virtual-grid", "name": "Virtual Grid", "category": "Cards & Media", "section": "cards", "description": "High-performance virtualized grid for massive media asset libraries.", "file": "src/components/ui/virtual-grid.tsx"},
+    {"id": "banner", "name": "Banner", "category": "Feedback", "section": "indicators", "description": "Message at the top of a view, with its buttons, gold or red.", "file": "src/components/ui/banner.tsx", "exports": ["Banner"]},
+    {"id": "checkbox", "name": "Checkbox", "category": "Toggles", "section": "toggles", "description": "Tick box with its label, for an option that matters once.", "file": "src/components/ui/checkbox.tsx", "exports": ["Checkbox"]},
+    {"id": "settings-group", "name": "Settings Group", "category": "Cards & Media", "section": "cards", "description": "A titled box of setting rows, split by hairlines.", "file": "src/features/settings/primitives.tsx"},
+    {"id": "setting-row", "name": "Setting Row", "category": "Cards & Media", "section": "cards", "description": "What a setting is on the left, its control on the right.", "file": "src/features/settings/primitives.tsx"},
+    {"id": "path-text", "name": "Path Text", "category": "Cards & Media", "section": "cards", "description": "A file path as selectable mono text. A right-click shows or copies it.", "file": "src/features/settings/primitives.tsx"},
     {"id": "project-card", "name": "Project Card", "category": "Features", "section": "features", "feature": "Library", "description": "A project as its picture: the title over the footage, its facts beneath.", "file": "src/features/library/ProjectCard.tsx"},
     {"id": "character-card", "name": "Character Card", "category": "Features", "section": "features", "feature": "Cast", "description": "A character as a portrait: the face fills the card, the name sits on it.", "file": "src/features/cast/CharacterCard.tsx"}
   ],

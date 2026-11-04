@@ -1,3 +1,6 @@
+import { ShieldWarning, Warning } from "@/components/icons"
+import { Banner } from "@/components/ui/banner"
+import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Kbd } from "@/components/ui/kbd"
@@ -127,6 +130,36 @@ export function IndicatorsShowcase() {
               <Skeleton className="h-2.5 w-16" />
             </div>
           </div>
+        </div>
+      </ShowcaseSectionStage>
+
+      {/* Banner */}
+      <ShowcaseSectionStage
+        title="Banner"
+        description="Something the person has to know, at the top of the view it is about. Gold asks for an action, red says something is wrong."
+        code={`<Banner
+  tone="accent"
+  icon={<Warning weight="fill" />}
+  title="1 episode can't be found"
+  description="Moved, renamed, or on a drive that isn't connected."
+  actions={<Button>Locate folder…</Button>}
+/>`}
+      >
+        <div className="flex w-full max-w-2xl flex-col gap-3">
+          <Banner
+            tone="accent"
+            icon={<Warning weight="fill" />}
+            title="1 episode can't be found"
+            description="Moved, renamed, or on a drive that isn't connected."
+            actions={<Button>Locate folder…</Button>}
+          />
+          <Banner
+            tone="danger"
+            icon={<ShieldWarning weight="fill" />}
+            title="AutoScene withdrew this plugin"
+            description="It doesn't run any more. You can uninstall it."
+            actions={<Button variant="danger">Uninstall…</Button>}
+          />
         </div>
       </ShowcaseSectionStage>
     </div>

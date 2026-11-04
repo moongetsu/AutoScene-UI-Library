@@ -1,10 +1,14 @@
+import { useState } from "react"
 import { Play, DotsThree, FilmStrip } from "@/components/icons"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
+import { PathText, SettingRow, SettingsGroup } from "@/features/settings/primitives"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
 export function CardsShowcase() {
+  const [hardware, setHardware] = useState(true)
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
@@ -97,6 +101,33 @@ export function CardsShowcase() {
               <DotsThree weight="bold" />
             </Button>
           </div>
+        </div>
+      </ShowcaseSectionStage>
+
+      {/* 3. Settings rows */}
+      <ShowcaseSectionStage
+        title="Settings Group, Setting Row and Path Text"
+        description="Grouped rows: what a setting is on the left, its control on the right. A path stays selectable, and a right-click shows or copies it."
+        code={`import { PathText, SettingRow, SettingsGroup } from "@/features/settings/primitives"
+
+<SettingsGroup title="Storage">
+  <SettingRow label="Library folder" description="Where new projects are kept.">
+    <Button size="sm">Change…</Button>
+  </SettingRow>
+  <SettingRow label="Hardware decoding" description="Plays heavy files more smoothly.">
+    <Switch aria-label="Hardware decoding" checked onCheckedChange={setOn} />
+  </SettingRow>
+</SettingsGroup>`}
+      >
+        <div className="-mb-10 w-full max-w-2xl">
+          <SettingsGroup title="Storage">
+            <SettingRow label="Library folder" description={<PathText path={String.raw`C:\Users\you\Videos\AutoScene`} />}>
+              <Button size="sm">Change…</Button>
+            </SettingRow>
+            <SettingRow label="Hardware decoding" description="Plays heavy files more smoothly.">
+              <Switch aria-label="Hardware decoding" checked={hardware} onCheckedChange={setHardware} />
+            </SettingRow>
+          </SettingsGroup>
         </div>
       </ShowcaseSectionStage>
     </div>

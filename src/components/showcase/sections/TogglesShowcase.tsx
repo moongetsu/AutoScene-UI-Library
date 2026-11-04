@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { Segmented } from "@/components/ui/segmented"
@@ -6,6 +7,7 @@ import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
 export function TogglesShowcase() {
+  const [never, setNever] = useState(true)
   const [toggleState, setToggleState] = useState(true)
   const [sliderVal, setSliderVal] = useState(75)
   const [tab, setTab] = useState<"episodes" | "cast" | "packs">("cast")
@@ -105,6 +107,15 @@ export function TogglesShowcase() {
             onChange={(val) => setSliderVal(val)}
           />
         </div>
+      </ShowcaseSectionStage>
+
+      {/* Checkbox */}
+      <ShowcaseSectionStage
+        title="Checkbox"
+        description="A tick box with its label, only for an option that matters once. Settings use a switch."
+        code={`<Checkbox label="Don't show this again" checked={never} onCheckedChange={(v) => setNever(v === true)} />`}
+      >
+        <Checkbox label="Don't show this again" checked={never} onCheckedChange={(v) => setNever(v === true)} />
       </ShowcaseSectionStage>
     </div>
   )
