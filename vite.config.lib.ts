@@ -9,8 +9,12 @@ export default defineConfig({
     react(),
     tailwindcss(),
     dts({
-      include: ["src/components/ui", "src/components/brand", "src/lib", "src/index.ts"],
+      include: ["src/components/ui", "src/components/brand", "src/components/icons.ts", "src/index.ts", "src/lib/context-areas.ts", "src/lib/errors.ts", "src/lib/grid.ts", "src/lib/motion.ts", "src/lib/open-logs.ts", "src/lib/ua.ts", "src/lib/utils.ts"],
       outDir: "dist",
+      // The root tsconfig only points at the others: on its own it has no files.
+      tsconfigPath: "./tsconfig.app.json",
+      entryRoot: "src",
+      exclude: ["src/**/*.test.ts", "src/**/*.test.tsx", "src/components/ui/topbar.tsx"],
       insertTypesEntry: true,
       rollupTypes: false,
     }),
@@ -26,6 +30,8 @@ export default defineConfig({
       name: "AutoSceneUI",
       formats: ["es", "cjs"],
       fileName: (format) => (format === "es" ? "index.js" : "index.cjs"),
+      // What package.json's "./styles.css" points at.
+      cssFileName: "index",
     },
     rollupOptions: {
       // Externalize peer dependencies to keep package lightweight
@@ -42,14 +48,12 @@ export default defineConfig({
           "react/jsx-runtime": "jsxRuntime",
           "@phosphor-icons/react": "PhosphorReact",
         },
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name === "style.css") return "index.css"
-          return assetInfo.name || "asset"
-        },
       },
     },
     sourcemap: true,
     emptyOutDir: false,
+    // The footage and the site's pictures aren't part of the package.
+    copyPublicDir: false,
   },
 })
 

@@ -1,6 +1,5 @@
 import type * as React from "react"
 import { useState } from "react"
-import { assetUrl } from "@/lib/media"
 import { cn } from "@/lib/utils"
 
 /**
@@ -29,7 +28,8 @@ export function Artwork({
   fallback?: React.ReactNode
   children?: React.ReactNode
 }) {
-  const url = src ?? (path ? assetUrl(path) : null)
+  // The app turns a local path into a URL here. The library has no local files: `path` is a URL already.
+  const url = src ?? path ?? null
   // The last picture that loaded stays underneath until the new one has.
   const [shown, setShown] = useState<string | null>(null)
   const under = url && shown !== url ? shown : null

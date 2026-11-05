@@ -1,12 +1,15 @@
+import { use } from "react"
 import { ArrowCounterClockwise, FileText, Warning } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
-import { commands, errorMessage, isAppError } from "@/lib/ipc"
+import { errorMessage, isAppError } from "@/lib/errors"
+import { OpenLogs } from "@/lib/open-logs"
 
 /**
  * A view whose data couldn't be loaded: what went wrong in plain words, and a
  * way to try again. Failures of the app itself (its data, its files) also
- * offer the logs, where their technical side is written.
+ * offer the logs, where their technical side is written (given by `OpenLogs`,
+ * so the package carries no call to the app).
  */
 export function ErrorState({
   error,
@@ -19,6 +22,7 @@ export function ErrorState({
   onRetry?: () => void
   className?: string
 }) {
+  const openLogs = use(OpenLogs)
   const ownFault = !isAppError(error) || error.code === "internal" || error.code === "io" || error.code === "media"
   return (
     <EmptyState
@@ -34,8 +38,8 @@ export function ErrorState({
               <ArrowCounterClockwise /> Try again
             </Button>
           )}
-          {ownFault && (
-            <Button variant="ghost" onClick={() => void commands.openLogsDir().catch(() => {})}>
+          {ownFault && openLogs && (
+            <Button variant="ghost" onClick={openLogs}>
               <FileText /> Open logs
             </Button>
           )}

@@ -1,9 +1,9 @@
+import { isMac, isWindows } from "./ua"
+
 /** True inside the Tauri webview; false in a plain browser (mock mode). */
 export const isTauri = typeof window !== "undefined" && "__TAURI_INTERNALS__" in window
 
-const ua = typeof navigator !== "undefined" ? navigator.userAgent : ""
-export const isMac = /Mac OS X|Macintosh/.test(ua)
-export const isWindows = /Windows/.test(ua)
+export { isMac, isWindows }
 
 type UaData = { getHighEntropyValues(hints: string[]): Promise<{ platformVersion?: string }> }
 

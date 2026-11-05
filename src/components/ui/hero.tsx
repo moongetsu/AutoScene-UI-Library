@@ -1,5 +1,4 @@
 import type * as React from "react"
-import { assetUrl } from "@/lib/media"
 import { cn } from "@/lib/utils"
 
 /**
@@ -29,7 +28,8 @@ export function Hero({
   className?: string
   children: React.ReactNode
 } & Omit<React.HTMLAttributes<HTMLElement>, "title" | "children"> & { ref?: React.Ref<HTMLElement> }) {
-  const url = src ?? (path ? assetUrl(path) : null)
+  // The app turns a local path into a URL here. The library has no local files: `path` is a URL already.
+  const url = src ?? path ?? null
   return (
     <section className={cn("relative isolate flex min-h-[clamp(380px,56vh,600px)] flex-col justify-end", className)} {...props}>
       <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
