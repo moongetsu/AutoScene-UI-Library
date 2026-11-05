@@ -44,7 +44,7 @@ export function DropdownMenuContent({
 
 const item = menuItem
 
-/** `shortcut` as the keys read, e.g. ["Ctrl", "E"] — like the context menu's items. */
+/** `shortcut` as the keys read, e.g. ["Ctrl", "E"] - like the context menu's items. */
 export function DropdownMenuItem({
   className,
   destructive,

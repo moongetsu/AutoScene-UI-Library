@@ -13,7 +13,7 @@ import { ShotFrames } from "./ShotFrames"
 import { type BodyVerdict, formatShotLength } from "./shots"
 
 /**
- * A shot as a card: its sprite — frames spread over the shot — scrubbed by
+ * A shot as a card: its sprite - frames spread over the shot - scrubbed by
  * moving the pointer across, the character's face in a corner, its length
  * and where it is. Click opens the moment in the player.
  */

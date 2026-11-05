@@ -45,7 +45,7 @@ export function ReviewPage() {
   // The guard itself: two answers before the page draws again would both
   // still see `busy` as it was (which only disables the buttons).
   const answering = useRef(false)
-  // Quick picks 1–9: the biggest characters when the review started, in a
+  // Quick picks 1-9: the biggest characters when the review started, in a
   // fixed order (numbers don't move as answers change the screen time).
   const [pickIds, setPickIds] = useState<string[] | null>(null)
   if (pickIds === null && cast) setPickIds(cast.characters.filter((x) => !x.hidden).slice(0, 9).map((x) => x.id))
@@ -108,7 +108,7 @@ export function ReviewPage() {
     }
   }
 
-  // The answers — on the keyboard (REVIEW_SHORTCUTS) and in the menu. One
+  // The answers - on the keyboard (REVIEW_SHORTCUTS) and in the menu. One
   // with nothing to answer here (no suggestion, an empty quick pick) says
   // so (`false`), and its key passes through.
   const decide = {
@@ -262,7 +262,7 @@ export function ReviewPage() {
             </h2>
             {suggestion && (
               <p className="mt-2 text-center text-md text-fg-2">
-                {(current.score ?? 0) >= 0.45 ? "Looks a lot like them" : "Might be them"} — the analysis wasn't sure enough to decide
+                {(current.score ?? 0) >= 0.45 ? "Looks a lot like them" : "Might be them"} - the analysis wasn't sure enough to decide
                 alone.
               </p>
             )}

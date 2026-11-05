@@ -35,7 +35,7 @@ function keep(entry: string, top: number) {
  * A page scrolls back to where it was when it is visited again (Back,
  * Forward); a new visit starts at the top. Lists that render what is on
  * screen grow as their data arrives, so the place is tried again for a
- * moment — until it is reached or the person scrolls.
+ * moment - until it is reached or the person scrolls.
  */
 export function useScrollMemory(el: HTMLElement | null, entry: string) {
   useLayoutEffect(() => {

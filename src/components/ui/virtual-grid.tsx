@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { usePageScrollElement } from "./page-scroll"
 
 /**
- * A grid of pictures that renders only the rows on screen — a character's
+ * A grid of pictures that renders only the rows on screen - a character's
  * shots or everyone else's faces run into the thousands. Columns fill the
  * width like CSS `auto-fill` (each at least `minItemWidth`); every row is as
  * tall as `itemHeight(itemWidth)`. It scrolls with the page it is on.

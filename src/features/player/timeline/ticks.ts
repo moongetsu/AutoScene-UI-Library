@@ -14,7 +14,7 @@ const PLAIN: Counting = { count: (f) => f, frame: (n) => n }
 
 /**
  * Where the ruler's labelled ticks go: the finest step that leaves at least
- * `minPx` between labels, on round timecodes — whole timecode seconds count
+ * `minPx` between labels, on round timecodes - whole timecode seconds count
  * `round(fps)` frames, so at 23.976 a tick reads 00:20:40:00, not the frame
  * at a round second of real time, and drop-frame steps over the labels it
  * skips (a minute tick reads 00:01:00;02). `frameAt`/`rel` map between

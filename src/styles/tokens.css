@@ -1,5 +1,5 @@
 /*
- * AutoScene — "Cinematic" design tokens (see docs/DESIGN.md).
+ * AutoScene - "Cinematic" design tokens (see docs/DESIGN.md).
  *
  *  - The app is a dark theatre: near-black, neutral surfaces; the pictures
  *    (episode stills, faces, shots) bring the colour.
@@ -43,7 +43,7 @@
   --cta-hover: #ffffff;
   --fg-on-cta: #0b0b0d;
 
-  /* Accent — the logo's gold, brightened for dark screens */
+  /* Accent - the logo's gold, brightened for dark screens */
   --accent: #e0b45c;
   --accent-hover: #eac375;
   --accent-press: #c99e48;

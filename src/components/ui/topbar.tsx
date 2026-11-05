@@ -48,7 +48,7 @@ export function TopBar({
   const navigate = useNavigate()
   return (
     // The bar is the window's caption: on Windows a right-click on its empty
-    // parts (and the title) is the window's own — minimize, maximize, close —
+    // parts (and the title) is the window's own - minimize, maximize, close -
     // as a title bar's is. Its buttons and tabs keep theirs.
     <ContextArea
       tail={false}

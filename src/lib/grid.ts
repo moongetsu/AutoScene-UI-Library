@@ -6,8 +6,8 @@ export function gridColumns(width: number, min: number, gap: number): { columns:
 
 /**
  * Clicking in a grid of selectable pictures, like a file browser: Shift
- * adds the range from the last picture clicked; Ctrl/⌘ — or any click once
- * something is selected — flips one; a plain click starts a selection.
+ * adds the range from the last picture clicked; Ctrl/⌘ - or any click once
+ * something is selected - flips one; a plain click starts a selection.
  */
 export function clickSelect<K>(
   keys: readonly K[],

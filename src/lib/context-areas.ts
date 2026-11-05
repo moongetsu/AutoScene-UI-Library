@@ -4,9 +4,9 @@ import type * as React from "react"
 export type MenuContent = React.ReactNode | (() => React.ReactNode)
 
 /**
- * "element": the thing right-clicked — a card, a row, a face: its actions
+ * "element": the thing right-clicked - a card, a row, a face: its actions
  * come first and the app's short tail after them. "page": a view's empty
- * space — its actions, then the app's full list.
+ * space - its actions, then the app's full list.
  */
 export type AreaKind = "element" | "page"
 

@@ -16,7 +16,7 @@ import { useUi } from "@/state/ui"
 import { rememberPreset } from "./export"
 
 export type ExportClip = ClipRequest & {
-  /** What the user sees: "S01E03 · 00:12:03:05 – 00:12:07:11". */
+  /** What the user sees: "S01E03 · 00:12:03:05 - 00:12:07:11". */
   summary: string
 }
 

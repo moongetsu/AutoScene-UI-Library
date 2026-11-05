@@ -24,7 +24,7 @@ type TooltipProps = {
 } & Omit<React.HTMLAttributes<HTMLElement>, "title" | "children" | "className">
 
 /**
- * The app's tooltip — never the browser's (`title` is not used anywhere).
+ * The app's tooltip - never the browser's (`title` is not used anywhere).
  * Other props (a right-click's handler from an area around it) go to the
  * element it is about.
  */
@@ -78,7 +78,7 @@ function TipContent({
 
 /**
  * Text cut off with an ellipsis where it doesn't fit; all of it shows in a
- * tooltip — only when it is cut. `label` replaces the text in the tooltip
+ * tooltip - only when it is cut. `label` replaces the text in the tooltip
  * (a full path behind a short name).
  */
 export function TruncatedText({

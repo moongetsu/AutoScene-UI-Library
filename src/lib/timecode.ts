@@ -5,7 +5,7 @@ export function fpsValue(fps: Fps): number {
   return fps.num / fps.den
 }
 
-/** "23.976", "25", "29.97" — how editors say frame rates. */
+/** "23.976", "25", "29.97" - how editors say frame rates. */
 export function formatFps(fps: Fps): string {
   const v = fpsValue(fps)
   const rounded = Math.round(v * 1000) / 1000

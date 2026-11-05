@@ -17,7 +17,7 @@ function useCrumbs(): { id: string; label: React.ReactNode }[] {
 
 /**
  * The native window title (taskbar, Alt+Tab, Mission Control) follows the
- * view, most specific first: "Cast · Walter — Dark — AutoScene". Crumbs are
+ * view, most specific first: "Cast · Walter - Dark - AutoScene". Crumbs are
  * components that follow renames live, so they render hidden and the title
  * is read from their text.
  */
@@ -30,7 +30,7 @@ export function WindowTitle() {
     let last = ""
     const apply = () => {
       const parts = Array.from(el.children, (c) => c.textContent?.trim() ?? "").filter(Boolean)
-      const title = [...parts.reverse(), "AutoScene"].join(" — ")
+      const title = [...parts.reverse(), "AutoScene"].join(" - ")
       if (title === last) return
       last = title
       document.title = title

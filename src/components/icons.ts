@@ -1,6 +1,6 @@
 /**
  * The app's icons: Phosphor (regular weight; `fill` marks the active place).
- * Everything imports icons from here, so the set stays small and consistent —
+ * Everything imports icons from here, so the set stays small and consistent -
  * and decorative "AI" clichés (sparkles, lightning, magic wands, robots,
  * stars) stay out. See docs/DESIGN.md.
  */

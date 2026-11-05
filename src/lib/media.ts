@@ -159,7 +159,7 @@ function channelLabel(n: number): string {
   return n === 1 ? "Mono" : n === 2 ? "Stereo" : n === 6 ? "5.1" : n === 8 ? "7.1" : n === 3 ? "2.1" : `${n} ch`
 }
 
-/** "English · DTS-HD MA · 5.1" — language first, so the right track is obvious at a glance. */
+/** "English · DTS-HD MA · 5.1" - language first, so the right track is obvious at a glance. */
 export function audioLabel(a: AudioStream): string {
   const parts = [languageName(a.language) ?? `Track ${a.ordinal + 1}`, audioCodecLabel(a), channelLabel(a.channels)]
   if (a.commentary) parts.push("Commentary")

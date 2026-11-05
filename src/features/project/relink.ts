@@ -36,7 +36,7 @@ export async function relinkAnyway(pid: string, m: MediaItem, path: string) {
 
 function relinked(r: Relink, title: string) {
   toast(
-    r.kind === "same" ? `Found ${title}` : `Found ${title} — indexing it again`,
+    r.kind === "same" ? `Found ${title}` : `Found ${title} - indexing it again`,
     r.kind === "same" ? undefined : { description: "Its analysis stays if its frames are the same." },
   )
 }

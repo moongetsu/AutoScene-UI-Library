@@ -15,8 +15,8 @@ export const menuSeparator = "mx-2 my-1.5 h-px bg-hairline"
 
 /**
  * An entry's action, run once its menu has closed. An open menu holds the
- * focus — it takes it back from a field the action focuses (the go-to field,
- * a name to edit) — and Radix runs the action while it is still open. Later,
+ * focus - it takes it back from a field the action focuses (the go-to field,
+ * a name to edit) - and Radix runs the action while it is still open. Later,
  * the field, a dialog or another menu keeps the focus it is given.
  */
 export function afterClose<E>(action: ((e: E) => void) | undefined): ((e: E) => void) | undefined {

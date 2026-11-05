@@ -2,8 +2,8 @@ import { create } from "zustand"
 
 /**
  * In/out marks per media. They live outside the player so they survive the
- * player being rebuilt — e.g. when a new preview is ready after switching the
- * audio track — and moving between episodes and back.
+ * player being rebuilt - e.g. when a new preview is ready after switching the
+ * audio track - and moving between episodes and back.
  */
 export type Marks = { in: number | null; out: number | null }
 

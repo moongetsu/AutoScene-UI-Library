@@ -119,8 +119,8 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
         selectedFilters={{ status: h?.demoFilterStatus ?? "ready" }}
         onFilterChange={(_, val) => h?.setDemoFilterStatus?.(val)}
         sortOptions={[
-          { value: "az", label: "Name A–Z" },
-          { value: "za", label: "Name Z–A" },
+          { value: "az", label: "Name A-Z" },
+          { value: "za", label: "Name Z-A" },
         ]}
         selectedSort={h?.demoFilterSort ?? "az"}
         onSortChange={h?.setDemoFilterSort}

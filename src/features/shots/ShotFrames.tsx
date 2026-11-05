@@ -5,8 +5,8 @@ import type { Scrub } from "./scrub"
 import { CARD_ASPECT, spriteStyle } from "./shots"
 
 /**
- * A shot's picture inside a 16:9 card: its sprite — frames spread over the
- * shot — at the scrubbed cell, the character's face in a corner, and how far
+ * A shot's picture inside a 16:9 card: its sprite - frames spread over the
+ * shot - at the scrubbed cell, the character's face in a corner, and how far
  * along the pointer is. Without a sprite, the face fills the card.
  */
 export function ShotFrames({ shot, scrub }: { shot: CharacterShot; scrub: Scrub }) {
