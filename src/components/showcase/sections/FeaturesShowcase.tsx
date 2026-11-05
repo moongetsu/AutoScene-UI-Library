@@ -29,22 +29,22 @@ export function FeaturesShowcase() {
       <AppMenu>
         <div className="flex flex-col gap-10">
           {GROUPS.map((group) => (
-        <section key={group} className="flex flex-col gap-6">
-          <h3 className="text-sm font-semibold text-fg-3">{group}</h3>
-          {FEATURES.filter((c) => (c.feature ?? "Other") === group).map((c) => (
-            <article
-              key={c.id}
-              id={`feature-${c.id}`}
-              className="scroll-mt-20 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c0f]"
-            >
-              <header className="border-b border-white/[0.06] bg-white/[0.015] px-4 py-3.5 sm:px-6">
-                <h4 className="text-sm font-semibold tracking-tight text-white">{c.name}</h4>
-                <p className="mt-0.5 text-xs text-fg-3">{c.description}</p>
-              </header>
-              <div className="flex min-h-[150px] items-center justify-center p-4 sm:p-8">{COMPONENT_DEMO_PREVIEWS[c.id]()}</div>
-            </article>
-          ))}
-        </section>
+            <section key={group} className="flex flex-col gap-6">
+              <h3 className="text-sm font-semibold text-fg-3">{group}</h3>
+              {FEATURES.filter((c) => (c.feature ?? "Other") === group).map((c) => (
+                <article
+                  key={c.id}
+                  id={`feature-${c.id}`}
+                  className="scroll-mt-20 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c0f]"
+                >
+                  <header className="border-b border-white/[0.06] bg-white/[0.015] px-4 py-3.5 sm:px-6">
+                    <h4 className="text-sm font-semibold tracking-tight text-white">{c.name}</h4>
+                    <p className="mt-0.5 text-xs text-fg-3">{c.description}</p>
+                  </header>
+                  <div className="flex min-h-[150px] items-center justify-center p-4 sm:p-8">{COMPONENT_DEMO_PREVIEWS[c.id]()}</div>
+                </article>
+              ))}
+            </section>
           ))}
         </div>
       </AppMenu>
