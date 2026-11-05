@@ -38,20 +38,31 @@ const COMPONENTS = [
   ...catalog.entries.map((c) => ({ id: c.id, title: c.name, desc: c.description })),
 ]
 
+const escapeAttribute = (text) => text.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;")
+
+// One meta tag, wherever its attributes break across lines in index.html. A
+// tag that isn't found fails the build rather than leave a page with the
+// site's own description.
+function setMeta(html, attribute, key, value) {
+  const tag = new RegExp(`<meta\\s+${attribute}="${key}"\\s+content="[^"]*"\\s*/?>`)
+  if (!tag.test(html)) throw new Error(`dist/index.html has no <meta ${attribute}="${key}">`)
+  return html.replace(tag, () => `<meta ${attribute}="${key}" content="${escapeAttribute(value)}" />`)
+}
+
 function renderPage(title, desc, relativeUrl) {
   const fullTitle = `${title} | AutoScene UI`
   const canonical = `https://moongetsu.github.io/AutoScene-UI-Library/${relativeUrl}`
 
-  let html = baseHtml
-    .replace(/<title>.*?<\/title>/, `<title>${fullTitle}</title>`)
-    .replace(/<meta property="og:title" content=".*?" \/>/, `<meta property="og:title" content="${fullTitle}" />`)
-    .replace(/<meta property="og:description" content=".*?" \/>/, `<meta property="og:description" content="${desc}" />`)
-    .replace(/<meta property="og:url" content=".*?" \/>/, `<meta property="og:url" content="${canonical}" />`)
-    .replace(/<meta name="twitter:title" content=".*?" \/>/, `<meta name="twitter:title" content="${fullTitle}" />`)
-    .replace(/<meta name="twitter:description" content=".*?" \/>/, `<meta name="twitter:description" content="${desc}" />`)
-    .replace(/<link rel="canonical" href=".*?" \/>/, `<link rel="canonical" href="${canonical}" />`)
-
-  return html
+  let html = baseHtml.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${escapeAttribute(fullTitle)}</title>`)
+  html = setMeta(html, "name", "title", fullTitle)
+  html = setMeta(html, "name", "description", desc)
+  html = setMeta(html, "property", "og:title", fullTitle)
+  html = setMeta(html, "property", "og:description", desc)
+  html = setMeta(html, "property", "og:url", canonical)
+  html = setMeta(html, "name", "twitter:title", fullTitle)
+  html = setMeta(html, "name", "twitter:description", desc)
+  html = setMeta(html, "name", "twitter:url", canonical)
+  return html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, () => `<link rel="canonical" href="${canonical}" />`)
 }
 
 function writeStaticRoute(routePath, html) {

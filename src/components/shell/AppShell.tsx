@@ -21,7 +21,6 @@ import { FastScanNotice } from "./FastScanNotice"
 import { UpdateDialog } from "./UpdateDialog"
 import { WindowControls } from "./WindowControls"
 import { WindowTitle } from "./WindowTitle"
-import { Toaster } from "@/components/ui/toaster"
 
 /**
  * The window: the rail on the left (on the native material), the view on
@@ -49,7 +48,6 @@ export function AppShell() {
       <div className="min-h-screen w-full bg-[#070709] text-fg-1 selection:bg-accent/30 selection:text-white">
         <Outlet />
         <InstallReviewDialog />
-        <Toaster />
       </div>
     )
   }

@@ -1,10 +1,10 @@
 import type { Character, MediaItem, PluginInfo, ProjectSummary, Rational, Segment, ThisComputer } from "@/bindings"
 import { FrameStore } from "@/features/player/frame-store"
+import { footageStill } from "@/lib/footage"
 import type { Lane } from "@/lib/presence"
 import { timecode } from "@/lib/timecode"
 
-/** A still of `public/footage`, wherever the site is served from. */
-export const still = (name: string) => `${import.meta.env.BASE_URL}footage/${name}`
+export const still = footageStill
 
 /** What the stills below are, for wherever they show. */
 export const STILL_CREDIT = "Tears of Steel · Blender Foundation · CC BY 3.0"

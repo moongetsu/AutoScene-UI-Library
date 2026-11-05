@@ -3,7 +3,7 @@ import type { ContentKind } from "@/bindings"
 /**
  * What a project's footage can be, with example stills for the picker's
  * hover preview (`public/footage`: cropped and scaled stills from open
- * films and artwork under Creative Commons Attribution licences — credited
+ * films and artwork under Creative Commons Attribution licences - credited
  * under them and in full, with the licences, in Settings → About).
  */
 export type Footage = {
@@ -16,12 +16,15 @@ export type Footage = {
   credit: string
 }
 
+/** A still of `public/footage`, wherever the site is served from. */
+export const footageStill = (name: string) => `${import.meta.env.BASE_URL}footage/${name}`
+
 export const FOOTAGE: Footage[] = [
   {
     value: "live",
     label: "Live action",
     blurb: "Filmed with real actors. Characters are found by their faces.",
-    stills: ["/footage/live-1.webp", "/footage/live-2.webp", "/footage/live-3.webp"],
+    stills: [footageStill("live-1.webp"), footageStill("live-2.webp"), footageStill("live-3.webp")],
     credit: "Tears of Steel · Blender Foundation · CC BY 3.0",
   },
   {
@@ -29,7 +32,7 @@ export const FOOTAGE: Footage[] = [
     label: "Animation",
     blurb:
       "Computer-animated (3D) films and series. Characters are found by their faces, tuned for animated characters drawn in one style.",
-    stills: ["/footage/animation-1.webp", "/footage/animation-2.webp", "/footage/animation-3.webp"],
+    stills: [footageStill("animation-1.webp"), footageStill("animation-2.webp"), footageStill("animation-3.webp")],
     credit: "Sprite Fright, Spring · Blender Studio · CC BY 4.0",
   },
   {
@@ -37,14 +40,14 @@ export const FOOTAGE: Footage[] = [
     label: "Anime",
     blurb:
       "Anime and other hand-drawn 2D animation. Characters are found by their heads and whole look, with detectors made for anime.",
-    stills: ["/footage/anime-1.webp", "/footage/anime-2.webp", "/footage/anime-3.webp"],
+    stills: [footageStill("anime-1.webp"), footageStill("anime-2.webp"), footageStill("anime-3.webp")],
     credit: "Pepper&Carrot artwork · David Revoy · Hero · Blender Studio · CC BY 4.0",
   },
   {
     value: "mixed",
     label: "Mixed",
     blurb: "Live action and animation in one project. Characters are found by their faces, whichever they are.",
-    stills: ["/footage/mixed-1.webp", "/footage/mixed-2.webp", "/footage/mixed-3.webp"],
+    stills: [footageStill("mixed-1.webp"), footageStill("mixed-2.webp"), footageStill("mixed-3.webp")],
     credit: "Tears of Steel · CC BY 3.0 · Sprite Fright · CC BY 4.0 · Blender Foundation",
   },
 ]

@@ -6,6 +6,7 @@ import { Cpu, FastForward, GraphicsCard, UserFocus } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { NOTICE_FACTS, deviceLabel, noticeFoot, noticeLead } from "@/lib/fast-scan"
+import { footageStill } from "@/lib/footage"
 import { commands, errorMessage } from "@/lib/ipc"
 import { layerOpen, useLayerOpen } from "@/lib/layers"
 import { qk, queryClient, useAppInfo, useScanDefaults } from "@/lib/queries"
@@ -246,7 +247,7 @@ function Art() {
   return (
     <div aria-hidden className="relative aspect-[3/1] w-full shrink-0 overflow-hidden">
       <div className="absolute inset-0 [mask-image:linear-gradient(180deg,#000_45%,transparent_100%)]">
-        <img src={`${import.meta.env.BASE_URL}footage/live-1.webp`} alt="" className="absolute inset-0 size-full object-cover" />
+        <img src={footageStill("live-1.webp")} alt="" className="absolute inset-0 size-full object-cover" />
         <svg viewBox="0 0 672 281" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 size-full">
           {FACES.map((f) => (
             <Corners key={f.x} {...f} />
