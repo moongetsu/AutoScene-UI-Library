@@ -7,7 +7,6 @@ import { FastScanNotice } from "@/components/shell/FastScanNotice"
 import { FeatureFrame } from "@/components/showcase/FeatureFrame"
 import { Button } from "@/components/ui/button"
 import { ContextMenuItem } from "@/components/ui/context-menu"
-import { EmptyState } from "@/components/ui/empty-state"
 import { Kbd } from "@/components/ui/kbd"
 import { CharacterCard } from "@/features/cast/CharacterCard"
 import { ProjectCard } from "@/features/library/ProjectCard"
@@ -55,35 +54,48 @@ const nothing = () => {}
 function LeftThePreview() {
   const router = useRouter()
   return (
-    <div className="flex h-full items-center justify-center">
-      <EmptyState
-        icon={<PuzzlePiece />}
-        title="That opens in the app"
-        description="This preview has only the view it shows."
-        actions={<Button onClick={() => router.history.back()}>Back</Button>}
-      />
+    <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center">
+      <PuzzlePiece className="size-6 text-fg-3" />
+      <div>
+        <p className="text-md font-medium text-fg-1">That opens in the app</p>
+        <p className="text-sm text-fg-2">This preview has only the part it shows.</p>
+      </div>
+      <Button size="sm" onClick={() => router.history.back()}>
+        Back
+      </Button>
     </div>
   )
 }
 
+/** What a preview's `/` shows: read at render, so what it is given later arrives. */
+const PreviewContent = React.createContext<React.ReactNode>(null)
+
+function PreviewIndex() {
+  return <>{React.use(PreviewContent)}</>
+}
+
 /**
- * A place of its own for a view: links and tabs in it move in this preview
- * and leave the page around it where it is. `start` is `/` (its `children`),
- * Plugins, or a plugin's settings.
+ * A place of its own for a preview: links and tabs in it move in this preview
+ * and leave the page around it where it is. `/` shows `children`. With
+ * `pages` (a whole view, at full size) Plugins and a plugin's settings are
+ * places too; any other link says it opens in the app.
  */
-function PreviewRoutes({ start = "/", children }: { start?: string; children?: React.ReactNode }) {
+function PreviewRoutes({ start = "/", pages = false, children }: { start?: string; pages?: boolean; children?: React.ReactNode }) {
   const [router] = React.useState(() => {
     const root = createRootRoute({ component: Outlet })
-    const tree = root.addChildren([
-      createRoute({ getParentRoute: () => root, path: "/", component: () => <>{children}</> }),
-      createRoute({
-        getParentRoute: () => root,
-        path: "/plugins",
-        validateSearch: (s: Record<string, unknown>): { view?: "browse" } => (s.view === "browse" ? { view: "browse" } : {}),
-        component: PluginsPage,
-      }),
-      createRoute({ getParentRoute: () => root, path: "/plugins/$id", component: PluginSettingsPage }),
-    ])
+    const index = createRoute({ getParentRoute: () => root, path: "/", component: PreviewIndex })
+    const tree = pages
+      ? root.addChildren([
+          index,
+          createRoute({
+            getParentRoute: () => root,
+            path: "/plugins",
+            validateSearch: (s: Record<string, unknown>): { view?: "browse" } => (s.view === "browse" ? { view: "browse" } : {}),
+            component: PluginsPage,
+          }),
+          createRoute({ getParentRoute: () => root, path: "/plugins/$id", component: PluginSettingsPage }),
+        ])
+      : root.addChildren([index])
     return createRouter({
       routeTree: tree,
       history: createMemoryHistory({ initialEntries: [start] }),
@@ -92,7 +104,11 @@ function PreviewRoutes({ start = "/", children }: { start?: string; children?: R
       scrollRestoration: () => false,
     })
   })
-  return <RouterProvider router={router as never} />
+  return (
+    <PreviewContent.Provider value={children}>
+      <RouterProvider router={router as never} />
+    </PreviewContent.Provider>
+  )
 }
 
 /** While the mock's plugin list comes, or once every plugin was uninstalled here. */
@@ -290,12 +306,16 @@ function PlayerKeysDemo() {
 export const FEATURE_PREVIEWS: Record<string, (handlers?: any) => React.ReactNode> = {
   "project-card": () => (
     <FeatureFrame id="project-card" width={420} credit={STILL_CREDIT}>
-      <ProjectCard project={DEMO_PROJECT} onRename={nothing} onDelete={nothing} />
+      <PreviewRoutes>
+        <ProjectCard project={DEMO_PROJECT} onRename={nothing} onDelete={nothing} />
+      </PreviewRoutes>
     </FeatureFrame>
   ),
   "character-card": () => (
     <FeatureFrame id="character-card" width={220} credit={STILL_CREDIT}>
-      <CharacterCard pid={DEMO_PROJECT.id} character={DEMO_CHARACTERS[0]} />
+      <PreviewRoutes>
+        <CharacterCard pid={DEMO_PROJECT.id} character={DEMO_CHARACTERS[0]} />
+      </PreviewRoutes>
     </FeatureFrame>
   ),
   "plugin-art": () => (
@@ -305,12 +325,14 @@ export const FEATURE_PREVIEWS: Record<string, (handlers?: any) => React.ReactNod
   ),
   "plugin-card": () => (
     <FeatureFrame id="plugin-card" width={340}>
-      <PluginCardDemo />
+      <PreviewRoutes>
+        <PluginCardDemo />
+      </PreviewRoutes>
     </FeatureFrame>
   ),
   "plugins-page": () => (
     <FeatureFrame id="plugins-page" kind="page" width={1040} height={680}>
-      <PreviewRoutes start="/plugins" />
+      <PreviewRoutes start="/plugins" pages />
     </FeatureFrame>
   ),
   "uninstall-dialog": () => (
@@ -327,17 +349,19 @@ export const FEATURE_PREVIEWS: Record<string, (handlers?: any) => React.ReactNod
   ),
   "plugin-settings-page": () => (
     <FeatureFrame id="plugin-settings-page" kind="page" width={1040} height={680}>
-      <PreviewRoutes start="/plugins/dev.autoscene.hello-export" />
+      <PreviewRoutes start="/plugins/dev.autoscene.hello-export" pages />
     </FeatureFrame>
   ),
   "catalog-card": () => (
     <FeatureFrame id="catalog-card" width={340}>
-      <CatalogCardDemo />
+      <PreviewRoutes>
+        <CatalogCardDemo />
+      </PreviewRoutes>
     </FeatureFrame>
   ),
   "browse-view": () => (
     <FeatureFrame id="browse-view" kind="page" width={1040} height={680}>
-      <PreviewRoutes>
+      <PreviewRoutes pages>
         <div className="h-full overflow-y-auto p-10">
           <BrowseView query="" onClear={nothing} />
         </div>
