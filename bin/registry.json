@@ -1,0 +1,409 @@
+{
+  "artwork": {
+    "files": [
+      "artwork.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "badge": {
+    "files": [
+      "badge.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "class-variance-authority",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "banner": {
+    "files": [
+      "banner.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "button": {
+    "files": [
+      "button.tsx"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@phosphor-icons/react",
+      "class-variance-authority",
+      "clsx",
+      "motion",
+      "radix-ui",
+      "tailwind-merge"
+    ]
+  },
+  "checkbox": {
+    "files": [
+      "checkbox.tsx"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@phosphor-icons/react",
+      "clsx",
+      "radix-ui",
+      "tailwind-merge"
+    ]
+  },
+  "context-area": {
+    "files": [
+      "context-area.tsx"
+    ],
+    "support": [
+      "lib/context-areas.ts"
+    ],
+    "deps": [
+      "radix-ui"
+    ]
+  },
+  "context-menu": {
+    "files": [
+      "context-menu.tsx",
+      "menu-base.ts"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/ua.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@animate-ui/react",
+      "@phosphor-icons/react",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "dialog": {
+    "files": [
+      "dialog.tsx"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@animate-ui/react",
+      "@phosphor-icons/react",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "dropdown-menu": {
+    "files": [
+      "dropdown-menu.tsx",
+      "context-menu.tsx",
+      "menu-base.ts"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/ua.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@animate-ui/react",
+      "@phosphor-icons/react",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "empty-state": {
+    "files": [
+      "empty-state.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "error-state": {
+    "files": [
+      "error-state.tsx",
+      "button.tsx",
+      "empty-state.tsx"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/errors.ts",
+      "lib/open-logs.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@phosphor-icons/react",
+      "class-variance-authority",
+      "clsx",
+      "motion",
+      "radix-ui",
+      "tailwind-merge"
+    ]
+  },
+  "filter-bar": {
+    "files": [
+      "filter-bar.tsx",
+      "context-menu.tsx",
+      "dropdown-menu.tsx",
+      "menu-base.ts"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/ua.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@animate-ui/react",
+      "@phosphor-icons/react",
+      "clsx",
+      "motion",
+      "tailwind-merge"
+    ]
+  },
+  "hero": {
+    "files": [
+      "hero.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "input": {
+    "files": [
+      "input.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "kbd": {
+    "files": [
+      "kbd.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "menu-actions": {
+    "files": [
+      "menu-actions.tsx",
+      "context-menu.tsx",
+      "dropdown-menu.tsx",
+      "menu-base.ts"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/ua.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@animate-ui/react",
+      "@phosphor-icons/react",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "page": {
+    "files": [
+      "page.tsx",
+      "context-area.tsx",
+      "page-scroll.ts"
+    ],
+    "support": [
+      "lib/context-areas.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@tanstack/react-router",
+      "clsx",
+      "radix-ui",
+      "tailwind-merge"
+    ]
+  },
+  "progress": {
+    "files": [
+      "progress.tsx",
+      "progress-motion.ts"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "segmented": {
+    "files": [
+      "segmented.tsx"
+    ],
+    "support": [
+      "lib/motion.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@tanstack/react-router",
+      "clsx",
+      "motion",
+      "radix-ui",
+      "tailwind-merge"
+    ]
+  },
+  "select": {
+    "files": [
+      "select.tsx"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@phosphor-icons/react",
+      "clsx",
+      "radix-ui",
+      "tailwind-merge"
+    ]
+  },
+  "sheet": {
+    "files": [
+      "sheet.tsx"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@animate-ui/react",
+      "@phosphor-icons/react",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "shelf": {
+    "files": [
+      "shelf.tsx"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@phosphor-icons/react",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "skeleton": {
+    "files": [
+      "skeleton.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "slider": {
+    "files": [
+      "slider.tsx"
+    ],
+    "support": [
+      "lib/motion.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "motion",
+      "radix-ui",
+      "tailwind-merge"
+    ]
+  },
+  "switch": {
+    "files": [
+      "switch.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@animate-ui/react",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "toaster": {
+    "files": [
+      "toaster.tsx"
+    ],
+    "support": [],
+    "deps": [
+      "@phosphor-icons/react",
+      "sonner"
+    ]
+  },
+  "tooltip": {
+    "files": [
+      "tooltip.tsx",
+      "kbd.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "radix-ui",
+      "tailwind-merge"
+    ]
+  },
+  "virtual-grid": {
+    "files": [
+      "virtual-grid.tsx",
+      "page-scroll.ts"
+    ],
+    "support": [
+      "lib/grid.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@tanstack/react-virtual",
+      "clsx",
+      "tailwind-merge"
+    ]
+  }
+}

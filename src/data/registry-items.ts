@@ -18,7 +18,7 @@ export const REGISTRY_COMPONENTS: RegistryComponentItem[] = [
     title: c.name,
     category: c.category,
     description: c.description,
-    importStatement: c.exports ? `import { ${c.exports[0]} } from "@moongetsu/autoscene-ui"` : "",
+    importStatement: c.exports.length > 0 ? `import { ${c.exports[0]} } from "@moongetsu/autoscene-ui"` : "",
     showcaseSection: c.section,
   })),
 ]

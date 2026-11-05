@@ -10,8 +10,8 @@ export interface ComponentMeta {
   feature?: string
   description: string
   file: string
-  /** What `src/index.ts` exports for it. Features and app-bound parts have none: they stay in the repo. */
-  exports?: string[]
+  /** What `src/index.ts` exports for it. Empty on purpose for features and app-bound parts: they stay in the repo. */
+  exports: string[]
 }
 
 /**
