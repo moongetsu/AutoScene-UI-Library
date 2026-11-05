@@ -31,7 +31,7 @@ AutoScene UI is a collection of React components designed for dark interfaces, m
 * **Dark Surfaces**: Layered dark tones (`#050506` through `#202025`) suited for footage viewing and long editing sessions.
 * **Frosted Borders and Overlays**: Subtle borders, backdrop blurs, and glass layers.
 * **Warm Gold Accents**: High contrast indicators (`#e0b45c`) for active operations, selections, and focus rings.
-* **Zero Desktop Coupling**: Runs in any standard modern web browser with React 18 or 19. The site answers the app's calls from a mock backend.
+* **Zero Desktop Coupling**: Runs in any standard modern web browser with React 18 or 19. The package carries no Tauri code, and the site answers the app's calls from a mock backend.
 
 ---
 
@@ -43,11 +43,14 @@ Install the package via npm:
 npm install @moongetsu/autoscene-ui @phosphor-icons/react
 ```
 
-Or run the CLI to inspect and scaffold primitives:
+Or run the CLI to copy a primitive into your project, with the files it needs:
 
 ```bash
-npx @moongetsu/autoscene-ui add
+npx @moongetsu/autoscene-ui list
+npx @moongetsu/autoscene-ui add button
 ```
+
+Components go to `src/components/ui` (`--dir` changes that). The files they share, like `components/icons.ts` and `lib/utils.ts`, go under `src` (`--src` changes that), and one you already have is kept. Your project needs the `@/` alias to point there. `TopBar` isn't offered: it is bound to the app's shortcuts and window.
 
 ### Usage
 
@@ -89,7 +92,7 @@ The catalog lists 50 entries: 32 primitives and 18 feature components. It is one
 
 ### Features
 
-Whole parts of the app, listed under Features in the registry and in the showcase. They run on the library's mock backend with made-up data, and they stay in this repo: they aren't in the npm package.
+Whole parts of the app, listed under Features in the registry and in the showcase. They run on the library's mock backend with made-up data, and they stay in this repo: they aren't in the npm package. Buttons, menus and dialogs work as in the app. What needs the desktop app says so, a link opens in a new tab, and a link to a place outside the preview says it opens in the app.
 
 | Where | Components |
 | :--- | :--- |
@@ -105,9 +108,10 @@ Whole parts of the app, listed under Features in the registry and in the showcas
 
 1. Add one line to `src/registry/catalog.json`: its id, name, category, showcase section, description and file. A feature also names where it lives (`feature`).
 2. Add its preview to `COMPONENT_DEMO_PREVIEWS` (`src/registry/component-previews.tsx`), or to `FEATURE_PREVIEWS` for a feature.
-3. If the package should export it, add it to `src/index.ts` and to the entry's `exports`.
+3. If the package should export it, add it to `src/index.ts` and name it in the entry's `exports`. Everything else has `"exports": []`.
+4. For a primitive, add it to the CLI's list, `bin/registry.json`, with the files it imports and the packages it needs.
 
-`src/registry/catalog.test.ts` fails when a file in `src/components/ui` has no entry, an entry has no preview, or an entry names an export the package doesn't have. Every entry gets its static page from `scripts/prerender-routes.mjs`.
+`src/registry/catalog.test.ts` fails when a file in `src/components/ui` has no entry, an entry has no preview, an entry names something the package doesn't really export, a primitive isn't in the CLI, or a CLI entry lacks a file its files import. Every entry gets its static page from `scripts/prerender-routes.mjs`, and that page's address opens the entry on the site.
 
 ### Syncing with the app
 
@@ -119,17 +123,23 @@ Most of `src/` mirrors the AutoScene app and can be copied over. These files are
 | `ui/dropdown-menu` | The same, with the app's scrolling and collision padding merged in |
 | `ui/slider`, `ui/tooltip` | The library's own motion and placement |
 | `ui/toaster` | `CleanToastCapsule`, bottom right |
+| `ui/context-menu` | Also `isMac` from `lib/ua` |
 | `ui/button` | `motion.button`, `busy`, `cursor-pointer` |
+| `ui/checkbox` | `cursor-pointer` on the label |
+| `ui/artwork`, `ui/hero` | Take `path` as a URL: no `assetUrl`, so the package carries no Tauri |
+| `ui/error-state` | `lib/errors` for its messages, and `OpenLogs` (given in `main.tsx`) in place of the app's command |
 | `ui/segmented` | Sliding pill (`layoutId`), `w-fit` |
 | `brand/AutoSceneMark` | The `bare` look |
 | `icons.ts` | Adds `Link` and `List` |
 | `styles/tokens.css` | Its own `--ease-out` and `--ease-spring` |
-| `styles/index.css`, `styles/base.css` | Tooltip keyframes; the page scrolls, its text can be selected, clickable things get the hand |
-| `shell/AppShell`, `shell/AppMenu`, `router.tsx` | The `!isTauri` web shell, the `@animate-ui` menu root, the registry and showcase routes without plugin pages |
+| `styles/index.css`, `styles/base.css` | The theme lives in `styles/theme.css`, shared with the package; tooltip keyframes; the page scrolls, its text can be selected, clickable things get the hand |
+| `shell/AppShell`, `shell/AppMenu`, `router.tsx`, `main.tsx` | The `!isTauri` web shell, the `@animate-ui` menu root with `appEntries`, the registry and showcase routes without plugin pages, the static page's address read at boot |
+| `lib/ipc`, `lib/platform`, `lib/footage` | Their pure parts moved to `lib/errors` and `lib/ua`; stills read through `BASE_URL` |
+| `mocks/backend` | `reveal_path`, `open_logs_dir` and `open_url` answer as a web page can |
 
-Library only, with nothing to sync: `ui/filter-bar`, `ui/skeleton`, `lib/motion.ts`, `shell/StandaloneShell`, `styles/library.css` (what the package ships), `src/registry` and `src/components/showcase`.
+Library only, with nothing to sync: `ui/filter-bar`, `ui/skeleton`, `lib/motion.ts`, `lib/errors.ts`, `lib/ua.ts`, `lib/open-logs.ts`, `shell/StandaloneShell`, `styles/library.css` (what the package ships), `styles/theme.css`, `bin/`, `src/registry` and `src/components/showcase`.
 
-Copied files lose their em and en dashes, as `AGENTS.md` asks, so expect those lines in a diff against the app. `FastScanNotice` reads its still through `import.meta.env.BASE_URL`, since the site isn't served from the root.
+Copied files lose their em and en dashes, as `AGENTS.md` asks, so expect those lines in a diff against the app. `FastScanNotice` reads its still through `footageStill`, since the site isn't served from the root.
 
 ### Footage stills
 
