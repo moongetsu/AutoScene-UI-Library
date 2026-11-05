@@ -31,7 +31,7 @@ AutoScene UI is a collection of React components designed for dark interfaces, m
 * **Dark Surfaces**: Layered dark tones (`#050506` through `#202025`) suited for footage viewing and long editing sessions.
 * **Frosted Borders and Overlays**: Subtle borders, backdrop blurs, and glass layers.
 * **Warm Gold Accents**: High contrast indicators (`#e0b45c`) for active operations, selections, and focus rings.
-* **Zero Desktop Coupling**: Runs in any standard modern web browser with React 18 or 19.
+* **Zero Desktop Coupling**: Runs in any standard modern web browser with React 18 or 19. The site answers the app's calls from a mock backend.
 
 ---
 
@@ -71,16 +71,69 @@ export default function App() {
 
 ## Components
 
-The library contains 27 core components organized by functional area:
+The catalog lists 50 entries: 32 primitives and 18 feature components. It is one file, `src/registry/catalog.json`: the registry, the showcase counts, the command palette and the static pages all read it.
+
+### Primitives
 
 | Category | Components |
 | :--- | :--- |
-| **Buttons & Controls** | `Button`, `Segmented`, `Switch`, `Slider` |
-| **Inputs & Data** | `Input`, `Field`, `Select`, `FilterBar` |
-| **Feedback & Badges** | `Badge`, `Progress`, `Skeleton`, `Kbd`, `Toaster` |
-| **Overlays & Dialogs** | `Dialog`, `Sheet`, `DropdownMenu`, `ContextMenu`, `Tooltip`, `ContextArea`, `MenuActions` |
-| **Media & Cards** | `Artwork`, `Shelf`, `Hero`, `EmptyState`, `VirtualGrid` |
-| **Navigation & Layout** | `TopBar`, `Page`, `AutoSceneMark` |
+| **Buttons** | `Button` |
+| **Toggles** | `Segmented`, `Switch`, `Checkbox`, `Slider` |
+| **Inputs** | `Input`, `Field`, `Select` |
+| **Feedback** | `Badge`, `Banner`, `Progress`, `ProgressRing`, `Skeleton`, `Kbd`, `Toaster`, `ErrorState` |
+| **Overlays** | `Dialog`, `Sheet`, `DropdownMenu`, `ContextMenu`, `Tooltip`, `ContextArea`, `MenuActions` |
+| **Cards & Media** | `Artwork`, `Hero`, `Shelf`, `EmptyState`, `VirtualGrid`, `SettingsGroup`, `SettingRow`, `PathText` |
+| **Navigation** | `TopBar`, `Page`, `FilterBar` |
+
+`Button` takes `busy`: it can't be pressed, and a spinner takes the place of its first icon, or stands in front of the label when it has none.
+
+### Features
+
+Whole parts of the app, listed under Features in the registry and in the showcase. They run on the library's mock backend with made-up data, and they stay in this repo: they aren't in the npm package.
+
+| Where | Components |
+| :--- | :--- |
+| **Plugins** | `PluginArt`, `PluginCard`, `PluginsPage`, `PluginSettingsPage`, `UninstallDialog`, `WithdrawnBanner`, `CatalogCard`, `BrowseView` |
+| **Player** | `DetailsPanel`, `CastTab`, `FileTab`, `TabBody`, `ShotHeader`, `PlayerKeysDialog` |
+| **Library, Cast** | `ProjectCard`, `CharacterCard` |
+| **Settings** | `HardwareGroup` |
+| **Shell** | `FastScanNotice` |
+
+`PluginFrame`, `PluginPageView` and `PlayerPicture` are not listed: they are a sandboxed frame and a video wrapper, and show nothing without the desktop app. The `/x/` routes of plugin pages, the `.asp` file handling and the rest of the Tauri glue stay out of this repo.
+
+### Adding a component
+
+1. Add one line to `src/registry/catalog.json`: its id, name, category, showcase section, description and file. A feature also names where it lives (`feature`).
+2. Add its preview to `COMPONENT_DEMO_PREVIEWS` (`src/registry/component-previews.tsx`), or to `FEATURE_PREVIEWS` for a feature.
+3. If the package should export it, add it to `src/index.ts` and to the entry's `exports`.
+
+`src/registry/catalog.test.ts` fails when a file in `src/components/ui` has no entry, an entry has no preview, or an entry names an export the package doesn't have. Every entry gets its static page from `scripts/prerender-routes.mjs`.
+
+### Syncing with the app
+
+Most of `src/` mirrors the AutoScene app and can be copied over. These files are the library's own forks: **a sync must merge into them, never overwrite them.**
+
+| File | Why it differs from the app |
+| :--- | :--- |
+| `ui/context-menu`, `ui/dialog`, `ui/sheet`, `ui/switch` | Built on the `@animate-ui` primitives |
+| `ui/dropdown-menu` | The same, with the app's scrolling and collision padding merged in |
+| `ui/slider`, `ui/tooltip` | The library's own motion and placement |
+| `ui/toaster` | `CleanToastCapsule`, bottom right |
+| `ui/button` | `motion.button`, `busy`, `cursor-pointer` |
+| `ui/segmented` | Sliding pill (`layoutId`), `w-fit` |
+| `brand/AutoSceneMark` | The `bare` look |
+| `icons.ts` | Adds `Link` and `List` |
+| `styles/tokens.css` | Its own `--ease-out` and `--ease-spring` |
+| `styles/index.css`, `styles/base.css` | Tooltip keyframes; the page scrolls, its text can be selected, clickable things get the hand |
+| `shell/AppShell`, `shell/AppMenu`, `router.tsx` | The `!isTauri` web shell, the `@animate-ui` menu root, the registry and showcase routes without plugin pages |
+
+Library only, with nothing to sync: `ui/filter-bar`, `ui/skeleton`, `lib/motion.ts`, `shell/StandaloneShell`, `styles/library.css` (what the package ships), `src/registry` and `src/components/showcase`.
+
+Copied files lose their em and en dashes, as `AGENTS.md` asks, so expect those lines in a diff against the app. `FastScanNotice` reads its still through `import.meta.env.BASE_URL`, since the site isn't served from the root.
+
+### Footage stills
+
+The pictures in `public/footage` are from open films and artwork under Creative Commons Attribution licences. A preview that shows one says whose it is. No studio art belongs in this repo: `FastScanNotice` stays on the Tears of Steel still with its credit, whatever the app shows there.
 
 ---
 
