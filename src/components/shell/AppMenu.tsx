@@ -49,9 +49,11 @@ type Opened = {
  * space. In a text field it is the text menu (`TextMenu`) instead; in a
  * dialog only what the dialog's areas offer, without the app's entries.
  * The browser's own menu never shows (while developing, Shift+right-click
- * still opens it, for Inspect).
+ * still opens it, for Inspect). `appEntries={false}` (this library's showcase,
+ * which has no app around it): only what the areas offer, and the browser's
+ * menu stays outside them.
  */
-export function AppMenu({ children }: { children: React.ReactElement }) {
+export function AppMenu({ children, appEntries = true }: { children: React.ReactElement; appEntries?: boolean }) {
   const [opened, setOpened] = useState<Opened | null>(null)
   const lastInput = useRef<"pointer" | "key">("pointer")
   /** Where the focus goes back to when the menu closes (keyboard and dialogs only). */
@@ -65,7 +67,7 @@ export function AppMenu({ children }: { children: React.ReactElement }) {
       if (e.key === "ContextMenu" || (e.key === "F10" && e.shiftKey)) lastInput.current = "key"
     }
     const onContextMenu = (e: MouseEvent) => {
-      if (!(import.meta.env.DEV && e.shiftKey)) e.preventDefault()
+      if (appEntries && !(import.meta.env.DEV && e.shiftKey)) e.preventDefault()
     }
     window.addEventListener("pointerdown", onPointer, true)
     window.addEventListener("keydown", onKey, true)
@@ -75,7 +77,7 @@ export function AppMenu({ children }: { children: React.ReactElement }) {
       window.removeEventListener("keydown", onKey, true)
       window.removeEventListener("contextmenu", onContextMenu)
     }
-  }, [])
+  }, [appEntries])
 
   return (
     // Closed, it forgets the right-click: a touch long-press (no right-click)
@@ -103,13 +105,13 @@ export function AppMenu({ children }: { children: React.ReactElement }) {
           const copy = selectedTextAt(target)
           // There, without the app's entries, only what is offered right now
           // - or no menu at all rather than an empty one.
-          if (!inWindow && !copy && !areas.some((a) => offers(a.get()))) {
+          if ((!inWindow || !appEntries) && !copy && !areas.some((a) => offers(a.get()))) {
             e.preventDefault()
             return
           }
           const elements = areas.filter((a) => a.kind === "element")
           const sections = elements.length > 0 ? elements : areas.filter((a) => a.kind === "page").slice(0, 1)
-          const tail = !inWindow ? null : elements.length > 0 ? (elements[0].tail ? "short" : null) : "full"
+          const tail = !inWindow || !appEntries ? null : elements.length > 0 ? (elements[0].tail ? "short" : null) : "full"
           const active = document.activeElement
           restore.current =
             (lastInput.current === "key" || !inWindow) && active instanceof HTMLElement && active !== document.body ? active : null

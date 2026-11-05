@@ -10,6 +10,7 @@
  */
 import { emit } from "@tauri-apps/api/event"
 import { mockIPC, mockWindows } from "@tauri-apps/api/mocks"
+import { toast } from "sonner"
 import { isFinished } from "@/state/activity"
 import { catalogAtStart, catalogCancel, catalogGet, catalogList, catalogRefresh } from "./catalog"
 import {
@@ -1101,7 +1102,16 @@ const MODELS: ModelInfo[] = [
 
 const handlers: Record<string, Handler> = {
   app_info: () => appInfo,
-  reveal_path: () => null,
+  // No folders to show from a web page: it says so, with the path.
+  reveal_path: ({ path }) => {
+    toast("Shows it in the folder in the app", { description: String(path) })
+    return null
+  },
+  // The app opens links in the default browser; a web page opens a tab.
+  "plugin:opener|open_url": ({ url }) => {
+    window.open(String(url), "_blank", "noopener,noreferrer")
+    return null
+  },
   // The app's own clipboard while in the browser (reading the browser's asks
   // for permission); copies also reach the system clipboard when it allows.
   clipboard_write: ({ text }) => {
@@ -1110,7 +1120,10 @@ const handlers: Record<string, Handler> = {
     return null
   },
   clipboard_read: () => mockClipboard,
-  open_logs_dir: () => null,
+  open_logs_dir: () => {
+    toast("Opens the logs folder in the app")
+    return null
+  },
   menu_set_keys: () => null,
   media_tools: () => ({ ready: true, version: "8.0.1-full_build-www.gyan.dev", path: String.raw`C:\ffmpeg\bin\ffmpeg.exe`, error: null }),
   models: () => MODELS,

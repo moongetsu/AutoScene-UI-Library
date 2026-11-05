@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useRouter } from "@tanstack/react-router"
 import { AppMenu } from "@/components/shell/AppMenu"
 import { COMPONENT_DEMO_PREVIEWS } from "@/registry/component-previews"
 import { DISCOVERED_COMPONENTS } from "@/registry/discovery"
@@ -7,27 +8,74 @@ import { ShowcasePageHeader } from "../ShowcasePageHeader"
 const FEATURES = DISCOVERED_COMPONENTS.filter((c) => c.category === "Features")
 const GROUPS = [...new Set(FEATURES.map((c) => c.feature ?? "Other"))].sort()
 
+/** How long a linked entry is held in place while the previews above it size themselves. */
+const SETTLE_MS = 3000
+
+/**
+ * Takes the page to the entry `item=` in the link names (from a registry card,
+ * the palette or a static page), and keeps it there while the previews above
+ * it load and change the page's height, until the person scrolls. It runs
+ * after the router has rendered, since the router scrolls to the top then,
+ * and on a new link while Features is already open.
+ */
+function useLinkedItem() {
+  const router = useRouter()
+  const list = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    let release = () => {}
+    const follow = () => {
+      release()
+      const item = window.location.hash.match(/item=([a-z-]+)/)?.[1]
+      const target = item ? document.getElementById(`feature-${item}`) : null
+      if (!target || !list.current) return
+      const place = () => target.scrollIntoView({ block: "start" })
+      place()
+      const sizes = new ResizeObserver(place)
+      sizes.observe(list.current)
+      const timer = window.setTimeout(() => release(), SETTLE_MS)
+      const stop = () => release()
+      window.addEventListener("wheel", stop, { passive: true })
+      window.addEventListener("touchmove", stop, { passive: true })
+      window.addEventListener("keydown", stop)
+      release = () => {
+        sizes.disconnect()
+        window.clearTimeout(timer)
+        window.removeEventListener("wheel", stop)
+        window.removeEventListener("touchmove", stop)
+        window.removeEventListener("keydown", stop)
+        release = () => {}
+      }
+    }
+    follow()
+    const rendered = router.subscribe("onRendered", follow)
+    window.addEventListener("hashchange", follow)
+    return () => {
+      release()
+      rendered()
+      window.removeEventListener("hashchange", follow)
+    }
+  }, [router])
+  return list
+}
+
 /**
  * Feature components: whole parts of the app, grouped by where they live.
  * They run here on the mock backend, with made-up data. `item=` in the link
- * (from a registry card or the palette) scrolls to one.
+ * scrolls to one.
  */
 export function FeaturesShowcase() {
-  React.useEffect(() => {
-    const item = window.location.hash.match(/item=([a-z-]+)/)?.[1]
-    if (item) document.getElementById(`feature-${item}`)?.scrollIntoView({ block: "start" })
-  }, [])
+  const list = useLinkedItem()
 
   return (
     <div className="flex flex-col gap-10">
       <ShowcasePageHeader
         title="Features"
-        description="Whole parts of the AutoScene app, kept in step with it. They run here on the mock backend with made-up data, so what you press is answered, but nothing leaves the page."
+        description="Whole parts of the AutoScene app, kept in step with it. They run here on a mock backend with made-up data. Buttons, menus and dialogs work as in the app, and what needs the desktop app says so."
       />
 
-      {/* The app's right-click menu, which the rest of this site leaves to the browser. */}
-      <AppMenu>
-        <div className="flex flex-col gap-10">
+      {/* The right-click menus of what is shown here, without the app's own entries. */}
+      <AppMenu appEntries={false}>
+        <div ref={list} className="flex flex-col gap-10">
           {GROUPS.map((group) => (
             <section key={group} className="flex flex-col gap-6">
               <h3 className="text-sm font-semibold text-fg-3">{group}</h3>
