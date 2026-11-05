@@ -44,6 +44,6 @@ describe("the catalog", () => {
   })
 
   it("keeps em and en dashes out of what it says", () => {
-    expect(catalogText).not.toMatch(/[–—]/)
+    expect(catalogText).not.toMatch(/[\u2013\u2014]/)
   })
 })
