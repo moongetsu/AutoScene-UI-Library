@@ -11,8 +11,8 @@ const sheet = (name: string) => {
   return fs.existsSync(url) ? fs.readFileSync(url, "utf8") : ""
 }
 // The base layer lives in base.css (plugin pages get it through the kit's theme.css); the
-// theme tokens stay in index.css.
-const css = sheet("index.css") + sheet("base.css")
+// theme tokens are in theme.css here, shared with the package.
+const css = sheet("theme.css") + sheet("index.css") + sheet("base.css")
 
 /** The body of the block that starts with `head`, braces matched. */
 function block(text: string, head: string): string {
