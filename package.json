@@ -28,6 +28,7 @@
     "src/lib/grid.ts",
     "src/lib/motion.ts",
     "src/lib/open-logs.ts",
+    "src/lib/top-bar-rail.ts",
     "src/lib/ua.ts",
     "src/lib/utils.ts",
     "README.md",

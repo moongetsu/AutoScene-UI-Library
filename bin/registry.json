@@ -517,6 +517,35 @@
       "tailwind-merge"
     ]
   },
+  "topbar": {
+    "files": [
+      "topbar.tsx",
+      "button.tsx",
+      "context-area.tsx",
+      "context-menu.tsx",
+      "kbd.tsx",
+      "menu-base.ts",
+      "page-scroll.ts",
+      "tooltip.tsx"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/context-areas.ts",
+      "lib/top-bar-rail.ts",
+      "lib/ua.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@animate-ui/react",
+      "@phosphor-icons/react",
+      "@tanstack/react-router",
+      "class-variance-authority",
+      "clsx",
+      "motion",
+      "radix-ui",
+      "tailwind-merge"
+    ]
+  },
   "virtual-grid": {
     "files": [
       "virtual-grid.tsx",

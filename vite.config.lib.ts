@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     dts({
-      include: ["src/components/ui", "src/components/brand", "src/components/icons.ts", "src/index.ts", "src/lib/context-areas.ts", "src/lib/errors.ts", "src/lib/grid.ts", "src/lib/motion.ts", "src/lib/open-logs.ts", "src/lib/ua.ts", "src/lib/utils.ts"],
+      include: ["src/components/ui", "src/components/brand", "src/components/icons.ts", "src/index.ts", "src/lib/context-areas.ts", "src/lib/errors.ts", "src/lib/grid.ts", "src/lib/motion.ts", "src/lib/open-logs.ts", "src/lib/top-bar-rail.ts", "src/lib/ua.ts", "src/lib/utils.ts"],
       outDir: "dist",
       // The root tsconfig only points at the others: on its own it has no files.
       tsconfigPath: "./tsconfig.app.json",

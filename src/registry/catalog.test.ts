@@ -67,11 +67,17 @@ describe("the catalog", () => {
     expect(catalogText).not.toMatch(/[\u2013\u2014]/)
   })
 
-  it("has every primitive of the package in the CLI, topbar aside", () => {
-    // TopBar is bound to the app's shortcuts and window: it isn't scaffolded.
-    const ui = uiFiles.map((f) => f.replace(/^.*\//, "").replace(/\.tsx$/, "")).filter((f) => f !== "topbar")
+  it("has every primitive in the CLI", () => {
+    const ui = uiFiles.map((f) => f.replace(/^.*\//, "").replace(/\.tsx$/, ""))
     // Entries that are a file outside src/components/ui.
     expect(Object.keys(cli).sort()).toEqual([...ui, "card-grid", "discord-mark"].sort())
+  })
+
+  it("keeps the desktop app out of what the CLI copies", () => {
+    for (const [key, entry] of Object.entries(cli)) {
+      expect(entry.deps.filter((d) => d.startsWith("@tauri-apps")), key).toEqual([])
+      expect(entry.support.filter((f) => f.startsWith("components/shell")), key).toEqual([])
+    }
   })
 
   it("has in each CLI entry every file its files import", () => {

@@ -7,6 +7,8 @@ import { useAppActions, useGlobalBindings } from "@/lib/actions"
 import { installBrowserGuards } from "@/lib/browser-guards"
 import { startEventBridge } from "@/lib/events"
 import { useKeymapSync } from "@/lib/keymap"
+import { useShortcutKeys } from "@/lib/shortcuts"
+import { TopBarRail } from "@/lib/top-bar-rail"
 import { useLayerSafetyNet } from "@/lib/layers"
 import { isTauri, isWindows } from "@/lib/platform"
 import { startUpdateSchedule } from "@/state/updates"
@@ -41,6 +43,8 @@ export function AppShell() {
   useEffect(() => startEventBridge({ goPlugins: () => go.current() }), [])
   useEffect(() => installBrowserGuards({ dev: import.meta.env.DEV }), [])
   const railHidden = useUi((s) => s.sidebarCollapsed)
+  const showRail = useUi((s) => s.toggleSidebar)
+  const keys = useShortcutKeys()
 
   // In pure web / UI showcase mode, render full-bleed standalone website without desktop chrome
   if (!isTauri) {
@@ -58,7 +62,9 @@ export function AppShell() {
       <div className="flex h-full">
         {!railHidden && <Rail />}
         <main className="relative min-w-0 flex-1 overflow-hidden bg-canvas">
-          <Outlet />
+          <TopBarRail value={{ hidden: railHidden, show: showRail, shortcut: keys("global.sidebar") }}>
+            <Outlet />
+          </TopBarRail>
         </main>
         {isWindows && isTauri && <WindowControls />}
         <WindowTitle />
