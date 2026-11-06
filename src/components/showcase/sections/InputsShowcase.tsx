@@ -1,6 +1,7 @@
 import * as React from "react"
 import { MagnifyingGlass } from "@phosphor-icons/react"
-import { Input } from "@/components/ui/input"
+import { Field, Input } from "@/components/ui/input"
+import { SearchField } from "@/components/ui/search-field"
 import { FilterBar } from "@/components/ui/filter-bar"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
@@ -13,6 +14,7 @@ export function InputsShowcase() {
   const [selectedFormat, setSelectedFormat] = React.useState("all")
   const [selectedResolution, setSelectedResolution] = React.useState("all")
   const [selectedSort, setSelectedSort] = React.useState("name-asc")
+  const [find, setFind] = React.useState("")
 
   return (
     <div className="flex flex-col gap-8">
@@ -157,6 +159,30 @@ export function InputsShowcase() {
             <label className="text-xs font-medium text-fg-2">Disabled Input</label>
             <Input disabled value="/Volumes/Archive/AutoScene/Projects" />
           </div>
+        </div>
+      </ShowcaseSectionStage>
+
+      {/* Search field */}
+      <ShowcaseSectionStage
+        title="Search Field"
+        description="The pill that finds things in a list. Its label is its placeholder and its name for screen readers. Escape clears it, as the cross does."
+        code={`<SearchField value={find} onChange={setFind} label="Find a character" />`}
+      >
+        <SearchField value={find} onChange={setFind} label="Find a character" />
+      </ShowcaseSectionStage>
+
+      {/* Field without a visible label */}
+      <ShowcaseSectionStage
+        title="Field, Label Hidden"
+        description="hideLabel keeps the label for a screen reader only, where a title above already names the control."
+        code={`<Field label="API key" hideLabel htmlFor="key">
+  <Input id="key" placeholder="Paste the key" />
+</Field>`}
+      >
+        <div className="w-full max-w-sm">
+          <Field label="API key" hideLabel htmlFor="showcase-key">
+            <Input id="showcase-key" placeholder="Paste the key" />
+          </Field>
         </div>
       </ShowcaseSectionStage>
     </div>

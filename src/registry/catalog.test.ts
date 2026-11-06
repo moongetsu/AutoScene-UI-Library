@@ -11,10 +11,10 @@ const CATEGORIES = ["Buttons", "Inputs", "Toggles", "Feedback", "Cards & Media",
 
 // Only the paths: nothing here is loaded.
 const uiFiles = Object.keys(import.meta.glob(["/src/components/ui/*.tsx", "!/src/components/ui/*.test.tsx"]))
-const sourceFiles = new Set(Object.keys(import.meta.glob("/src/**/*.tsx")))
+const sourceFiles = new Set(Object.keys(import.meta.glob("/src/**/*.{ts,tsx}")))
 // The source of what the CLI copies.
 const sources = import.meta.glob<string>(
-  ["/src/components/ui/*.{ts,tsx}", "!/src/components/ui/*.test.*", "/src/components/icons.ts", "/src/lib/*.ts"],
+  ["/src/components/ui/*.{ts,tsx}", "!/src/components/ui/*.test.*", "/src/components/brand/*.tsx", "/src/components/icons.ts", "/src/lib/*.ts"],
   { query: "?raw", import: "default", eager: true },
 )
 
@@ -70,7 +70,8 @@ describe("the catalog", () => {
   it("has every primitive of the package in the CLI, topbar aside", () => {
     // TopBar is bound to the app's shortcuts and window: it isn't scaffolded.
     const ui = uiFiles.map((f) => f.replace(/^.*\//, "").replace(/\.tsx$/, "")).filter((f) => f !== "topbar")
-    expect(Object.keys(cli).sort()).toEqual(ui.sort())
+    // Entries that are a file outside src/components/ui.
+    expect(Object.keys(cli).sort()).toEqual([...ui, "card-grid", "discord-mark"].sort())
   })
 
   it("has in each CLI entry every file its files import", () => {

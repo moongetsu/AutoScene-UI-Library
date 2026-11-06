@@ -1,14 +1,22 @@
-import { ShieldWarning, Warning } from "@/components/icons"
+import { useState } from "react"
+import { CheckCircle, PuzzlePiece, ShieldWarning, Warning } from "@/components/icons"
 import { Banner } from "@/components/ui/banner"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ErrorState } from "@/components/ui/error-state"
 import { Kbd } from "@/components/ui/kbd"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
 export function IndicatorsShowcase() {
+  const [retrying, setRetrying] = useState(false)
+  const retry = () => {
+    setRetrying(true)
+    window.setTimeout(() => setRetrying(false), 1500)
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
@@ -160,7 +168,36 @@ export function IndicatorsShowcase() {
             description="It doesn't run any more. You can uninstall it."
             actions={<Button variant="danger">Uninstall…</Button>}
           />
+          <Banner
+            tone="neutral"
+            icon={<CheckCircle weight="fill" />}
+            title="Every episode is ready"
+            description="This one says how things stand when nothing is wrong."
+          />
         </div>
+      </ShowcaseSectionStage>
+
+      {/* Error state */}
+      <ShowcaseSectionStage
+        title="Error State"
+        description="A view whose data couldn't be loaded: what went wrong in plain words and a way to try again. retrying holds Try again while it runs, icon says what failed, actions are other ways out."
+        code={`<ErrorState
+  title="The plugin list couldn't be loaded"
+  error={error}
+  icon={<PuzzlePiece />}
+  onRetry={retry}
+  retrying={retrying}
+  actions={<Button>Go to Plugins</Button>}
+/>`}
+      >
+        <ErrorState
+          title="The plugin list couldn't be loaded"
+          error={{ code: "not_found", message: "The list isn't where it should be." }}
+          icon={<PuzzlePiece />}
+          onRetry={retry}
+          retrying={retrying}
+          actions={<Button>Go to Plugins</Button>}
+        />
       </ShowcaseSectionStage>
     </div>
   )

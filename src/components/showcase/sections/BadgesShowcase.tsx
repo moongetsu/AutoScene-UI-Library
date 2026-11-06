@@ -66,6 +66,26 @@ export function BadgesShowcase() {
           </div>
         </div>
       </ShowcaseSectionStage>
+
+      {/* Small, and on a picture */}
+      <ShowcaseSectionStage
+        title="Small Badges"
+        description={'size="sm" is for tight places. tone="picture" with it is the quiet one on a card\'s picture: a length, an episode, why a shot is left out.'}
+        code={`<Badge size="sm">Draft</Badge>
+<Badge tone="picture" size="sm" className="timecode">1:05</Badge>`}
+      >
+        <div className="flex items-center gap-4">
+          <Badge size="sm">Draft</Badge>
+          <Badge tone="accent" size="sm">
+            New
+          </Badge>
+          <span className="flex h-16 w-28 items-end justify-end rounded-xl bg-gradient-to-br from-[#3b4a5a] to-[#1a1a22] p-2">
+            <Badge tone="picture" size="sm" className="timecode">
+              1:05
+            </Badge>
+          </span>
+        </div>
+      </ShowcaseSectionStage>
     </div>
   )
 }

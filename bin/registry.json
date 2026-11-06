@@ -11,6 +11,18 @@
       "tailwind-merge"
     ]
   },
+  "avatar": {
+    "files": [
+      "avatar.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
   "badge": {
     "files": [
       "badge.tsx"
@@ -53,6 +65,46 @@
       "tailwind-merge"
     ]
   },
+  "card-grid": {
+    "files": [],
+    "support": [
+      "lib/grid.ts"
+    ],
+    "deps": []
+  },
+  "card-menu-button": {
+    "files": [
+      "card-menu-button.tsx",
+      "context-menu.tsx",
+      "dropdown-menu.tsx",
+      "menu-base.ts"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/ua.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@animate-ui/react",
+      "@phosphor-icons/react",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "card-play-button": {
+    "files": [
+      "card-play-button.tsx"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@phosphor-icons/react",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
   "checkbox": {
     "files": [
       "checkbox.tsx"
@@ -65,6 +117,28 @@
       "@phosphor-icons/react",
       "clsx",
       "radix-ui",
+      "tailwind-merge"
+    ]
+  },
+  "confirm-dialog": {
+    "files": [
+      "confirm-dialog.tsx",
+      "button.tsx",
+      "dialog.tsx"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/errors.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@animate-ui/react",
+      "@phosphor-icons/react",
+      "class-variance-authority",
+      "clsx",
+      "motion",
+      "radix-ui",
+      "sonner",
       "tailwind-merge"
     ]
   },
@@ -107,6 +181,17 @@
     "deps": [
       "@animate-ui/react",
       "@phosphor-icons/react",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "discord-mark": {
+    "files": [],
+    "support": [
+      "components/brand/DiscordMark.tsx",
+      "lib/utils.ts"
+    ],
+    "deps": [
       "clsx",
       "tailwind-merge"
     ]
@@ -237,6 +322,20 @@
       "tailwind-merge"
     ]
   },
+  "option-row": {
+    "files": [
+      "option-row.tsx",
+      "switch.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@animate-ui/react",
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
   "page": {
     "files": [
       "page.tsx",
@@ -263,6 +362,21 @@
       "lib/utils.ts"
     ],
     "deps": [
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
+  "search-field": {
+    "files": [
+      "search-field.tsx",
+      "input.tsx"
+    ],
+    "support": [
+      "components/icons.ts",
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "@phosphor-icons/react",
       "clsx",
       "tailwind-merge"
     ]
@@ -375,6 +489,18 @@
     "deps": [
       "@phosphor-icons/react",
       "sonner"
+    ]
+  },
+  "toggle-chip": {
+    "files": [
+      "toggle-chip.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "tailwind-merge"
     ]
   },
   "tooltip": {

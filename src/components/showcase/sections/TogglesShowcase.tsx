@@ -1,6 +1,9 @@
 import { useState } from "react"
+import { FunnelSimple, UserFocus } from "@/components/icons"
 import { Checkbox } from "@/components/ui/checkbox"
+import { OptionRow } from "@/components/ui/option-row"
 import { Switch } from "@/components/ui/switch"
+import { ToggleChip } from "@/components/ui/toggle-chip"
 import { Slider } from "@/components/ui/slider"
 import { Segmented } from "@/components/ui/segmented"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
@@ -8,6 +11,9 @@ import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
 export function TogglesShowcase() {
   const [never, setNever] = useState(true)
+  const [named, setNamed] = useState(true)
+  const [faces, setFaces] = useState(false)
+  const [alsoFiles, setAlsoFiles] = useState(false)
   const [toggleState, setToggleState] = useState(true)
   const [sliderVal, setSliderVal] = useState(75)
   const [tab, setTab] = useState<"episodes" | "cast" | "packs">("cast")
@@ -116,6 +122,44 @@ export function TogglesShowcase() {
         code={`<Checkbox label="Don't show this again" checked={never} onCheckedChange={(v) => setNever(v === true)} />`}
       >
         <Checkbox label="Don't show this again" checked={never} onCheckedChange={(v) => setNever(v === true)} />
+      </ShowcaseSectionStage>
+
+      {/* Toggle chip */}
+      <ShowcaseSectionStage
+        title="Toggle Chip"
+        description="A pill that is on or off, for a filter. Its children are the label, with any icon."
+        code={`<ToggleChip pressed={named} onClick={() => setNamed(!named)}>
+  <FunnelSimple className="size-4" /> Named only
+</ToggleChip>`}
+      >
+        <div className="flex flex-wrap justify-center gap-2">
+          <ToggleChip pressed={named} onClick={() => setNamed(!named)}>
+            <FunnelSimple className="size-4" /> Named only
+          </ToggleChip>
+          <ToggleChip pressed={faces} onClick={() => setFaces(!faces)}>
+            <UserFocus className="size-4" /> With a face
+          </ToggleChip>
+        </div>
+      </ShowcaseSectionStage>
+
+      {/* Option row */}
+      <ShowcaseSectionStage
+        title="Option Row"
+        description="One option in a dialog: what it does on the left, its switch on the right, in an inset box. The whole row is the target. Settings use SettingRow."
+        code={`<OptionRow
+  label="Also delete the files"
+  description="They go to the Recycle Bin."
+  checked={alsoFiles}
+  onCheckedChange={setAlsoFiles}
+/>`}
+      >
+        <OptionRow
+          label="Also delete the files"
+          description="They go to the Recycle Bin."
+          checked={alsoFiles}
+          onCheckedChange={setAlsoFiles}
+          className="w-full max-w-sm"
+        />
       </ShowcaseSectionStage>
     </div>
   )

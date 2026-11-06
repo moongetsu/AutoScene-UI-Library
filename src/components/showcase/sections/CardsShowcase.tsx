@@ -1,9 +1,15 @@
 import { useState } from "react"
-import { Play, DotsThree, FilmStrip } from "@/components/icons"
+import { Copy, Play, DotsThree, FilmStrip } from "@/components/icons"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { CardMenuButton } from "@/components/ui/card-menu-button"
+import { CardPlayButton } from "@/components/ui/card-play-button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import { PathText, SettingRow, SettingsGroup } from "@/features/settings/primitives"
+import { footageStill } from "@/lib/footage"
+import { CARD_GRID } from "@/lib/grid"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
@@ -109,6 +115,8 @@ export function CardsShowcase() {
         title="Settings Group, Setting Row and Path Text"
         description="Grouped rows: what a setting is on the left, its control on the right. A path stays selectable, and a right-click shows or copies it."
         code={`import { PathText, SettingRow, SettingsGroup } from "@/features/settings/primitives"
+import { footageStill } from "@/lib/footage"
+import { CARD_GRID } from "@/lib/grid"
 
 <SettingsGroup title="Storage">
   <SettingRow label="Library folder" description="Where new projects are kept.">
@@ -128,6 +136,57 @@ export function CardsShowcase() {
               <Switch aria-label="Hardware decoding" checked={hardware} onCheckedChange={setHardware} />
             </SettingRow>
           </SettingsGroup>
+        </div>
+      </ShowcaseSectionStage>
+
+      {/* On a card's picture */}
+      <ShowcaseSectionStage
+        title="Card Buttons"
+        description="The ⋯ and the play button on a card's picture: out of sight until the pointer is over it or the keyboard reaches them. Move the pointer over the pictures. Still: Tears of Steel, Blender Foundation, CC BY 3.0."
+        code={`<div className="group relative">
+  <DropdownMenu>
+    <CardMenuButton aria-label="More" />
+    <DropdownMenuContent>...</DropdownMenuContent>
+  </DropdownMenu>
+</div>
+
+<div className="group relative">
+  <CardPlayButton aria-label="Watch the shot" onClick={watch} />
+</div>`}
+      >
+        <div className="grid w-full max-w-xl grid-cols-2 gap-4">
+          <div className="group relative aspect-video overflow-hidden rounded-xl bg-inset picture-edge">
+            <img src={footageStill("live-2.webp")} alt="" className="size-full object-cover" />
+            <DropdownMenu>
+              <CardMenuButton aria-label="More" />
+              <DropdownMenuContent>
+                <DropdownMenuItem>
+                  <Copy /> Copy the name
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <div className="group relative aspect-video overflow-hidden rounded-xl bg-inset picture-edge">
+            <img src={footageStill("live-2.webp")} alt="" className="size-full object-cover" />
+            <CardPlayButton aria-label="Watch the shot" />
+          </div>
+        </div>
+      </ShowcaseSectionStage>
+
+      {/* The grid of big cards */}
+      <ShowcaseSectionStage
+        title="Card Grid"
+        description="CARD_GRID is the grid of big cards, a library's projects or the plugins: as many columns of at least 300 px as fit."
+        code={`import { CARD_GRID } from "@moongetsu/autoscene-ui"
+
+<div className={CARD_GRID}>...</div>`}
+      >
+        <div className="w-full">
+          <div className={CARD_GRID}>
+            <Skeleton className="aspect-video rounded-2xl" />
+            <Skeleton className="aspect-video rounded-2xl" />
+            <Skeleton className="aspect-video rounded-2xl" />
+          </div>
         </div>
       </ShowcaseSectionStage>
     </div>

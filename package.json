@@ -21,6 +21,7 @@
     "dist",
     "bin",
     "src/components/ui",
+    "src/components/brand/DiscordMark.tsx",
     "src/components/icons.ts",
     "src/lib/context-areas.ts",
     "src/lib/errors.ts",
