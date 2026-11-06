@@ -7,7 +7,7 @@ import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
 export function InputsShowcase() {
-  const [val, setVal] = React.useState("The Mentalist")
+  const [val, setVal] = React.useState("Tears of Steel")
 
   // FilterBar interactive state
   const [filterSearch, setFilterSearch] = React.useState("")

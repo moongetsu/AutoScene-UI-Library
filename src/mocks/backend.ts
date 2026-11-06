@@ -252,10 +252,10 @@ function githubRepository(link: string): boolean {
 
 /** Canned AniList answers (no network in the mock). */
 const ANILIST_SERIES: AniListMedia[] = [
-  { id: 21519, title: "Frieren: Beyond Journey's End", format: "TV", episodes: 28, year: 2023 },
-  { id: 172429, title: "Frieren: Beyond Journey's End Season 2", format: "TV", episodes: null, year: null },
+  { id: 21519, title: "Lantern Road", format: "TV", episodes: 28, year: 2023 },
+  { id: 172429, title: "Lantern Road Season 2", format: "TV", episodes: null, year: null },
 ]
-const ANILIST_NAMES = ["Frieren", "Fern", "Stark", "Himmel"]
+const ANILIST_NAMES = ["Mira", "Oren", "Tobi", "Hale"]
 
 /** Per-project AniList decisions (the real backend keeps them in project meta). */
 type MockAniList = {
@@ -492,33 +492,33 @@ function refresh(p: MockProject) {
 
 const projects: MockProject[] = [
   project(
-    "Sousou no Frieren",
+    "Lantern Road",
     "series",
     "anime",
     [
-      media("[SubsPlease] Sousou no Frieren - 01 (1080p).mkv", [null, 1], { proxy: "ready", infoArgs: ["hevc", 1920, 1080, [["jpn", 2], ["eng", 6]]] }, "frieren-01"),
-      media("[SubsPlease] Sousou no Frieren - 02 (1080p).mkv", [null, 2], { proxy: "ready", infoArgs: ["hevc", 1920, 1080, [["jpn", 2], ["eng", 6]]] }, "frieren-02"),
-      media("[SubsPlease] Sousou no Frieren - 03 (1080p).mkv", [null, 3], { proxy: "ready", infoArgs: ["hevc", 1920, 1080, [["jpn", 2]]] }, "frieren-03"),
-      media("[SubsPlease] Sousou no Frieren - 04 (1080p).mkv", [null, 4], { status: "indexing" }),
+      media("[OpenSubs] Lantern Road - 01 (1080p).mkv", [null, 1], { proxy: "ready", infoArgs: ["hevc", 1920, 1080, [["jpn", 2], ["eng", 6]]] }, "lantern-01"),
+      media("[OpenSubs] Lantern Road - 02 (1080p).mkv", [null, 2], { proxy: "ready", infoArgs: ["hevc", 1920, 1080, [["jpn", 2], ["eng", 6]]] }, "lantern-02"),
+      media("[OpenSubs] Lantern Road - 03 (1080p).mkv", [null, 3], { proxy: "ready", infoArgs: ["hevc", 1920, 1080, [["jpn", 2]]] }, "lantern-03"),
+      media("[OpenSubs] Lantern Road - 04 (1080p).mkv", [null, 4], { status: "indexing" }),
     ],
     1000,
   ),
   project(
-    "Dark",
+    "Salt Harbor",
     "series",
     "live",
     [
-      media("Dark.S01E01.Secrets.2160p.HDR.mkv", [1, 1], { proxy: "ready", infoArgs: ["hevc", 3840, 2160, [["ger", 6], ["eng", 6]], true] }, "dark-01"),
-      media("Dark.S01E02.Lies.2160p.HDR.mkv", [1, 2], { proxy: "ready", infoArgs: ["hevc", 3840, 2160, [["ger", 6]], true] }, "dark-02"),
-      media("Dark.S01E03.Past.and.Present.2160p.HDR.mkv", [1, 3], { status: "missing" }),
+      media("Salt.Harbor.S01E01.Tides.2160p.HDR.mkv", [1, 1], { proxy: "ready", infoArgs: ["hevc", 3840, 2160, [["ger", 6], ["eng", 6]], true] }, "salt-01"),
+      media("Salt.Harbor.S01E02.Fog.2160p.HDR.mkv", [1, 2], { proxy: "ready", infoArgs: ["hevc", 3840, 2160, [["ger", 6]], true] }, "salt-02"),
+      media("Salt.Harbor.S01E03.The.Old.Pier.2160p.HDR.mkv", [1, 3], { status: "missing" }),
     ],
     86_400_000,
   ),
   project(
-    "Blade Runner 2049",
+    "Tears of Steel",
     "movie",
     "live",
-    [media("Blade Runner 2049 (2017).mp4", [null, null], { infoArgs: ["h264", 1920, 804, [["eng", 6]]] }, "br2049")],
+    [media("Tears of Steel (2012).mp4", [null, null], { infoArgs: ["h264", 1920, 804, [["eng", 6]]] }, "tos")],
     3 * 86_400_000,
   ),
 ]
@@ -860,8 +860,8 @@ const INDEX_MS = 24_000
 /** A 23:40 episode at 23.976 fps: the frames its file states, and the ones read. */
 const STATED_FRAMES = 34_046
 const READ_FRAMES = 34_044
-/** Where the mock's indexing is, as a picture: stills of the episode being indexed (Frieren 04). */
-const INDEXING_STILLS = ["frieren-01", "frieren-02", "frieren-03"]
+/** Where the mock's indexing is, as a picture: stills of the episode being indexed (Lantern Road 04). */
+const INDEXING_STILLS = ["lantern-01", "lantern-02", "lantern-03"]
 
 /**
  * An indexing as the backend tells it: the file read first, then its frames
@@ -1025,13 +1025,13 @@ projects[0].exports.push(seedMergedExport(projects[0]), seedExport(projects[0]))
 
 function seedMergedExport(p: MockProject): ExportSummary {
   const m = p.media[0]
-  const path = `${ROOT}\\Exports\\${p.title}\\Sousou_no_Frieren_Himmel_scenepack.mov`
+  const path = `${ROOT}\\Exports\\${p.title}\\Lantern_Road_Hale_scenepack.mov`
   const item = (i: number, start: number, end: number): ExportItem => ({
     id: i,
     mediaId: m.id,
     start,
     end,
-    name: `Sousou_no_Frieren_Himmel_E01_${tcName(start)}`,
+    name: `Lantern_Road_Hale_E01_${tcName(start)}`,
     status: "done",
     path,
     verified: true,
@@ -1043,12 +1043,12 @@ function seedMergedExport(p: MockProject): ExportSummary {
     id: id(),
     projectId: p.id,
     createdAt: now - 1_800_000,
-    label: "Himmel · scenepack",
+    label: "Hale · scenepack",
     preset: presets[0],
     outDir: `${ROOT}\\Exports\\${p.title}`,
     status: "done",
     items: [item(1, 84, 144), item(2, 220, 268), item(3, 346, 394)],
-    merged: { name: "Sousou_no_Frieren_Himmel_scenepack", path, verified: true, bytes: 1.9e8, error: null },
+    merged: { name: "Lantern_Road_Hale_scenepack", path, verified: true, bytes: 1.9e8, error: null },
   }
 }
 
@@ -1058,13 +1058,13 @@ function seedExport(p: MockProject): ExportSummary {
     id: id(),
     projectId: p.id,
     createdAt: now - 3_600_000,
-    label: "Frieren · scenepack",
+    label: "Mira · scenepack",
     preset: presets[0],
     outDir: `${ROOT}\\Exports\\${p.title}`,
     status: "done",
     items: [
-      { id: 1, mediaId: m.id, start: 48, end: 84, name: `Sousou_no_Frieren_E01_${tcName(48)}`, status: "done", path: `${ROOT}\\Exports\\x.mov`, verified: true, encoder: "prores_ks", bytes: 5.2e7, error: null },
-      { id: 2, mediaId: m.id, start: 156, end: 204, name: `Sousou_no_Frieren_E01_${tcName(156)}`, status: "done", path: `${ROOT}\\Exports\\y.mov`, verified: true, encoder: "prores_ks", bytes: 6.9e7, error: null },
+      { id: 1, mediaId: m.id, start: 48, end: 84, name: `Lantern_Road_E01_${tcName(48)}`, status: "done", path: `${ROOT}\\Exports\\x.mov`, verified: true, encoder: "prores_ks", bytes: 5.2e7, error: null },
+      { id: 2, mediaId: m.id, start: 156, end: 204, name: `Lantern_Road_E01_${tcName(156)}`, status: "done", path: `${ROOT}\\Exports\\y.mov`, verified: true, encoder: "prores_ks", bytes: 6.9e7, error: null },
     ],
     merged: null,
   }

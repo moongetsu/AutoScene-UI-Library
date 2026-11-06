@@ -29,15 +29,15 @@ export function CardsShowcase() {
         description="Square actor profile card with floating clip count badge and action trigger."
         code={`<div className="w-56 rounded-2xl border border-white/[0.08] bg-[#111114] p-3 flex flex-col gap-3">
   <div className="relative aspect-square w-full rounded-xl overflow-hidden">
-    <img src="..." alt="Patrick Jane" className="size-full object-cover" />
+    <img src="..." alt="Thom" className="size-full object-cover" />
     <div className="absolute top-2 right-2">
       <Badge tone="accent">48 clips</Badge>
     </div>
   </div>
   <div className="flex items-center justify-between px-1">
     <div>
-      <h4 className="font-semibold text-white text-xs">Patrick Jane</h4>
-      <p className="text-[11px] text-fg-3">The Mentalist</p>
+      <h4 className="font-semibold text-white text-xs">Thom</h4>
+      <p className="text-[11px] text-fg-3">Tears of Steel</p>
     </div>
     <Button variant="ghost" size="icon-sm"><DotsThree weight="bold" /></Button>
   </div>
@@ -47,7 +47,7 @@ export function CardsShowcase() {
           <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-overlay">
             <img
               src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&fit=crop"
-              alt="Patrick Jane"
+              alt="Thom"
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
             <div className="absolute top-2 right-2">
@@ -56,8 +56,8 @@ export function CardsShowcase() {
           </div>
           <div className="flex items-center justify-between px-1">
             <div>
-              <h4 className="font-semibold text-white text-xs">Patrick Jane</h4>
-              <p className="text-[11px] text-fg-3">The Mentalist</p>
+              <h4 className="font-semibold text-white text-xs">Thom</h4>
+              <p className="text-[11px] text-fg-3">Tears of Steel</p>
             </div>
             <Button variant="ghost" size="icon-sm" aria-label="More options">
               <DotsThree weight="bold" />
@@ -77,7 +77,7 @@ export function CardsShowcase() {
     </div>
     <div>
       <div className="flex items-center gap-2">
-        <h4 className="font-semibold text-white text-xs">Mentalist_Jane_scenepack.mov</h4>
+        <h4 className="font-semibold text-white text-xs">Tears_of_Steel_Thom_scenepack.mov</h4>
         <Badge tone="accent">Verified</Badge>
       </div>
       <p className="text-[11px] text-fg-3 mt-0.5">ProRes 422 · 42 clips · 2m 14s</p>
@@ -93,7 +93,7 @@ export function CardsShowcase() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h4 className="font-semibold text-white text-xs truncate max-w-[200px]">Mentalist_Jane_scenepack.mov</h4>
+                <h4 className="font-semibold text-white text-xs truncate max-w-[200px]">Tears_of_Steel_Thom_scenepack.mov</h4>
                 <Badge tone="accent">Verified</Badge>
               </div>
               <p className="text-[11px] text-fg-3 mt-0.5">ProRes 422 · 42 clips · 2m 14s</p>

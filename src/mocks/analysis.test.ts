@@ -61,7 +61,7 @@ describe("the mock's analyses, as the backend's one analysis slot runs them", ()
 
   it("run one at a time, and cancelling one that waits leaves its episode stopped where it would have begun", async () => {
     const projects = await invoke<ProjectSummary[]>("projects_list")
-    const projectId = projects.find((p) => p.title === "Sousou no Frieren")!.id
+    const projectId = projects.find((p) => p.title === "Lantern Road")!.id
     const episodes = async () => invoke<MediaItem[]>("media_list", { projectId })
     const [a, b, c] = (await episodes()).filter((m) => m.status === "ready")
     for (const m of [a, b, c]) await invoke("media_analyze", { projectId, mediaId: m.id, redo: "shots" })

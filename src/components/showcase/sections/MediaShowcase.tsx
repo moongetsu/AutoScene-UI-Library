@@ -23,7 +23,7 @@ export function MediaShowcase() {
 
 <Hero path={null}>
   <div className="p-8 flex flex-col gap-2">
-    <h1 className="text-3xl font-bold text-fg-1">The Mentalist</h1>
+    <h1 className="text-3xl font-bold text-fg-1">Tears of Steel</h1>
     <div className="flex items-center gap-2">
       <Badge tone="accent">Season 1</Badge>
       <span className="text-xs text-fg-3">23 Episodes · 1,420 Cast Faces</span>
@@ -34,7 +34,7 @@ export function MediaShowcase() {
         <div className="w-full max-w-xl rounded-xl overflow-hidden border border-white/[0.08] bg-[#0c0c0f]">
           <Hero path={null}>
             <div className="p-6 flex flex-col gap-2">
-              <h1 className="text-2xl font-bold text-white">The Mentalist</h1>
+              <h1 className="text-2xl font-bold text-white">Tears of Steel</h1>
               <div className="flex items-center gap-2">
                 <Badge tone="accent">Season 1</Badge>
                 <span className="text-xs text-fg-3">23 Episodes · 1,420 Cast Faces</span>

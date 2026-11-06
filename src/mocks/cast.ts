@@ -61,10 +61,10 @@ const uuid = () => `0199c0de-0000-7000-8000-${(++personSeq).toString(16).padStar
 export function seedCast(projectId: string, media: MediaItem[], segments: Segment[]) {
   const shots = segments.filter((s) => s.kind === "shot")
   const people: Person[] = [
-    { name: "Jonas", n: 26 },
-    { name: "Martha", n: 18 },
+    { name: "Thom", n: 26 },
+    { name: "Celia", n: 18 },
     { name: null, n: 12 },
-    { name: "Ulrich", n: 9 },
+    { name: "Barley", n: 9 },
     { name: null, n: 6 },
     { name: null, n: 4 },
   ].map((p, i) => ({ id: uuid(), number: i + 1, name: p.name, hidden: false, cover: null, n: p.n }) as Person & { n: number })
