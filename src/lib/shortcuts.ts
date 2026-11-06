@@ -22,7 +22,7 @@ export type Binding = { key: string; mod?: boolean; shift?: boolean; alt?: boole
 export type Slot = { label?: string; bindings: Binding[] }
 
 /** Where a shortcut works: everywhere, or on one kind of page. */
-export type Scope = "global" | "player" | "review" | "cast" | "faces" | "pack"
+export type Scope = "global" | "player" | "review" | "cast" | "faces" | "shots" | "pack"
 
 export type Shortcut<Id extends string = string> = {
   scope: Scope
@@ -157,6 +157,15 @@ export const CAST_SHORTCUTS = scoped<CastId>("cast", [
   { id: "clearSelection", label: "Clear the selection", slots: one(key("escape")), fixed: true },
 ])
 
+export type ShotsId = "toggle" | "watch" | "close"
+
+/** On a character's shots (the first two on the focused stack). */
+export const SHOTS_SHORTCUTS = scoped<ShotsId>("shots", [
+  { id: "toggle", label: "Show or hide the shots of a stack", slots: one(key(" ")), fixed: true },
+  { id: "watch", label: "Watch from the stack's first shot", slots: one(key("enter")), fixed: true },
+  { id: "close", label: "Close the open stack", slots: one(key("escape")), fixed: true },
+])
+
 export type PackId = "toggle" | "watch" | "export"
 
 /** While building a scenepack (the first two on the focused shot). */
@@ -182,6 +191,7 @@ export const SHORTCUT_GROUPS: { title: string; description: string; shortcuts: S
     shortcuts: CAST_SHORTCUTS,
   },
   { title: "A character's faces", description: "In a character's Faces view.", shortcuts: FACES_SHORTCUTS },
+  { title: "A character's shots", description: "In a character's Shots view.", shortcuts: SHOTS_SHORTCUTS },
   { title: "Scenepack", description: "While picking a character's shots.", shortcuts: PACK_SHORTCUTS },
 ]
 
@@ -194,6 +204,7 @@ export type ShortcutRef =
   | `review.${ReviewId}`
   | `cast.${CastId}`
   | `faces.${FacesId}`
+  | `shots.${ShotsId}`
   | `pack.${PackId}`
 
 const BY_REF = new Map(ALL_SHORTCUTS.map((s) => [`${s.scope}.${s.id}`, s]))

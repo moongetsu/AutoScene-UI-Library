@@ -1,5 +1,5 @@
-import { QueryClient, useQuery } from "@tanstack/react-query"
-import { commands, type CharacterId, type FaceTrackItem, type MediaId, type PluginInfo, type ProjectId, type TrackFilter } from "./ipc"
+import { QueryClient, keepPreviousData, useQuery } from "@tanstack/react-query"
+import { commands, type CharacterId, type DiscordRpcSettings, type FaceTrackItem, type MediaId, type PluginInfo, type ProjectId, type TrackFilter } from "./ipc"
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,6 +17,7 @@ export const qk = {
   appInfo: ["appInfo"] as const,
   settings: ["settings"] as const,
   scanDefaults: ["scanDefaults"] as const,
+  discordPreview: (show: DiscordRpcSettings) => ["discordPreview", show] as const,
   hardware: ["hardware"] as const,
   mediaTools: ["mediaTools"] as const,
   presets: ["exportPresets"] as const,
@@ -71,6 +72,18 @@ export function useAppInfo() {
 
 export function useSettings() {
   return useQuery({ queryKey: qk.settings, queryFn: () => commands.settingsGet() })
+}
+
+/**
+ * What Settings shows as the person's status. While a switch's answer is on
+ * its way the last one stays: the same two samples, so the page doesn't jump.
+ */
+export function useDiscordPreview(show: DiscordRpcSettings) {
+  return useQuery({
+    queryKey: qk.discordPreview(show),
+    queryFn: () => commands.discordPreview(show),
+    placeholderData: keepPreviousData,
+  })
 }
 
 /**

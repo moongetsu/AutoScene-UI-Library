@@ -239,6 +239,11 @@ export const commands = {
 	 *  clearest face there: in episode order, in groups of shots close together
 	 *  in time (a shot far from the others is a group of one).
 	 */
+	/**
+	 *  What the status looks like with the switches `show`, for Settings: in an
+	 *  episode, in a scenepack.
+	 */
+	discordPreview: (show: DiscordRpcSettings) => __TAURI_INVOKE<DiscordLines[]>("discord_preview", { show }),
 	characterShots: (projectId: ProjectId, characterId: CharacterId) => __TAURI_INVOKE<ShotGroup[]>("character_shots", { projectId, characterId }),
 	exportPresets: () => __TAURI_INVOKE<ExportPreset[]>("export_presets"),
 	/**  Folder exports of this project go to unless the user picks another. */
@@ -746,7 +751,8 @@ export type AppSettings = {
 	 *  Analysis uses NVIDIA's engine once its files are downloaded: on
 	 *  unless switched off. Applies from the next analysis.
 	 */
-	nvidiaAcceleration?: boolean,
+	nvidiaAcceleration?: boolean,	/**  What Discord may show. Everything off until the person turns it on. */
+	discordRpc?: DiscordRpcSettings,
 };
 
 export type AudioCodec = { codec: "none" } | 
@@ -1040,6 +1046,30 @@ export type ContentKind =
 "animation" | 
 /**  Anime / 2D animation (heads, character art). */
 "anime" | "mixed";
+
+/**  The two lines of the status under AutoScene's name. */
+export type DiscordLines = {
+	details: string,
+	state: string | null,
+};
+
+/**
+ *  What AutoScene may tell Discord. All off by default: nothing goes to
+ *  Discord until `enabled`, and a name only with its own switch as well.
+ */
+export type DiscordRpcSettings = {
+	/**  Shows that the person is working in AutoScene on their profile. */
+	enabled?: boolean,
+	/**  The project's title in place of "Working on a project". */
+	showProject?: boolean,
+	/**
+	 *  The open episode's or file's name in place of "Reviewing an episode"
+	 *  or "Reviewing a file".
+	 */
+	showEpisode?: boolean,
+	/**  The open character's name in place of "Making a scenepack". */
+	showCharacter?: boolean,
+};
 
 export type DnxProfile = 
 /**  8-bit 4:2:2. */

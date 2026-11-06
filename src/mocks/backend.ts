@@ -108,6 +108,7 @@ import type {
   ThisComputer,
   TrackFilter,
   CastEdit,
+  DiscordRpcSettings,
   UpdateStatus,
 } from "@/bindings"
 
@@ -1127,6 +1128,15 @@ const handlers: Record<string, Handler> = {
   menu_set_keys: () => null,
   media_tools: () => ({ ready: true, version: "8.0.1-full_build-www.gyan.dev", path: String.raw`C:\ffmpeg\bin\ffmpeg.exe`, error: null }),
   models: () => MODELS,
+  // As the app's `discord::preview` says it.
+  discord_preview: ({ show }) => {
+    const s = show as DiscordRpcSettings
+    const details = s.showProject ? "Your project" : "Working on a project"
+    return [
+      { details, state: s.showEpisode ? "Episode 1" : "Reviewing an episode" },
+      { details, state: s.showCharacter ? "Scenepack: Your character" : "Making a scenepack" },
+    ]
+  },
   settings_get: () => settings,
   settings_update: ({ settings: s }) => {
     // Like the backend: only plugins_allow_unreviewed changes this one, and

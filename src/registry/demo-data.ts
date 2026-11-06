@@ -1,5 +1,6 @@
-import type { Character, MediaItem, PluginInfo, ProjectSummary, Rational, Segment, ThisComputer } from "@/bindings"
+import type { Character, CharacterShot, MediaItem, PluginInfo, ProjectSummary, Rational, Segment, ThisComputer } from "@/bindings"
 import { FrameStore } from "@/features/player/frame-store"
+import { type StackCard, stackCards } from "@/features/shots/groups"
 import { footageStill } from "@/lib/footage"
 import type { Lane } from "@/lib/presence"
 import { timecode } from "@/lib/timecode"
@@ -166,3 +167,20 @@ export const DEMO_WITHDRAWN = {
 
 /** A graphics card Fast Scan's first-start notice speaks of. */
 export const DEMO_COMPUTER: ThisComputer = { class: "notForAi", name: "NVIDIA GeForce GTX 1060 6GB" }
+
+const shot = (start: number, picture: string, faceHeight: number): CharacterShot => ({
+  mediaId: DEMO_MEDIA.id,
+  start,
+  end: start + 53,
+  sprite: still(picture),
+  cells: 1,
+  trackId: start,
+  face: still("live-2.webp"),
+  faceHeight,
+})
+
+/** Three shots of Thom close together, and one on its own. A shot's sprite is one still here. */
+export const DEMO_STACK: StackCard = stackCards([
+  { shots: [shot(7512, "live-1.webp", 0.2), shot(7572, "live-2.webp", 0.5), shot(7632, "live-3.webp", 0.3)] },
+])[0]
+export const DEMO_SHOT = shot(9120, "live-3.webp", 0.4)

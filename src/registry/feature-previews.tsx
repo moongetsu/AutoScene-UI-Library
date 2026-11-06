@@ -8,6 +8,7 @@ import { FeatureFrame } from "@/components/showcase/FeatureFrame"
 import { Button } from "@/components/ui/button"
 import { ContextMenuItem } from "@/components/ui/context-menu"
 import { Kbd } from "@/components/ui/kbd"
+import { Skeleton } from "@/components/ui/skeleton"
 import { CharacterCard } from "@/features/cast/CharacterCard"
 import { ProjectCard } from "@/features/library/ProjectCard"
 import { CastTab } from "@/features/player/panels/CastTab"
@@ -22,10 +23,14 @@ import { updatesOf } from "@/features/plugins/catalog-items"
 import { PluginArt } from "@/features/plugins/PluginArt"
 import { PluginCard } from "@/features/plugins/PluginCard"
 import { PluginSettingsPage } from "@/features/plugins/PluginSettingsPage"
+import { PluginSkeletons } from "@/features/plugins/PluginSkeletons"
 import { PluginsPage } from "@/features/plugins/PluginsPage"
 import { UninstallDialog } from "@/features/plugins/UninstallDialog"
 import { WithdrawnBanner } from "@/features/plugins/WithdrawnBanner"
+import { DiscordSection } from "@/features/settings/sections/DiscordSection"
 import { HardwareGroup } from "@/features/settings/sections/HardwareGroup"
+import { ShotCard } from "@/features/shots/ShotCard"
+import { ShotBand, ShotStack } from "@/features/shots/ShotStack"
 import { copyText } from "@/lib/os"
 import { qk, queryClient, useCatalog, usePlugins, useScanDefaults } from "@/lib/queries"
 import { PLAYER_SHORTCUTS, capGroups, useKeymap } from "@/lib/shortcuts"
@@ -41,12 +46,15 @@ import {
   DEMO_MEDIA,
   DEMO_PROJECT,
   DEMO_SEGMENTS,
+  DEMO_SHOT,
+  DEMO_STACK,
   DEMO_WITHDRAWN,
   STILL_CREDIT,
   demoFrameStore,
   demoTimecode,
   still,
 } from "./demo-data"
+import { PreviewPlace } from "./preview-place"
 
 const nothing = () => {}
 
@@ -112,7 +120,7 @@ function PreviewRoutes({ start = "/", pages = false, children }: { start?: strin
 }
 
 /** While the mock's plugin list comes, or once every plugin was uninstalled here. */
-const Waiting = () => <div className="skeleton aspect-[2/1] rounded-2xl" />
+const Waiting = () => <Skeleton className="aspect-[2/1] rounded-2xl" />
 
 function PluginArtLooks() {
   const art = "aspect-[2/1] rounded-2xl picture-edge"
@@ -191,6 +199,36 @@ function FastScanDemo() {
         </Button>
       </div>
       <FastScanNotice />
+    </div>
+  )
+}
+
+/** Between a stack's middle and the band's left edge, at the width this preview lays out at. */
+const STACK_NOTCH = 156
+
+/** A row of a character's Shots view: a stack with its band open under the row, and a shot on its own. */
+function ShotStackDemo() {
+  const [open, setOpen] = React.useState(React.use(PreviewPlace) !== "gallery")
+  const watch = () => toast("Plays in the app, from the first shot")
+  const play = () => toast("Plays in the app")
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-2 gap-4 pt-3">
+        <ShotStack card={DEMO_STACK} media={DEMO_MEDIA} open={open} onToggle={(_, show) => setOpen(show)} onWatch={watch} />
+        <ShotCard shot={DEMO_SHOT} media={DEMO_MEDIA} name="Thom" onOpen={play} />
+      </div>
+      {open && (
+        <ShotBand
+          card={DEMO_STACK}
+          media={DEMO_MEDIA}
+          name="Thom"
+          columns={3}
+          notch={STACK_NOTCH}
+          onOpen={play}
+          onWatch={watch}
+          onClose={() => setOpen(false)}
+        />
+      )}
     </div>
   )
 }
@@ -373,6 +411,23 @@ export const FEATURE_PREVIEWS: Record<string, (handlers?: any) => React.ReactNod
       <div className="-mb-10">
         <HardwareGroup />
       </div>
+    </FeatureFrame>
+  ),
+  "discord-section": () => (
+    <FeatureFrame id="discord-section" width={720} minWidth={560}>
+      <div className="-mb-10">
+        <DiscordSection />
+      </div>
+    </FeatureFrame>
+  ),
+  "plugin-skeletons": () => (
+    <FeatureFrame id="plugin-skeletons" width={760} minWidth={640}>
+      <PluginSkeletons />
+    </FeatureFrame>
+  ),
+  "shot-stack": () => (
+    <FeatureFrame id="shot-stack" width={640} minWidth={640} credit={STILL_CREDIT}>
+      <ShotStackDemo />
     </FeatureFrame>
   ),
   "fast-scan-notice": () => (
