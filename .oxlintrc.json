@@ -85,6 +85,7 @@
               "NotReady",
               "Hero",
               "Banner",
+              "ConfirmDialog",
               "CleanToastCapsule",
               "ShowcasePageHeader",
               "ShowcaseSectionStage"

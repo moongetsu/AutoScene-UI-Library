@@ -10,13 +10,14 @@ import {
   Image,
   SquaresFour,
   TerminalWindow,
-} from "@phosphor-icons/react"
+} from "@/components/icons"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Input } from "@/components/ui/input"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { cn } from "@/lib/utils"
+import { Tooltip } from "@/components/ui/tooltip"
 
 type ButtonVariant = "primary" | "accent" | "secondary" | "glass" | "ghost" | "danger"
 type ButtonSize = "lg" | "md" | "sm"
@@ -314,30 +315,31 @@ export function ButtonPlayground() {
               <label className="text-xs font-medium text-fg-2">Icon</label>
               <div className="grid grid-cols-5 gap-1.5 bg-white/[0.02] p-1 rounded-xl border border-white/[0.06]">
                 {(["plus", "play", "download", "trash", "none"] as IconType[]).map((i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setIcon(i)}
-                    className={cn(
-                      "h-8 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-center",
-                      icon === i
-                        ? "bg-accent/15 border border-accent/40 text-accent shadow-sm"
-                        : "text-fg-3 hover:text-white hover:bg-white/[0.04]"
-                    )}
-                    title={i}
-                  >
-                    {i === "plus" ? (
-                      <Plus className="size-3.5" />
-                    ) : i === "play" ? (
-                      <Play className="size-3.5" />
-                    ) : i === "download" ? (
-                      <DownloadSimple className="size-3.5" />
-                    ) : i === "trash" ? (
-                      <Trash className="size-3.5" />
-                    ) : (
-                      <span className="text-[11px] font-mono">Off</span>
-                    )}
-                  </button>
+                  <Tooltip key={i} label={i}>
+                    <button
+                      type="button"
+                      onClick={() => setIcon(i)}
+                      className={cn(
+                        "h-8 rounded-lg text-xs transition-all cursor-pointer flex items-center justify-center",
+                        icon === i
+                          ? "bg-accent/15 border border-accent/40 text-accent shadow-sm"
+                          : "text-fg-3 hover:text-white hover:bg-white/[0.04]"
+                      )}
+                      aria-label={i}
+                    >
+                      {i === "plus" ? (
+                        <Plus className="size-3.5" />
+                      ) : i === "play" ? (
+                        <Play className="size-3.5" />
+                      ) : i === "download" ? (
+                        <DownloadSimple className="size-3.5" />
+                      ) : i === "trash" ? (
+                        <Trash className="size-3.5" />
+                      ) : (
+                        <span className="text-[11px] font-mono">Off</span>
+                      )}
+                    </button>
+                  </Tooltip>
                 ))}
               </div>
             </div>
@@ -417,39 +419,42 @@ export function ButtonPlayground() {
 
               {/* Background Backdrop Switcher */}
               <div className="flex items-center gap-1 bg-white/[0.03] p-0.5 rounded-lg border border-white/[0.06]">
-                <button
-                  type="button"
-                  onClick={() => setBg("dark")}
-                  className={cn(
-                    "px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1.5",
-                    bg === "dark" ? "bg-white/[0.1] text-white shadow-sm font-semibold" : "text-fg-3 hover:text-white"
-                  )}
-                  title="Dark studio backdrop"
-                >
-                  <SquaresFour className="size-3.5" /> Canvas
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBg("checker")}
-                  className={cn(
-                    "px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1.5",
-                    bg === "checker" ? "bg-white/[0.1] text-white shadow-sm font-semibold" : "text-fg-3 hover:text-white"
-                  )}
-                  title="Checkerboard transparency"
-                >
-                  <SquaresFour className="size-3.5" /> Grid
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBg("media")}
-                  className={cn(
-                    "px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1.5",
-                    bg === "media" ? "bg-white/[0.1] text-white shadow-sm font-semibold" : "text-fg-3 hover:text-white"
-                  )}
-                  title="Cinematic footage frame"
-                >
-                  <Image className="size-3.5" /> Footage
-                </button>
+                <Tooltip label="Dark studio backdrop">
+                  <button
+                    type="button"
+                    onClick={() => setBg("dark")}
+                    className={cn(
+                      "px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1.5",
+                      bg === "dark" ? "bg-white/[0.1] text-white shadow-sm font-semibold" : "text-fg-3 hover:text-white"
+                    )}
+                  >
+                    <SquaresFour className="size-3.5" /> Canvas
+                  </button>
+                </Tooltip>
+                <Tooltip label="Checkerboard transparency">
+                  <button
+                    type="button"
+                    onClick={() => setBg("checker")}
+                    className={cn(
+                      "px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1.5",
+                      bg === "checker" ? "bg-white/[0.1] text-white shadow-sm font-semibold" : "text-fg-3 hover:text-white"
+                    )}
+                  >
+                    <SquaresFour className="size-3.5" /> Grid
+                  </button>
+                </Tooltip>
+                <Tooltip label="Cinematic footage frame">
+                  <button
+                    type="button"
+                    onClick={() => setBg("media")}
+                    className={cn(
+                      "px-2.5 py-1 rounded text-[11px] font-medium transition-colors cursor-pointer flex items-center gap-1.5",
+                      bg === "media" ? "bg-white/[0.1] text-white shadow-sm font-semibold" : "text-fg-3 hover:text-white"
+                    )}
+                  >
+                    <Image className="size-3.5" /> Footage
+                  </button>
+                </Tooltip>
               </div>
             </div>
 

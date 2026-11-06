@@ -1,6 +1,7 @@
 import * as React from "react"
-import { Check, Copy } from "@phosphor-icons/react"
+import { Check, Copy } from "@/components/icons"
 import { toast } from "sonner"
+import { Tooltip } from "@/components/ui/tooltip"
 
 interface ShowcasePageHeaderProps {
   title: string
@@ -30,19 +31,20 @@ export function ShowcasePageHeader({
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-2xl font-bold text-white tracking-tight">{title}</h2>
         {importPath && (
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-mono bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] text-fg-2 hover:text-white transition-all cursor-pointer"
-            title="Click to copy import statement"
-          >
-            <span className="truncate max-w-xs">{importPath}</span>
-            {copied ? (
-              <Check className="size-3.5 text-accent shrink-0" />
-            ) : (
-              <Copy className="size-3.5 text-fg-3 shrink-0" />
-            )}
-          </button>
+          <Tooltip label="Click to copy import statement">
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-mono bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.08] text-fg-2 hover:text-white transition-all cursor-pointer"
+            >
+              <span className="truncate max-w-xs">{importPath}</span>
+              {copied ? (
+                <Check className="size-3.5 text-accent shrink-0" />
+              ) : (
+                <Copy className="size-3.5 text-fg-3 shrink-0" />
+              )}
+            </button>
+          </Tooltip>
         )}
       </div>
       <p className="text-sm text-fg-2 leading-relaxed max-w-3xl">{description}</p>

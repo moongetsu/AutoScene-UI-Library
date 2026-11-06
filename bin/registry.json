@@ -485,7 +485,9 @@
     "files": [
       "toaster.tsx"
     ],
-    "support": [],
+    "support": [
+      "components/icons.ts"
+    ],
     "deps": [
       "@phosphor-icons/react",
       "sonner"

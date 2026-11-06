@@ -1,4 +1,4 @@
-import { DotsThree, FolderOpen, Play, Trash } from "@phosphor-icons/react"
+import { DotsThree, FolderOpen, Play, Trash } from "@/components/icons"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"

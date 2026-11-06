@@ -11,7 +11,8 @@ import {
   Sidebar,
   Palette,
   SquaresFour,
-} from "@phosphor-icons/react"
+} from "@/components/icons"
+import * as Icons from "@/components/icons"
 import { DISCOVERED_COMPONENTS } from "./discovery"
 
 export interface ShowcaseSectionMeta {
@@ -42,7 +43,7 @@ const SECTION_CONFIG: Record<
   shell: { label: "Shell & Headers", group: "Layout & Media", icon: <Sidebar className="size-4" />, order: 9 },
   features: { label: "Features", group: "Features", icon: <SquaresFour className="size-4" />, order: 10 },
   tokens: { label: "Colors & Tokens", group: "Tokens", icon: <Palette className="size-4" />, order: 11 },
-  icons: { label: "Icons (80+)", group: "Tokens", icon: <Image className="size-4" />, overrideCount: 88, order: 12 },
+  icons: { label: "Icons", group: "Tokens", icon: <Image className="size-4" />, overrideCount: Object.keys(Icons).length, order: 12 },
 }
 
 /**

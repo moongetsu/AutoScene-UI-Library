@@ -1,5 +1,5 @@
 import * as React from "react"
-import { MagnifyingGlass } from "@phosphor-icons/react"
+import { MagnifyingGlass } from "@/components/icons"
 import { Field, Input } from "@/components/ui/input"
 import { SearchField } from "@/components/ui/search-field"
 import { FilterBar } from "@/components/ui/filter-bar"

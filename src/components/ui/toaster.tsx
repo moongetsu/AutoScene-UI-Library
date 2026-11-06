@@ -1,6 +1,6 @@
 import * as React from "react"
 import { toast as sonnerToast, Toaster as Sonner } from "sonner"
-import { Check, Info, Warning, XCircle, ArrowSquareOut, X } from "@phosphor-icons/react"
+import { Check, Info, Warning, XCircle, ArrowSquareOut, X } from "@/components/icons"
 
 interface CleanToastProps {
   id: string | number
@@ -98,7 +98,7 @@ export function CleanToastCapsule({
           type="button"
           onClick={() => sonnerToast.dismiss(id)}
           className="size-6 rounded-full flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.1] transition-colors cursor-pointer"
-          title="Dismiss"
+          aria-label="Dismiss"
         >
           <X className="size-3.5" />
         </button>

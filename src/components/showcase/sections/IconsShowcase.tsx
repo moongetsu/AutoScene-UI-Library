@@ -12,10 +12,11 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu"
 import { notify } from "@/components/ui/toaster"
-import { Check, SlidersHorizontal } from "@phosphor-icons/react"
+import { Check, SlidersHorizontal } from "@/components/icons"
 import { motion } from "motion/react"
+import { Tooltip } from "@/components/ui/tooltip"
 
-// Category mapping for the 88 curated Phosphor icons in AutoScene
+// Category mapping for the Phosphor icons in AutoScene
 const ICON_CATEGORIES: Record<string, string[]> = {
   Media: [
     "Play",
@@ -257,7 +258,7 @@ export function IconsShowcase() {
       <FilterBar
         search={search}
         onSearchChange={setSearch}
-        searchPlaceholder="Search 88 icons... (press / to focus)"
+        searchPlaceholder={`Search ${ICON_LIST.length} icons... (press / to focus)`}
         filterGroups={filterGroups}
         selectedFilters={{ category: selectedCategory, weight }}
         onFilterChange={handleFilterChange}
@@ -270,14 +271,16 @@ export function IconsShowcase() {
             {/* View Settings: Size Toggle */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-xs font-medium text-fg-2 hover:bg-white/[0.07] hover:text-white transition-all cursor-pointer"
-                  title="Icon display size"
-                >
-                  <SlidersHorizontal className="size-3.5" />
-                  <span className="font-mono text-[11px]">{size === "sm" ? "16px" : size === "md" ? "20px" : "24px"}</span>
-                </button>
+                <Tooltip label="Icon display size">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-white/[0.08] bg-white/[0.04] text-xs font-medium text-fg-2 hover:bg-white/[0.07] hover:text-white transition-all cursor-pointer"
+                    aria-label="Icon display size"
+                  >
+                    <SlidersHorizontal className="size-3.5" />
+                    <span className="font-mono text-[11px]">{size === "sm" ? "16px" : size === "md" ? "20px" : "24px"}</span>
+                  </button>
+                </Tooltip>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-40">
                 <DropdownMenuLabel>Display Size</DropdownMenuLabel>
