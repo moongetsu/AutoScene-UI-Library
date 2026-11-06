@@ -166,7 +166,7 @@ export function FastScanNotice() {
           }}
           className="glass-strong fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-32px)] w-[min(540px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl focus:outline-none data-[state=open]:animate-pop-in"
         >
-          <Art />
+          <FastScanArt />
           <div className="min-h-0 overflow-y-auto px-7 pt-4 pb-6">
             <div aria-hidden className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
               <p className="eyebrow flex min-w-0 items-center gap-2 text-fg-2 [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-fg-1">
@@ -226,42 +226,67 @@ export function FastScanNotice() {
 }
 
 /**
- * Where the faces are in `public/footage/live-1.webp` (672×281), the footage
- * picker's Tears of Steel still: two Fast Scan is sure of, one it is not.
+ * Who is in `public/footage/live-1.webp`, the footage picker's Tears of Steel
+ * still, in the dialog's own 540×180 (the still is cropped to it). Their names
+ * are the previews' made-up cast. `above`: the name goes over the face, as the
+ * ruler is under it.
  */
 const FACES = [
-  { x: 120, y: 50, w: 108, h: 122, sure: true },
-  { x: 268, y: 38, w: 108, h: 124, sure: true },
-  { x: 512, y: 118, w: 88, h: 96, sure: false },
+  { name: "Thom", x: 107, y: 17, w: 72, h: 98 },
+  { name: "Barley", x: 212, y: 13, w: 78, h: 92 },
+  { name: "Celia", x: 418, y: 75, w: 56, h: 69, above: true },
 ]
-/** A shot's frames along the picture's foot, and the few Fast Scan looks at (one a second). */
-const FRAMES = 64
-const LOOKS = new Set([7, 31, 55])
+/**
+ * A shot's frames along the picture's foot, and the few Fast Scan looks at (one
+ * a second, face or no face): three of them sit under a face.
+ */
+const FRAMES = 65
+const LOOKS = new Set([3, 16, 29, 42, 55])
+/** The ruler's inset, in the picture's width. */
+const RULER_INSET = 0.052
+/** When the sweep passes a frame, as `--animate-scan-sweep` runs it: 200 ms in, 900 ms across. */
+const sweepReaches = (frame: number) =>
+  Math.round(200 + 900 * (RULER_INSET + ((1 - 2 * RULER_INSET) * frame) / (FRAMES - 1)))
 
 /**
- * The picture: a still with the faces Fast Scan finds (one only half sure),
- * fading into the glass, and along its foot a shot's frames as a ruler, the
- * ones it looks at in gold.
+ * The picture: a still fading into the glass and, along its foot, a shot's
+ * frames as a ruler, the ones Fast Scan looks at in gold. A line runs along the
+ * shot once; behind it the faces it found come up, each over its gold frame.
+ * The app also draws a mesh over the faces: it is made for the app's own
+ * picture, which stays out of this repo, so it has no place here.
  */
-function Art() {
+export function FastScanArt() {
   return (
     <div aria-hidden className="relative aspect-[3/1] w-full shrink-0 overflow-hidden">
       <div className="absolute inset-0 [mask-image:linear-gradient(180deg,#000_45%,transparent_100%)]">
         <img src={footageStill("live-1.webp")} alt="" className="absolute inset-0 size-full object-cover" />
-        <svg viewBox="0 0 672 281" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 size-full">
+      </div>
+      <div className="absolute inset-0 motion-safe:animate-scan-wipe">
+        <svg viewBox="0 0 540 180" className="absolute inset-0 size-full">
           {FACES.map((f) => (
-            <Corners key={f.x} {...f} />
+            <Corners key={f.name} {...f} />
           ))}
         </svg>
+        {FACES.map((f) => (
+          <span
+            key={f.name}
+            className="absolute -translate-x-1/2 rounded-[5px] bg-black/60 px-1.5 text-2xs font-medium text-white/90"
+            style={{ left: `${((f.x + f.w / 2) / 540) * 100}%`, top: `${((f.above ? f.y - 21 : f.y + f.h + 4) / 180) * 100}%` }}
+          >
+            {f.name}
+          </span>
+        ))}
       </div>
-      <div className="absolute inset-x-7 bottom-3 flex h-3 items-end justify-between">
+      <span className="absolute inset-y-0 w-px bg-gradient-to-b from-transparent via-accent to-accent opacity-0 shadow-[0_0_10px_rgb(224_180_92/0.7)] motion-safe:animate-scan-sweep" />
+      {/* In percent, so a narrow window keeps each gold frame under its face. */}
+      <div className="absolute inset-x-[5.2%] bottom-3 flex h-3 items-end justify-between">
         {Array.from({ length: FRAMES }, (_, i) =>
           LOOKS.has(i) ? (
             <span
               key={i}
               data-look
               className="h-3 w-[2px] rounded-full bg-accent shadow-[0_0_8px_rgb(224_180_92/0.7)] motion-safe:animate-[fade-in_400ms_var(--ease-out)_backwards]"
-              style={{ animationDelay: `${200 + i * 9}ms` }}
+              style={{ animationDelay: `${sweepReaches(i)}ms` }}
             />
           ) : (
             <span key={i} className="h-1.5 w-px bg-white/25" />
@@ -272,27 +297,24 @@ function Art() {
   )
 }
 
-/** The app's way of marking a found face: gold corners, or thin dashed white ones where it is less sure. */
-function Corners({ x, y, w, h, sure }: { x: number; y: number; w: number; h: number; sure: boolean }) {
-  const l = 14
+/** The app's way of marking a found face: gold corners. */
+function Corners({ x, y, w, h }: { x: number; y: number; w: number; h: number }) {
+  const l = 9
   const d = [
     `M${x} ${y + l}V${y}H${x + l}`,
     `M${x + w - l} ${y}H${x + w}V${y + l}`,
     `M${x + w} ${y + h - l}V${y + h}H${x + w - l}`,
     `M${x + l} ${y + h}H${x}V${y + h - l}`,
   ].join("")
-  return sure ? (
+  return (
     <path
       d={d}
       fill="none"
       stroke="var(--accent)"
-      strokeWidth={2}
+      strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{ filter: "drop-shadow(0 0 4px rgb(224 180 92 / 0.6))" }}
+      style={{ filter: "drop-shadow(0 0 3px rgb(224 180 92 / 0.6))" }}
     />
-  ) : (
-    // Found, but less surely: the cost Fast Scan pays, shown and not only said.
-    <path d={d} fill="none" stroke="rgb(255 255 255 / 0.5)" strokeWidth={1.5} strokeDasharray="3 4" strokeLinecap="round" />
   )
 }

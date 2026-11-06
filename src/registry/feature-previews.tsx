@@ -3,7 +3,7 @@ import { createMemoryHistory, createRootRoute, createRoute, createRouter, Outlet
 import { toast } from "sonner"
 import type { PluginInfo } from "@/bindings"
 import { Copy, Keyboard, PuzzlePiece, Trash } from "@/components/icons"
-import { FastScanNotice } from "@/components/shell/FastScanNotice"
+import { FastScanArt, FastScanNotice } from "@/components/shell/FastScanNotice"
 import { FeatureFrame } from "@/components/showcase/FeatureFrame"
 import { Button } from "@/components/ui/button"
 import { ContextMenuItem } from "@/components/ui/context-menu"
@@ -52,7 +52,6 @@ import {
   STILL_CREDIT,
   demoFrameStore,
   demoTimecode,
-  still,
 } from "./demo-data"
 import { PreviewPlace } from "./preview-place"
 
@@ -191,7 +190,7 @@ function FastScanDemo() {
   }
   return (
     <div className="relative overflow-hidden rounded-2xl border border-white/[0.08]">
-      <img src={still("live-1.webp")} alt="" className="aspect-[3/1] w-full object-cover opacity-80" />
+      <FastScanArt />
       <div className="flex items-center justify-between gap-4 bg-[#0c0c0f] p-4">
         <span className="display text-2xl text-fg-1">Fast Scan is on</span>
         <Button variant="cta" size="sm" onClick={open}>
