@@ -23,17 +23,17 @@ For an interaction, step its own recipe the same way: **more** adds `blur.surfac
 
 | Asked for                                             | Life       | Speed                 | Start from                                                                |
 | ----------------------------------------------------- | ---------- | --------------------- | ------------------------------------------------------------------------- |
-| snappy, quick, responsive · vif, réactif, nerveux     | 2–7%       | 100–140ms             | `spring.press` (7%, 104ms), `spring.pop` (4%, 135ms)                      |
+| snappy, quick, responsive · vif, réactif, nerveux     | 2-7%       | 100-140ms             | `spring.press` (7%, 104ms), `spring.pop` (4%, 135ms)                      |
 | crisp, precise, tight · net, sec, précis              | none       | ~150ms                | `spring.highlight` (151ms); a tween: `transition.menu`                    |
 | smooth, fluid, silky · fluide, doux, soyeux           | under 0.5% | ~190ms                | `spring.selection` (188ms), `spring.height`                               |
 | gentle, light · léger, délicat                        | none       | ~230ms                | `spring.slide` (228ms), with a shorter travel                             |
-| alive, natural, organic · vivant, naturel, organique  | ~4%        | 160–190ms             | `spring.toast` (4%, 160ms), `spring.entrance` (4%, 187ms)                 |
+| alive, natural, organic · vivant, naturel, organique  | ~4%        | 160-190ms             | `spring.toast` (4%, 160ms), `spring.entrance` (4%, 187ms)                 |
 | calm, elegant, premium · posé, élégant, haut de gamme | none       | ~330ms                | `spring.dialog` (327ms)                                                   |
 | heavy, solid · lourd, massif                          | none       | 400ms+, slow to start | `{ type: 'spring', visualDuration: 0.5, bounce: 0 }`                      |
-| bouncy, playful, fun · rebondi, joueur, fun           | 10–14%     | 100–160ms             | `spring.bounce` (12%, 160ms), `spring.checkPop` (14%, 98ms)               |
+| bouncy, playful, fun · rebondi, joueur, fun           | 10-14%     | 100-160ms             | `spring.bounce` (12%, 160ms), `spring.checkPop` (14%, 98ms)               |
 | elastic, cartoon · élastique, cartoon                 | 20%+       | 200ms+                | `{ type: 'spring', visualDuration: 0.5, bounce: 0.5 }`, rare moments only |
 | lazy, dreamy · paresseux, rêveur                      | none       | ~1s+                  | `spring.number` (1.25s)                                                   |
-| instant, no animation · instantané, sans animation    | —          | 0                     | `transition.instant`                                                      |
+| instant, no animation · instantané, sans animation    | -          | 0                     | `transition.instant`                                                      |
 
 Fades and color changes stay tweens whatever the word: `transition.fade`, `transition.color`, `transition.reveal`. A word changes how things move, not that they fade.
 
