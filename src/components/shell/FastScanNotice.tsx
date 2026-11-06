@@ -227,14 +227,15 @@ export function FastScanNotice() {
 
 /**
  * Who is in `public/footage/live-1.webp`, the footage picker's Tears of Steel
- * still, in the dialog's own 540×180 (the still is cropped to it). Their names
- * are the previews' made-up cast. `above`: the name goes over the face, as the
- * ruler is under it.
+ * still, in the dialog's own 540×180 (the still is cropped to it): the boxes
+ * YuNet, Fast Scan's own detector, found in this picture, with a little room
+ * around them. Their names are the previews' made-up cast. `above`: the name
+ * goes over the face, as the ruler is under it.
  */
 const FACES = [
-  { name: "Thom", x: 107, y: 17, w: 72, h: 98 },
-  { name: "Barley", x: 212, y: 13, w: 78, h: 92 },
-  { name: "Celia", x: 418, y: 75, w: 56, h: 69, above: true },
+  { name: "Thom", x: 107, y: 17, w: 74, h: 103 },
+  { name: "Barley", x: 212, y: 18, w: 65, h: 90 },
+  { name: "Celia", x: 415, y: 78, w: 59, h: 78, above: true },
 ]
 /**
  * A shot's frames along the picture's foot, and the few Fast Scan looks at (one
