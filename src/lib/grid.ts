@@ -1,7 +1,29 @@
+/** The grid of big cards: a library's projects, the plugins. */
+export const CARD_GRID = "grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-x-6 gap-y-8"
+
 /** Columns that fit `width` with at least `min` px each, and the width each gets. */
 export function gridColumns(width: number, min: number, gap: number): { columns: number; itemWidth: number } {
   const columns = Math.max(1, Math.floor((width + gap) / (min + gap)))
   return { columns, itemWidth: Math.max(0, (width - gap * (columns - 1)) / columns) }
+}
+
+/** A grid's rows: pictures, or the detail row under the row that holds its item. */
+export type GridRow = { kind: "items"; first: number; end: number } | { kind: "detail" }
+
+/** The rows of `count` items in `columns` columns, with a detail row after the row holding `detailIndex`. */
+export function gridRows(count: number, columns: number, detailIndex?: number | null): GridRow[] {
+  const rows: GridRow[] = []
+  for (let first = 0; first < count; first += columns) {
+    const end = Math.min(first + columns, count)
+    rows.push({ kind: "items", first, end })
+    if (detailIndex != null && detailIndex >= first && detailIndex < end) rows.push({ kind: "detail" })
+  }
+  return rows
+}
+
+/** How far to scroll to keep a row in place that moved from `before` (unknown: it wasn't on screen) to `after`. */
+export function anchorShift(before: number | undefined, after: number): number {
+  return before === undefined ? 0 : after - before
 }
 
 /**
