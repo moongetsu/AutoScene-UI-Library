@@ -1,18 +1,19 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react"
+import { isEditable } from "@/plugin-kit/keys"
 import { layerOpen } from "./layers"
 import { altKey, isMac, modKey, shiftKey } from "./platform"
 
 /**
  * Every keyboard shortcut of the app, as data: the handlers (`useShortcuts`),
- * Settings → Shortcuts and the player's Keys card all read these lists, so
+ * Settings → Shortcuts and the Player keys dialog all read these lists, so
  * what is documented is what works. The lists hold AutoScene's own keys; the
- * keymap (`setKeymap`) says which keys do what now — an editor's preset and
+ * keymap (`setKeymap`) says which keys do what now - an editor's preset and
  * the person's own changes, from Settings → Shortcuts.
  */
 
 /**
  * A key press that triggers a shortcut. `key` is `KeyboardEvent.key` in lower
- * case — a digit means the key that types it on a US layout (see `matches`);
+ * case - a digit means the key that types it on a US layout (see `matches`);
  * `mod` is Ctrl (⌘ on macOS).
  */
 export type Binding = { key: string; mod?: boolean; shift?: boolean; alt?: boolean }
@@ -21,7 +22,7 @@ export type Binding = { key: string; mod?: boolean; shift?: boolean; alt?: boole
 export type Slot = { label?: string; bindings: Binding[] }
 
 /** Where a shortcut works: everywhere, or on one kind of page. */
-export type Scope = "global" | "player" | "review" | "cast" | "faces" | "pack"
+export type Scope = "global" | "player" | "review" | "cast" | "faces" | "shots" | "pack"
 
 export type Shortcut<Id extends string = string> = {
   scope: Scope
@@ -32,7 +33,7 @@ export type Shortcut<Id extends string = string> = {
   slots: Slot[]
   /** Its keys can't be changed: a range of keys, or what they mean to a focused shot or a selection. */
   fixed?: boolean
-  /** Shown instead of the keys, e.g. ["1 – 9"]. */
+  /** Shown instead of the keys, e.g. ["1 - 9"]. */
   caps?: string[]
 }
 
@@ -136,7 +137,7 @@ export const REVIEW_SHORTCUTS = scoped<ReviewId>("review", [
     label: "It's character 1 to 9",
     slots: one(...["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((d) => key(d))),
     fixed: true,
-    caps: ["1 – 9"],
+    caps: ["1 - 9"],
   },
 ])
 
@@ -154,6 +155,15 @@ export type CastId = "selectAll" | "clearSelection"
 export const CAST_SHORTCUTS = scoped<CastId>("cast", [
   { id: "selectAll", label: "Select every character", slots: one(key("a", { mod: true })), fixed: true },
   { id: "clearSelection", label: "Clear the selection", slots: one(key("escape")), fixed: true },
+])
+
+export type ShotsId = "toggle" | "watch" | "close"
+
+/** On a character's shots (the first two on the focused stack). */
+export const SHOTS_SHORTCUTS = scoped<ShotsId>("shots", [
+  { id: "toggle", label: "Show or hide the shots of a stack", slots: one(key(" ")), fixed: true },
+  { id: "watch", label: "Watch from the stack's first shot", slots: one(key("enter")), fixed: true },
+  { id: "close", label: "Close the open stack", slots: one(key("escape")), fixed: true },
 ])
 
 export type PackId = "toggle" | "watch" | "export"
@@ -181,6 +191,7 @@ export const SHORTCUT_GROUPS: { title: string; description: string; shortcuts: S
     shortcuts: CAST_SHORTCUTS,
   },
   { title: "A character's faces", description: "In a character's Faces view.", shortcuts: FACES_SHORTCUTS },
+  { title: "A character's shots", description: "In a character's Shots view.", shortcuts: SHOTS_SHORTCUTS },
   { title: "Scenepack", description: "While picking a character's shots.", shortcuts: PACK_SHORTCUTS },
 ]
 
@@ -193,6 +204,7 @@ export type ShortcutRef =
   | `review.${ReviewId}`
   | `cast.${CastId}`
   | `faces.${FacesId}`
+  | `shots.${ShotsId}`
   | `pack.${PackId}`
 
 const BY_REF = new Map(ALL_SHORTCUTS.map((s) => [`${s.scope}.${s.id}`, s]))
@@ -334,7 +346,7 @@ export function slotCaps(s: Shortcut, slot: number, km: Keymap = keymap): string
 
 /**
  * All keys of `s` as groups of caps: one group when they share their
- * modifiers ("Shift ← →"), else one per key — an empty group for a key the
+ * modifiers ("Shift ← →"), else one per key - an empty group for a key the
  * person took away, so the others keep their meaning. None without any key.
  */
 export function capGroups(s: Shortcut, km: Keymap = keymap): string[][] {
@@ -442,11 +454,6 @@ export function bindingOf(e: KeyboardEvent): Binding | null {
   return b
 }
 
-/** A field that takes typing: its keys are its own. */
-export function isEditable(t: EventTarget | null): boolean {
-  return t instanceof Element && t.closest("input, textarea, select, [contenteditable=''], [contenteditable='true']") != null
-}
-
 /**
  * Return `false` from a handler to let the key through (it wasn't meant for
  * it). `slot` says which of the shortcut's keys it was (0: previous, 1: next).
@@ -457,7 +464,7 @@ export type ShortcutHandlers<Id extends string> = Partial<Record<Id, (e: Keyboar
  * Answer `shortcuts` while mounted (and `enabled`), with the keys the keymap
  * gives them at the moment of the press. Keys belong to a field being typed
  * in, to an open dialog or menu, and to a focused button (Space and Enter
- * press it) — except the ids in `anywhere` (the palette and the activity
+ * press it) - except the ids in `anywhere` (the palette and the activity
  * drawer, which open and close a layer of their own). A held key repeats
  * only where `repeat` is set (stepping through frames): an answer must never
  * fire twice because a key was held a little long.

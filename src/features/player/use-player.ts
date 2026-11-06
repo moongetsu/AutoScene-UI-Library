@@ -19,7 +19,7 @@ type RvfcVideo = HTMLVideoElement & {
  * again on every video frame.
  *
  * `rate` is the shuttle's: 0 stopped, 1 playing, 2 or 4 fast, below 0
- * backwards — played as a run of seeks, smooth on intra-frame previews and
+ * backwards - played as a run of seeks, smooth on intra-frame previews and
  * slower on long-GOP files played directly.
  */
 export function usePlayer(clock: FrameClock | null) {

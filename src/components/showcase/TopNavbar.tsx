@@ -1,10 +1,11 @@
 import * as React from "react"
-import { GithubLogo, MagnifyingGlass, Check, List, X } from "@phosphor-icons/react"
+import { GithubLogo, MagnifyingGlass, Check, List, X } from "@/components/icons"
 import { motion } from "motion/react"
 import { AutoSceneMark } from "@/components/brand/AutoSceneMark"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { SPRING_FAST } from "@/lib/motion"
+import { Tooltip } from "@/components/ui/tooltip"
 
 interface TopNavbarProps {
   activeView: "registry" | "showcase"
@@ -77,15 +78,16 @@ export function TopNavbar({
         {/* Right: Search Icon Button + View Switcher + GitHub + Get Started */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {/* Right Placed Search Icon Button */}
-          <button
-            type="button"
-            onClick={onOpenCommandPalette}
-            className="size-9 rounded-full border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.08] hover:border-white/20 transition-all cursor-pointer shadow-sm group"
-            title="Search components (⌘K)"
-            aria-label="Open command palette search"
-          >
-            <MagnifyingGlass className="size-4 group-hover:text-accent transition-colors" />
-          </button>
+          <Tooltip label="Search components (⌘K)">
+            <button
+              type="button"
+              onClick={onOpenCommandPalette}
+              className="size-9 rounded-full border border-white/[0.08] bg-white/[0.03] flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.08] hover:border-white/20 transition-all cursor-pointer shadow-sm group"
+              aria-label="Open command palette search"
+            >
+              <MagnifyingGlass className="size-4 group-hover:text-accent transition-colors" />
+            </button>
+          </Tooltip>
 
           {/* Registry vs Showcase View Switcher */}
           <div className="relative flex items-center gap-1 rounded-full bg-white/[0.04] p-1 border border-white/[0.08]">
@@ -132,14 +134,14 @@ export function TopNavbar({
             href="https://github.com/moongetsu/AutoScene-UI-Library"
             target="_blank"
             rel="noreferrer"
-            className="size-8 rounded-lg flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.04] transition-colors"
+            className="hidden size-8 rounded-lg sm:flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.04] transition-colors"
             aria-label="GitHub Repository"
           >
             <GithubLogo className="size-4 sm:size-5" />
           </a>
 
           {/* CLI Copy / CTA Button */}
-          <Button variant="primary" size="sm" onClick={copyCli} className="text-xs px-2.5 sm:px-3.5">
+          <Button variant="primary" size="sm" onClick={copyCli} className="hidden sm:inline-flex text-xs px-2.5 sm:px-3.5">
             {copied ? (
               <>
                 <Check className="size-3.5 text-accent mr-1 animate-pop-in" />

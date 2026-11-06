@@ -222,8 +222,8 @@ const HINT_MS = 1800
 
 /**
  * One key of a shortcut: a click listens for the new one (Esc stops, Tab
- * moves on). While it listens it has every key to itself — no shortcut and
- * no menu answers — and only modifiers keep it waiting, shown as held.
+ * moves on). While it listens it has every key to itself - no shortcut and
+ * no menu answers - and only modifiers keep it waiting, shown as held.
  */
 function KeySlot({
   s,

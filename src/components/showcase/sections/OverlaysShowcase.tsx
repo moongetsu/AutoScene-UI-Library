@@ -1,5 +1,7 @@
-import { DotsThree, FolderOpen, Play, Trash } from "@phosphor-icons/react"
+import { DotsThree, FolderOpen, Play, Trash } from "@/components/icons"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { Tooltip } from "@/components/ui/tooltip"
 import {
   DropdownMenu,
@@ -7,12 +9,18 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu"
 import { toast, CleanToastCapsule } from "@/components/ui/toaster"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
 export function OverlaysShowcase() {
+  const [asking, setAsking] = useState<"done" | "failed" | null>(null)
+  const [hinted, setHinted] = useState(true)
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
@@ -163,6 +171,74 @@ toast.error("Scene Render Failed", {
             snippet="https://moongetsu.github.io/AutoScene-UI-Library/"
           />
         </div>
+      </ShowcaseSectionStage>
+
+      {/* Confirm dialog */}
+      <ShowcaseSectionStage
+        title="Confirm Dialog"
+        description="Asks before something goes. While the answer runs it holds: Esc, a click outside and Cancel do nothing, and the cross is gone. Done, it closes. Failed, it stays open for another try and a toast says why."
+        code={`<ConfirmDialog
+  open={open}
+  onOpenChange={setOpen}
+  title="Remove this project?"
+  description="Its shots go with it."
+  answer="Remove"
+  icon={<Trash />}
+  failure="Couldn't remove the project"
+  onConfirm={remove}
+/>`}
+      >
+        <div className="flex flex-wrap justify-center gap-3">
+          <Button variant="danger" onClick={() => setAsking("done")}>
+            <Trash /> Remove the project…
+          </Button>
+          <Button onClick={() => setAsking("failed")}>One that fails…</Button>
+        </div>
+        <ConfirmDialog
+          open={asking !== null}
+          onOpenChange={(open) => !open && setAsking(null)}
+          title="Remove this project?"
+          description="Its shots go with it. The video files stay where they are."
+          answer="Remove"
+          icon={<Trash />}
+          failure="Couldn't remove the project"
+          onConfirm={() =>
+            new Promise((done, fail) =>
+              setTimeout(() => (asking === "failed" ? fail({ code: "io", message: "The disk is full." }) : done(null)), 1200),
+            )
+          }
+        />
+      </ShowcaseSectionStage>
+
+      {/* Submenus and hints */}
+      <ShowcaseSectionStage
+        title="Submenus and Hints"
+        description="An entry can open a list of its own, and a choice to tick can say what it does on a line under its name."
+        code={`<DropdownMenuCheckboxItem hint="Shots without a face count too.">
+  Body matches
+</DropdownMenuCheckboxItem>
+<DropdownMenuSub>
+  <DropdownMenuSubTrigger>Move to</DropdownMenuSubTrigger>
+  <DropdownMenuSubContent>...</DropdownMenuSubContent>
+</DropdownMenuSub>`}
+      >
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button>Options</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-64">
+            <DropdownMenuCheckboxItem checked={hinted} onCheckedChange={setHinted} hint="Shots without a face count too.">
+              Body matches
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>Move to</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem>Thom</DropdownMenuItem>
+                <DropdownMenuItem>Celia</DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </ShowcaseSectionStage>
     </div>
   )

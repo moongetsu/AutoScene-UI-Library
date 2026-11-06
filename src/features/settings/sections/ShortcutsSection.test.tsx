@@ -151,7 +151,7 @@ describe("ShortcutsSection", () => {
 
   it("shows the keys that stay without a way to change them", () => {
     render(<ShortcutsSection />, { wrapper })
-    expect(screen.getByText("1 – 9")).toBeTruthy()
+    expect(screen.getByText("1 - 9")).toBeTruthy()
     expect(screen.queryByRole("button", { name: /^It's character 1 to 9/ })).toBeNull()
   })
 })

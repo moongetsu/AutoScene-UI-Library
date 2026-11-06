@@ -83,9 +83,14 @@
               "PickCharacter",
               "Shelf",
               "NotReady",
-              "Hero"
+              "Hero",
+              "Banner",
+              "ConfirmDialog",
+              "CleanToastCapsule",
+              "ShowcasePageHeader",
+              "ShowcaseSectionStage"
             ],
-            "message": "Components named `title` render a heading; anything else would be the browser's tooltip — use <Tooltip>."
+            "message": "Components named `title` render a heading; anything else would be the browser's tooltip - use <Tooltip>."
           }
         ]
       }

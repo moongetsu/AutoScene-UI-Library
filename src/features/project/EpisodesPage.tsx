@@ -217,7 +217,7 @@ function EpisodeRow({
               {v && (
                 <>
                   {" "}
-                  · {v.width}×{v.height} · {m.fps ? formatFps(m.fps) : "–"} · {codecLabel(v.codec)}
+                  · {v.width}×{v.height} · {m.fps ? formatFps(m.fps) : "-"} · {codecLabel(v.codec)}
                 </>
               )}
             </div>
@@ -247,7 +247,7 @@ function EpisodeRow({
                 options={audio.map(audioOption)}
               />
             ) : (
-              <span className="block truncate text-sm text-fg-3">{!m.info ? "–" : audio[0] ? audioLabel(audio[0]) : "No audio"}</span>
+              <span className="block truncate text-sm text-fg-3">{!m.info ? "-" : audio[0] ? audioLabel(audio[0]) : "No audio"}</span>
             )}
           </div>
 

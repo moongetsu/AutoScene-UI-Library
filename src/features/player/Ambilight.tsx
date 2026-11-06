@@ -9,7 +9,7 @@ const AMBILIGHT_MS = 100
  * The picture's glow in the room: a tiny copy of the current frame, blurred
  * far beyond the screen's edges. It follows the frame about ten times a
  * second (a trailing draw catches the frame playback stops on), drawing
- * straight from the frame store — nothing else draws again for it.
+ * straight from the frame store - nothing else draws again for it.
  */
 export function Ambilight({ video, store }: { video: React.RefObject<HTMLVideoElement | null>; store: FrameStore }) {
   const canvas = useRef<HTMLCanvasElement>(null)

@@ -16,13 +16,15 @@ import { EpisodesPage } from "@/features/project/EpisodesPage"
 import { ExportsPage } from "@/features/project/ExportsPage"
 import { OverviewPage } from "@/features/project/OverviewPage"
 import { CharacterCrumb, MediaCrumb, PackCrumb, ProjectCrumb } from "@/features/project/crumbs"
-import { PluginCrumb } from "@/features/plugins/PluginSettingsSection"
+import { PluginCrumb, PluginSettingsPage } from "@/features/plugins/PluginSettingsPage"
+import { PluginsPage } from "@/features/plugins/PluginsPage"
 import { SettingsPage } from "@/features/settings/SettingsPage"
 import { settingsLabel } from "@/features/settings/sections"
 import { NotFound } from "@/features/not-found"
 import { PackPage } from "@/features/pack/PackPage"
 import { RouteError } from "@/features/route-error"
-import { type PluginSection, type SettingsSection, isPluginSection, settingsSection } from "@/lib/actions"
+import { type LegacySettingsSection, type SettingsSection, legacySettingsTarget, settingsSection } from "@/lib/actions"
+import { followPlaces } from "@/lib/places"
 import { ShowcaseLayout, StudioRegistryLayout } from "@/components/showcase"
 
 declare module "@tanstack/react-router" {
@@ -41,6 +43,24 @@ const libraryRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
   component: StudioRegistryLayout,
+})
+
+const pluginsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/plugins",
+  staticData: { crumb: "Plugins" },
+  // Installed, or what the catalog offers (`?view=browse`).
+  validateSearch: (s: Record<string, unknown>): { view?: "browse" } => (s.view === "browse" ? { view: "browse" } : {}),
+  component: PluginsPage,
+})
+
+// A plugin's settings: its own screen under Plugins. Whether it is
+// installed shows there.
+const pluginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/plugins/$id",
+  staticData: { crumb: (p) => <PluginCrumb id={p.id} /> },
+  component: PluginSettingsPage,
 })
 
 const projectRoute = createRoute({
@@ -119,21 +139,28 @@ const settingsIndexRoute = createRoute({
   },
 })
 
+// Plugins were a section of Settings, and so were each plugin's settings.
+// They have their own place now, and an old link goes there. The parse
+// keeps what such a link names, since it runs before `beforeLoad` sees it.
 const settingsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/settings/$section",
-  staticData: {
-    crumb: (p) => (isPluginSection(p.section) ? <PluginCrumb id={p.section.slice(7)} /> : `Settings · ${settingsLabel(p.section)}`),
-  },
+  staticData: { crumb: (p) => `Settings · ${settingsLabel(p.section)}` },
   params: {
-    parse: (p): { section: SettingsSection | PluginSection } => ({ section: settingsSection(p.section) }),
+    parse: (p): { section: SettingsSection | LegacySettingsSection } => ({ section: settingsSection(p.section) }),
     stringify: (p) => ({ section: p.section }),
+  },
+  beforeLoad: ({ params }) => {
+    const to = legacySettingsTarget(params.section)
+    if (to) throw redirect({ ...to, replace: true })
   },
   component: SettingsPage,
 })
 
-const routeTree = rootRoute.addChildren([
+export const routeTree = rootRoute.addChildren([
   libraryRoute,
+  pluginsRoute,
+  pluginRoute,
   projectRoute.addChildren([
     projectIndexRoute,
     episodesRoute,
@@ -168,3 +195,6 @@ export const router = createRouter({
   defaultNotFoundComponent: NotFound,
   defaultErrorComponent: RouteError,
 })
+
+// Where a plugin page was opened from, which its Close goes back to.
+followPlaces(router.history)

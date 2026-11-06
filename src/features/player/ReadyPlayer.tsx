@@ -7,6 +7,7 @@ import {
   Copy,
   FilmStrip,
   FolderOpen,
+  Keyboard,
   Pause,
   Play,
   Scissors,
@@ -33,11 +34,9 @@ import { NO_MARKS, useMarks } from "@/state/marks"
 import { usePlayback } from "@/state/playback"
 import { useUi } from "@/state/ui"
 import { Ambilight } from "./Ambilight"
-import { CharactersPanel } from "./panels/CharactersPanel"
-import { ClipCard } from "./panels/ClipCard"
-import { KeysCard } from "./panels/KeysCard"
-import { ShotsPanel } from "./panels/ShotsPanel"
-import { SourceCard } from "./panels/SourceCard"
+import { DetailsPanel } from "./panels/DetailsPanel"
+import { PlayerKeysDialog } from "./panels/PlayerKeysDialog"
+import { PlayerPicture } from "./Picture"
 import type { ShuttleKey } from "./shuttle"
 import { Timeline } from "./timeline/Timeline"
 import { Transport } from "./Transport"
@@ -89,6 +88,7 @@ export function ReadyPlayer({
   const inFrame = marks.in
   const outFrame = marks.out
   const [exportOpen, setExportOpen] = useState(false)
+  const [keysOpen, setKeysOpen] = useState(false)
   const [gotoOpen, setGotoOpen] = useState(false)
   const { volume, muted, setVolume, toggleMute } = usePlayback()
   const { data: segments } = useSegments(pid, m.id, m.shots === "ready")
@@ -126,7 +126,7 @@ export function ReadyPlayer({
     start,
     end,
     name: null,
-    summary: `${m.label ? `${m.label} · ` : ""}${tc(start)} – ${tc(end - 1)} · ${formatDuration(seconds)} (${length} frames)`,
+    summary: `${m.label ? `${m.label} · ` : ""}${tc(start)} - ${tc(end - 1)} · ${formatDuration(seconds)} (${length} frames)`,
   }
   // One mark alone runs the clip to the episode's edge: say so before an
   // export of most of an episode starts (with the key that marks the other).
@@ -311,6 +311,9 @@ export function ReadyPlayer({
       <ContextMenuItem onSelect={() => useUi.getState().toggleInspector()}>
         <SidebarSimple mirrored /> {inspector ? "Hide details" : "Show details"}
       </ContextMenuItem>
+      <ContextMenuItem onSelect={() => setKeysOpen(true)}>
+        <Keyboard /> Player keys…
+      </ContextMenuItem>
       <ContextMenuItem onSelect={showFile}>
         <FolderOpen /> Show in folder
       </ContextMenuItem>
@@ -321,25 +324,20 @@ export function ReadyPlayer({
     <div className="flex min-h-0 flex-1">
       <div className="flex min-w-0 flex-1 flex-col">
         <ContextArea menu={playerMenu}>
-          <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-10 pt-8 pb-5" onClick={toggle}>
+          {/* The stage is the picture's size container: it fills it at its own shape. */}
+          <div
+            className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden px-6 pt-4 pb-3 [container-type:size]"
+            onClick={toggle}
+          >
             <Ambilight video={videoRef} store={store} />
             {/* The glow fades out before the controls. */}
             <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-inset to-transparent" />
-            <video
-              ref={videoRef}
-              src={assetUrl(map.src)}
-              preload="auto"
-              // The asset protocol answers with CORS headers; keeps frames readable for canvas grabs.
-              crossOrigin="anonymous"
-              playsInline
-              disablePictureInPicture
-              className="relative max-h-full max-w-full rounded-2xl bg-black shadow-[0_50px_120px_-40px_rgb(0_0_0/1),0_0_0_1px_rgb(255_255_255/0.07)]"
-            />
+            <PlayerPicture videoRef={videoRef} src={assetUrl(map.src)} video={m.info?.video} />
           </div>
         </ContextArea>
 
-        {/* Secondary readouts fold away as the player column narrows. */}
-        <div className="@container relative shrink-0 px-6 pb-5">
+        {/* The transport shows less as the player column narrows (its tier). */}
+        <div className="relative shrink-0 px-6 pb-4">
           <ContextArea menu={playerMenu}>
             <div>
               <Transport
@@ -358,9 +356,10 @@ export function ReadyPlayer({
                 onToggle={toggle}
                 inFrame={inFrame}
                 outFrame={outFrame}
+                length={length}
                 onMarkIn={() => markIn()}
                 onMarkOut={() => markOut()}
-                showExport={!inspector}
+                onClear={clear}
                 canExport={canExport}
                 onExport={openExport}
                 volume={volume}
@@ -392,41 +391,29 @@ export function ReadyPlayer({
         </div>
       </div>
 
-      {inspector && (
-        <aside className="flex w-[340px] shrink-0 flex-col gap-3 overflow-y-auto border-l border-white/[0.06] bg-canvas p-3">
-          <ClipCard
-            inFrame={inFrame}
-            outFrame={outFrame}
-            length={length}
-            tc={tc}
-            canExport={canExport}
-            onMarkIn={() => markIn()}
-            onMarkOut={() => markOut()}
-            onGo={seek}
-            onClear={clear}
-            onExport={openExport}
-            onCopy={copyTimecodes}
-          />
-          <ShotsPanel pid={pid} media={m} segments={shots} store={store} tc={tc} onMark={() => markShot()} onGo={seek} />
-          <CharactersPanel
-            pid={pid}
-            media={m}
-            lanes={lanes}
-            segments={shots}
-            store={store}
-            focus={focus}
-            onFocus={setFocus}
-            onGo={(f) => {
-              pause()
-              seek(f)
-            }}
-          />
-          <SourceCard pid={pid} media={m} fps={fps} />
-          <KeysCard />
-        </aside>
-      )}
+      <DetailsPanel
+        open={inspector}
+        pid={pid}
+        media={m}
+        fps={fps}
+        frames={clock.frames}
+        lanes={lanes}
+        segments={shots}
+        store={store}
+        tc={tc}
+        focus={focus}
+        onFocus={setFocus}
+        onMarkShot={() => markShot()}
+        onSeek={seek}
+        onGo={(f) => {
+          pause()
+          seek(f)
+        }}
+        onKeys={() => setKeysOpen(true)}
+      />
 
       <ExportDialog projectId={pid} clips={[clip]} notice={oneSided} open={exportOpen} onOpenChange={setExportOpen} />
+      <PlayerKeysDialog open={keysOpen} onOpenChange={setKeysOpen} />
     </div>
   )
 }

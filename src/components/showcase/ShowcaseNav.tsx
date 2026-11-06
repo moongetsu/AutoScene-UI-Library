@@ -4,12 +4,13 @@ import {
   VideoCamera,
   MagnifyingGlass,
   GithubLogo,
-} from "@phosphor-icons/react"
+} from "@/components/icons"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
 import { SPRING_FAST } from "@/lib/motion"
 import { TOTAL_UI_COMPONENTS_COUNT } from "@/registry/discovery"
 import { DISCOVERED_SECTIONS, type ShowcaseSectionMeta } from "@/registry/showcase-discovery"
+import { Tooltip } from "@/components/ui/tooltip"
 
 export type ShowcaseSectionId = string
 
@@ -164,32 +165,34 @@ export function ShowcaseNav({ activeSection, onSelect, isOpen, onClose }: Showca
         <div className="flex items-center gap-2.5">
           {/* Overlapping Avatar Stack */}
           <div className="flex -space-x-2 items-center">
-            <a
-              href="https://github.com/moongetsu"
-              target="_blank"
-              rel="noreferrer"
-              className="relative z-10 block rounded-full ring-2 ring-[#09090c] hover:z-30 transition-transform hover:scale-110"
-              title="Moongetsu"
-            >
-              <img
-                src="https://avatars.githubusercontent.com/u/111883135?v=4"
-                alt="Moongetsu"
-                className="size-7 rounded-full object-cover"
-              />
-            </a>
-            <a
-              href="https://github.com/tcmmi"
-              target="_blank"
-              rel="noreferrer"
-              className="relative z-20 block rounded-full ring-2 ring-[#09090c] hover:z-30 transition-transform hover:scale-110"
-              title="tcmmi"
-            >
-              <img
-                src="https://avatars.githubusercontent.com/u/119017174?v=4"
-                alt="tcmmi"
-                className="size-7 rounded-full object-cover"
-              />
-            </a>
+            <Tooltip label="Moongetsu">
+              <a
+                href="https://github.com/moongetsu"
+                target="_blank"
+                rel="noreferrer"
+                className="relative z-10 block rounded-full ring-2 ring-[#09090c] hover:z-30 transition-transform hover:scale-110"
+              >
+                <img
+                  src="https://avatars.githubusercontent.com/u/111883135?v=4"
+                  alt="Moongetsu"
+                  className="size-7 rounded-full object-cover"
+                />
+              </a>
+            </Tooltip>
+            <Tooltip label="tcmmi">
+              <a
+                href="https://github.com/tcmmi"
+                target="_blank"
+                rel="noreferrer"
+                className="relative z-20 block rounded-full ring-2 ring-[#09090c] hover:z-30 transition-transform hover:scale-110"
+              >
+                <img
+                  src="https://avatars.githubusercontent.com/u/119017174?v=4"
+                  alt="tcmmi"
+                  className="size-7 rounded-full object-cover"
+                />
+              </a>
+            </Tooltip>
           </div>
 
           <div className="flex flex-col text-xs leading-tight">

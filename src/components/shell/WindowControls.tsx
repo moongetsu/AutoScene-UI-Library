@@ -17,7 +17,7 @@ function useMaximized(): boolean {
   return maximized
 }
 
-/** The window itself — what its caption's right-click offers on Windows. */
+/** The window itself - what its caption's right-click offers on Windows. */
 export function WindowItems({ kit }: { kit: MenuKit }) {
   const maximized = useMaximized()
   const { Item } = kit

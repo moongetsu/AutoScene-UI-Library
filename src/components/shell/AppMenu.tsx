@@ -1,7 +1,7 @@
 import type * as React from "react"
 import { Fragment, isValidElement, useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { useCanGoBack } from "@tanstack/react-router"
-import { ContextMenu as M } from "radix-ui"
+import { ContextMenu as M } from "@animate-ui/react/primitives/radix-ui"
 import {
   ArrowCounterClockwise,
   ArrowLeft,
@@ -10,6 +10,7 @@ import {
   Keyboard,
   MagnifyingGlass,
   Plus,
+  PuzzlePiece,
   Queue,
   SidebarSimple,
   SquaresFour,
@@ -27,6 +28,7 @@ import { layerOpen } from "@/lib/layers"
 import { copyText } from "@/lib/os"
 import { modKey } from "@/lib/platform"
 import { useShortcutKeys } from "@/lib/shortcuts"
+import { leavePage, pageOpen } from "@/lib/places"
 import { textFieldAt } from "@/lib/text-edit"
 import { useTextMenu } from "@/state/text-menu"
 import { useUi } from "@/state/ui"
@@ -42,14 +44,16 @@ type Opened = {
 /**
  * The window's one context menu. A right-click gathers what every area it
  * went through offers (`ContextArea`, innermost first): the element's own
- * actions come first, the app's after them — the short tail (Command
+ * actions come first, the app's after them - the short tail (Command
  * palette, Settings) under an element, the full list on a page's empty
  * space. In a text field it is the text menu (`TextMenu`) instead; in a
  * dialog only what the dialog's areas offer, without the app's entries.
  * The browser's own menu never shows (while developing, Shift+right-click
- * still opens it, for Inspect).
+ * still opens it, for Inspect). `appEntries={false}` (this library's showcase,
+ * which has no app around it): only what the areas offer, and the browser's
+ * menu stays outside them.
  */
-export function AppMenu({ children }: { children: React.ReactElement }) {
+export function AppMenu({ children, appEntries = true }: { children: React.ReactElement; appEntries?: boolean }) {
   const [opened, setOpened] = useState<Opened | null>(null)
   const lastInput = useRef<"pointer" | "key">("pointer")
   /** Where the focus goes back to when the menu closes (keyboard and dialogs only). */
@@ -63,7 +67,7 @@ export function AppMenu({ children }: { children: React.ReactElement }) {
       if (e.key === "ContextMenu" || (e.key === "F10" && e.shiftKey)) lastInput.current = "key"
     }
     const onContextMenu = (e: MouseEvent) => {
-      if (!(import.meta.env.DEV && e.shiftKey)) e.preventDefault()
+      if (appEntries && !(import.meta.env.DEV && e.shiftKey)) e.preventDefault()
     }
     window.addEventListener("pointerdown", onPointer, true)
     window.addEventListener("keydown", onKey, true)
@@ -73,7 +77,7 @@ export function AppMenu({ children }: { children: React.ReactElement }) {
       window.removeEventListener("keydown", onKey, true)
       window.removeEventListener("contextmenu", onContextMenu)
     }
-  }, [])
+  }, [appEntries])
 
   return (
     // Closed, it forgets the right-click: a touch long-press (no right-click)
@@ -100,14 +104,14 @@ export function AppMenu({ children }: { children: React.ReactElement }) {
           const areas = areasOf(e.nativeEvent)
           const copy = selectedTextAt(target)
           // There, without the app's entries, only what is offered right now
-          // — or no menu at all rather than an empty one.
-          if (!inWindow && !copy && !areas.some((a) => offers(a.get()))) {
+          // - or no menu at all rather than an empty one.
+          if ((!inWindow || !appEntries) && !copy && !areas.some((a) => offers(a.get()))) {
             e.preventDefault()
             return
           }
           const elements = areas.filter((a) => a.kind === "element")
           const sections = elements.length > 0 ? elements : areas.filter((a) => a.kind === "page").slice(0, 1)
-          const tail = !inWindow ? null : elements.length > 0 ? (elements[0].tail ? "short" : null) : "full"
+          const tail = !inWindow || !appEntries ? null : elements.length > 0 ? (elements[0].tail ? "short" : null) : "full"
           const active = document.activeElement
           restore.current =
             (lastInput.current === "key" || !inWindow) && active instanceof HTMLElement && active !== document.body ? active : null
@@ -120,7 +124,7 @@ export function AppMenu({ children }: { children: React.ReactElement }) {
         onCloseAutoFocus={(e) => {
           // Not Radix's way (it would select a field's text, and pop the
           // tooltip of the tile right-clicked): back to where the keyboard
-          // was — unless an entry took the focus itself (a dialog, the
+          // was - unless an entry took the focus itself (a dialog, the
           // go-to field, a name to edit), which runs before this does.
           e.preventDefault()
           const el = restore.current
@@ -210,7 +214,8 @@ export function FullAppItems() {
   const railHidden = useUi((s) => s.sidebarCollapsed)
   return (
     <>
-      <ContextMenuItem disabled={!canGoBack} onSelect={() => window.history.back()}>
+      {/* On a plugin page, Back leaves it: its frame's own entries are never stepped through. */}
+      <ContextMenuItem disabled={!canGoBack && !pageOpen()} onSelect={() => leavePage() || window.history.back()}>
         <ArrowLeft /> Back
       </ContextMenuItem>
       <ContextMenuItem onSelect={actions.openPalette} shortcut={keys("global.palette")}>
@@ -224,6 +229,9 @@ export function FullAppItems() {
       </ContextMenuItem>
       <ContextMenuItem onSelect={actions.toggleActivity} shortcut={keys("global.activity")}>
         <Queue /> Activity
+      </ContextMenuItem>
+      <ContextMenuItem onSelect={actions.goPlugins}>
+        <PuzzlePiece /> Plugins
       </ContextMenuItem>
       <ContextMenuItem onSelect={actions.toggleSidebar} shortcut={keys("global.sidebar")}>
         <SidebarSimple /> {railHidden ? "Show the rail" : "Hide the rail"}

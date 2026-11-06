@@ -27,11 +27,10 @@ import { cn } from "@/lib/utils"
 import { type FrameStore, useFrame, useFrameSelector } from "../frame-store"
 import { SEGMENT_LABEL } from "../labels"
 import { drawSegments, drawSpans, prepare } from "./draw"
+import { visibleLanes } from "./lanes"
 import { type Counting, ticks } from "./ticks"
 import { type View, centerOn, fit, follow, panBy, tAt, xOf, zoomAt } from "./viewport"
 
-/** Lanes shown under the shots; everyone else is listed in the details panel. */
-const MAX_LANES = 5
 const ZOOM_STEP = 2
 
 type Axis = {
@@ -103,7 +102,7 @@ export function Timeline({
   useLayoutEffect(() => {
     current.current = view
   })
-  const card = useRef<HTMLDivElement>(null)
+  const root = useRef<HTMLDivElement>(null)
   const track = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
 
@@ -145,7 +144,7 @@ export function Timeline({
 
   // Ctrl/⌘ + wheel (and a pinch) zooms where the pointer is; the wheel scrolls.
   useEffect(() => {
-    const el = card.current
+    const el = root.current
     if (!el) return
     const onWheel = (e: WheelEvent) => {
       const r = track.current?.getBoundingClientRect()
@@ -226,10 +225,8 @@ export function Timeline({
   )
   return (
     <ContextArea menu={zoomMenu}>
-      <div
-        ref={card}
-        className="flex flex-col gap-1.5 rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 pt-2 pb-3.5 [--lane-label-w:132px]"
-      >
+      {/* On the page, without a card: it lines up with the transport above it. */}
+      <div ref={root} className="flex flex-col gap-1 [--lane-label-w:132px]">
         <Row
           label={
             <span className="flex items-center gap-0.5">
@@ -252,7 +249,8 @@ export function Timeline({
             <Ruler axis={axis} fps={fps} counting={counting} tc={tc} under={zoomed} />
           </div>
         </Row>
-        <Row label="Playhead">
+        {/* The slider says what it is; the row needs no name. */}
+        <Row label={null}>
           <Scrub
             axis={axis}
             store={store}
@@ -272,7 +270,7 @@ export function Timeline({
         )}
         {lanes.length > 0 && (
           <div className="mt-1 flex flex-col gap-1" role="group" aria-label="Characters on screen">
-            {lanes.slice(0, MAX_LANES).map((lane) => (
+            {visibleLanes(lanes, focus).map((lane) => (
               <LaneRow
                 key={lane.character.id}
                 axis={axis}
@@ -545,7 +543,7 @@ function Scrub({
         aria-valuemax={last}
         aria-valuenow={frame}
         aria-valuetext={tc(frame)}
-        className="group/scrub relative h-9 touch-none rounded-lg select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-subtle"
+        className="group/scrub relative h-8 touch-none rounded-lg select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-subtle"
         onPointerDown={(e) => {
           // Only the main button seeks: a right-click opens the menu where it is.
           if (e.button !== 0) return
@@ -604,16 +602,26 @@ function Scrub({
 /**
  * A canvas filling its track, drawn again when `draw` (its data), the axis
  * or the screen's pixel density (another monitor, the webview zoomed) change.
+ * Its height is its track's, read from the page.
  */
-function TrackCanvas({ axis, height, draw }: { axis: Axis; height: number; draw: (ctx: CanvasRenderingContext2D, width: number) => void }) {
+export function TrackCanvas({
+  axis,
+  draw,
+}: {
+  axis: Pick<Axis, "width">
+  draw: (ctx: CanvasRenderingContext2D, width: number, height: number) => void
+}) {
   const ref = useRef<HTMLCanvasElement>(null)
   const dpr = usePixelRatio()
   useLayoutEffect(() => {
     const c = ref.current
     if (!c || axis.width === 0) return
+    // Drawn at the size its track really has, so the browser never scales it.
+    const height = c.clientHeight
+    if (height === 0) return
     const ctx = prepare(c, axis.width, height)
-    if (ctx) draw(ctx, axis.width)
-  }, [axis, height, draw, dpr])
+    if (ctx) draw(ctx, axis.width, height)
+  }, [axis, draw, dpr])
   return <canvas ref={ref} aria-hidden className="absolute inset-0 size-full" />
 }
 
@@ -667,7 +675,7 @@ function Shots({
   )
   const { view, width } = axis
   const draw = useCallback(
-    (ctx: CanvasRenderingContext2D, w: number) => drawSegments(ctx, w, 20, view, segments, numbers, axis.t),
+    (ctx: CanvasRenderingContext2D, w: number, h: number) => drawSegments(ctx, w, h, view, segments, numbers, axis.t),
     [view, segments, numbers, axis.t],
   )
   const indexAt = (clientX: number) => {
@@ -707,7 +715,7 @@ function Shots({
     <ContextArea menu={menu} onContextMenu={(e) => setMenuShot(indexAt(e.clientX).i)}>
       <div
         ref={ref}
-        className="relative h-5 rounded-md select-none"
+        className="relative h-[16px] rounded-md select-none"
         role="group"
         aria-label="Shots"
         onPointerMove={(e) => setHover(indexAt(e.clientX))}
@@ -724,7 +732,7 @@ function Shots({
           if (segments[i]?.kind === "shot") onMarkShot(segments[i])
         }}
       >
-        <TrackCanvas axis={axis} height={20} draw={draw} />
+        <TrackCanvas axis={axis} draw={draw} />
         {cur && <Outline left={xOf(view, axis.t(cur.start), width)} right={xOf(view, axis.t(cur.end), width)} width={width} />}
         <HeadLine axis={axis} store={store} />
         {hover && hovered && (
@@ -788,7 +796,7 @@ function LaneRow({
   const c = lane.character
   const { view } = axis
   const draw = useCallback(
-    (ctx: CanvasRenderingContext2D, w: number) => drawSpans(ctx, w, 24, view, lane.spans, focused, axis.t),
+    (ctx: CanvasRenderingContext2D, w: number, h: number) => drawSpans(ctx, w, h, view, lane.spans, focused, axis.t),
     [view, lane.spans, focused, axis.t],
   )
   const spanAt = (clientX: number) => {
@@ -871,7 +879,7 @@ function LaneRow({
         </span>
         <div
           ref={ref}
-          className="relative h-6 rounded-lg bg-white/[0.03]"
+          className="relative h-[20px] rounded-lg group-hover:bg-white/[0.03]"
           onPointerMove={(e) => setHover(spanAt(e.clientX))}
           onPointerLeave={() => setHover(null)}
           onClick={(e) => {
@@ -881,7 +889,7 @@ function LaneRow({
             onSeek(h.span.start)
           }}
         >
-          <TrackCanvas axis={axis} height={24} draw={draw} />
+          <TrackCanvas axis={axis} draw={draw} />
           <HeadLine axis={axis} store={store} />
           {hover && (
             <Tip x={hover.x}>

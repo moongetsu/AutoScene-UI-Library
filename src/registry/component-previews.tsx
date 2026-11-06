@@ -1,7 +1,18 @@
 import * as React from "react"
-import { Play } from "@/components/icons"
+import { CheckCircle, Copy, FunnelSimple, Play, ShieldWarning, Trash, UserFocus, Warning } from "@/components/icons"
+import { DiscordMark } from "@/components/brand/DiscordMark"
+import { Avatar } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { CardMenuButton } from "@/components/ui/card-menu-button"
+import { CardPlayButton } from "@/components/ui/card-play-button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { OptionRow } from "@/components/ui/option-row"
+import { SearchField } from "@/components/ui/search-field"
+import { ToggleChip } from "@/components/ui/toggle-chip"
+import { Banner } from "@/components/ui/banner"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
@@ -13,6 +24,78 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Select } from "@/components/ui/select"
 import { Tooltip, TooltipProvider } from "@/components/ui/tooltip"
 import { toast, notify, CleanToastCapsule } from "@/components/ui/toaster"
+import { PathText, SettingRow, SettingsGroup } from "@/features/settings/primitives"
+import { CARD_GRID } from "@/lib/grid"
+import { STILL_CREDIT, still } from "./demo-data"
+import { FeatureFrame } from "@/components/showcase/FeatureFrame"
+import { FEATURE_PREVIEWS } from "./feature-previews"
+
+/** A card's picture, for what sits on one. */
+function StillCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="w-60 space-y-2">
+      <div className="group relative aspect-video overflow-hidden rounded-xl bg-inset picture-edge">
+        <img src={still("live-2.webp")} alt="" className="size-full object-cover" />
+        {children}
+      </div>
+      <p className="truncate text-center text-[10px] leading-none text-white/45">{STILL_CREDIT}</p>
+    </div>
+  )
+}
+
+function ConfirmDemo() {
+  const [open, setOpen] = React.useState(false)
+  return (
+    <>
+      <Button variant="danger" size="sm" onClick={() => setOpen(true)}>
+        <Trash /> Remove the project…
+      </Button>
+      <ConfirmDialog
+        open={open}
+        onOpenChange={setOpen}
+        title="Remove this project?"
+        description="Its shots go with it. The video files stay where they are."
+        answer="Remove"
+        icon={<Trash />}
+        failure="Couldn't remove the project"
+        onConfirm={() => new Promise((done) => setTimeout(done, 1200))}
+      />
+    </>
+  )
+}
+
+function SearchDemo() {
+  const [value, setValue] = React.useState("")
+  return <SearchField value={value} onChange={setValue} label="Find a character" className="max-w-full" />
+}
+
+function ChipsDemo() {
+  const [on, setOn] = React.useState(true)
+  const [faces, setFaces] = React.useState(false)
+  return (
+    <div className="flex flex-wrap justify-center gap-2">
+      <ToggleChip pressed={on} onClick={() => setOn(!on)}>
+        <FunnelSimple className="size-4" /> Named only
+      </ToggleChip>
+      <ToggleChip pressed={faces} onClick={() => setFaces(!faces)}>
+        <UserFocus className="size-4" /> With a face
+      </ToggleChip>
+    </div>
+  )
+}
+
+function OptionDemo() {
+  const [on, setOn] = React.useState(false)
+  return (
+    <OptionRow
+      label="Also delete the files"
+      description="They go to the Recycle Bin."
+      checked={on}
+      onCheckedChange={setOn}
+      className="w-full max-w-sm"
+    />
+  )
+}
 
 export interface ComponentCardData {
   id: string
@@ -38,6 +121,10 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
       <Badge tone="danger">Failed</Badge>
       <Badge tone="outline">Outline</Badge>
       <Badge tone="media">Media Frost</Badge>
+      <Badge size="sm">Small</Badge>
+      <Badge tone="picture" size="sm">
+        1:05
+      </Badge>
     </div>
   ),
   input: (h) => (
@@ -115,8 +202,8 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
         selectedFilters={{ status: h?.demoFilterStatus ?? "ready" }}
         onFilterChange={(_, val) => h?.setDemoFilterStatus?.(val)}
         sortOptions={[
-          { value: "az", label: "Name A–Z" },
-          { value: "za", label: "Name Z–A" },
+          { value: "az", label: "Name A-Z" },
+          { value: "za", label: "Name Z-A" },
         ]}
         selectedSort={h?.demoFilterSort ?? "az"}
         onSortChange={h?.setDemoFilterSort}
@@ -282,16 +369,114 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
       ))}
     </div>
   ),
-}
-
-/**
- * Returns a fallback interactive demo for any newly discovered component
- */
-export function getFallbackComponentPreview(_id: string, name: string): React.ReactNode {
-  return (
-    <div className="flex flex-col items-center justify-center p-4 rounded-xl border border-white/[0.06] bg-white/[0.02] text-center gap-2">
-      <span className="text-xs font-medium text-fg-2">{name} Component</span>
-      <span className="text-[10px] font-mono text-fg-3">import &#123; {name.replace(/\s+/g, "")} &#125; from "@moongetsu/autoscene-ui"</span>
+  banner: () => (
+    <FeatureFrame id="banner" width={420}>
+      <div className="space-y-2.5">
+        <Banner
+          tone="accent"
+          icon={<Warning weight="fill" />}
+          title="1 episode is missing"
+          actions={<Button size="sm">Locate…</Button>}
+          className="flex-nowrap px-4 py-3"
+        />
+        <Banner
+          tone="danger"
+          icon={<ShieldWarning weight="fill" />}
+          title="Plugin withdrawn"
+          actions={
+            <Button size="sm" variant="danger">
+              Uninstall…
+            </Button>
+          }
+          className="flex-nowrap px-4 py-3"
+        />
+        <Banner
+          tone="neutral"
+          icon={<CheckCircle weight="fill" />}
+          title="Every episode is ready"
+          className="flex-nowrap px-4 py-3"
+        />
+      </div>
+    </FeatureFrame>
+  ),
+  checkbox: (h) => (
+    <Checkbox
+      label="Don't show this again"
+      checked={h?.demoCheckbox ?? true}
+      onCheckedChange={(v) => h?.setDemoCheckbox?.(v === true)}
+    />
+  ),
+  "settings-group": (h) => (
+    <div className="-mb-10 w-full max-w-md">
+      <SettingsGroup title="Playback">
+        <SettingRow label="Start where you left off">
+          <Switch
+            aria-label="Start where you left off"
+            checked={h?.demoSwitch ?? true}
+            onCheckedChange={(c) => h?.setDemoSwitch?.(c)}
+          />
+        </SettingRow>
+        <SettingRow label="Loop the clip">
+          <Switch aria-label="Loop the clip" checked={false} onCheckedChange={() => {}} />
+        </SettingRow>
+      </SettingsGroup>
     </div>
-  )
+  ),
+  "setting-row": (h) => (
+    <div className="w-full max-w-md rounded-2xl border border-white/[0.07] bg-white/[0.03]">
+      <SettingRow label="Hardware decoding" description="Plays heavy files more smoothly.">
+        <Switch
+          aria-label="Hardware decoding"
+          checked={h?.demoSwitch ?? true}
+          onCheckedChange={(c) => h?.setDemoSwitch?.(c)}
+        />
+      </SettingRow>
+    </div>
+  ),
+  "path-text": () => (
+    <div className="w-full max-w-xs space-y-1.5 text-center">
+      <PathText path={String.raw`C:\Users\you\Videos\Tears of Steel.autoscene`} />
+    </div>
+  ),
+  avatar: () => (
+    <div className="flex flex-col items-center gap-3">
+      <div className="flex items-center gap-3">
+        <Avatar path={still("live-2.webp")} className="size-12" />
+        <Avatar path={still("live-3.webp")} ring className="size-12" />
+        <Avatar className="size-12" />
+      </div>
+      <p className="truncate text-center text-[10px] leading-none text-white/45">{STILL_CREDIT}</p>
+    </div>
+  ),
+  "card-grid": () => (
+    <FeatureFrame id="card-grid" width={640}>
+      <div className={CARD_GRID}>
+        <Skeleton className="aspect-video rounded-2xl" />
+        <Skeleton className="aspect-video rounded-2xl" />
+      </div>
+    </FeatureFrame>
+  ),
+  "card-menu-button": () => (
+    <StillCard>
+      <DropdownMenu>
+        <CardMenuButton aria-label="More" className="opacity-100" />
+        <DropdownMenuContent>
+          <DropdownMenuItem onSelect={() => toast("Copied the name")}>
+            <Copy /> Copy the name
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </StillCard>
+  ),
+  "card-play-button": () => (
+    <StillCard>
+      <CardPlayButton aria-label="Watch the shot" className="opacity-100" onClick={() => toast("Plays in the app")} />
+    </StillCard>
+  ),
+  "confirm-dialog": () => <ConfirmDemo />,
+  "discord-mark": () => <DiscordMark className="h-8 text-white" />,
+  "option-row": () => <OptionDemo />,
+  "search-field": () => <SearchDemo />,
+  "toggle-chip": () => <ChipsDemo />,
+  ...FEATURE_PREVIEWS,
 }

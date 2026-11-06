@@ -8,117 +8,9 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const ROOT = path.resolve(__dirname, "..")
 
-// Known UI component primitives and their support files
-const COMPONENT_REGISTRY = {
-  button: {
-    files: ["button.tsx"],
-    deps: ["@phosphor-icons/react", "motion", "tailwind-merge", "clsx"],
-  },
-  badge: {
-    files: ["badge.tsx"],
-    deps: ["clsx", "tailwind-merge"],
-  },
-  input: {
-    files: ["input.tsx"],
-    deps: ["@phosphor-icons/react", "clsx", "tailwind-merge"],
-  },
-  switch: {
-    files: ["switch.tsx"],
-    deps: ["radix-ui", "clsx", "tailwind-merge"],
-  },
-  slider: {
-    files: ["slider.tsx"],
-    deps: ["radix-ui", "motion", "clsx", "tailwind-merge"],
-  },
-  segmented: {
-    files: ["segmented.tsx"],
-    deps: ["motion", "clsx", "tailwind-merge"],
-  },
-  kbd: {
-    files: ["kbd.tsx"],
-    deps: ["clsx", "tailwind-merge"],
-  },
-  progress: {
-    files: ["progress.tsx"],
-    deps: ["clsx", "tailwind-merge"],
-  },
-  skeleton: {
-    files: ["skeleton.tsx"],
-    deps: ["clsx", "tailwind-merge"],
-  },
-  tooltip: {
-    files: ["tooltip.tsx"],
-    deps: ["radix-ui", "clsx", "tailwind-merge"],
-  },
-  toaster: {
-    files: ["toaster.tsx"],
-    deps: ["sonner", "@phosphor-icons/react", "clsx", "tailwind-merge"],
-  },
-  "empty-state": {
-    files: ["empty-state.tsx"],
-    deps: ["clsx", "tailwind-merge"],
-  },
-  "error-state": {
-    files: ["error-state.tsx"],
-    deps: ["@phosphor-icons/react", "clsx", "tailwind-merge"],
-  },
-  artwork: {
-    files: ["artwork.tsx"],
-    deps: ["clsx", "tailwind-merge"],
-  },
-  hero: {
-    files: ["hero.tsx"],
-    deps: ["clsx", "tailwind-merge"],
-  },
-  select: {
-    files: ["select.tsx"],
-    deps: ["radix-ui", "@phosphor-icons/react", "clsx", "tailwind-merge"],
-  },
-  sheet: {
-    files: ["sheet.tsx"],
-    deps: ["radix-ui", "motion", "@phosphor-icons/react", "clsx", "tailwind-merge"],
-  },
-  shelf: {
-    files: ["shelf.tsx"],
-    deps: ["motion", "clsx", "tailwind-merge"],
-  },
-  dialog: {
-    files: ["dialog.tsx"],
-    deps: ["radix-ui", "@phosphor-icons/react", "clsx", "tailwind-merge"],
-  },
-  "filter-bar": {
-    files: ["filter-bar.tsx", "dropdown-menu.tsx", "menu-base.ts"],
-    deps: ["radix-ui", "motion", "@phosphor-icons/react", "clsx", "tailwind-merge"],
-  },
-  "dropdown-menu": {
-    files: ["dropdown-menu.tsx", "menu-base.ts", "context-menu.tsx"],
-    deps: ["radix-ui", "@phosphor-icons/react", "clsx", "tailwind-merge"],
-  },
-  "context-menu": {
-    files: ["context-menu.tsx", "menu-base.ts"],
-    deps: ["radix-ui", "@phosphor-icons/react", "clsx", "tailwind-merge"],
-  },
-  "context-area": {
-    files: ["context-area.tsx"],
-    deps: ["clsx", "tailwind-merge"],
-  },
-  "menu-actions": {
-    files: ["menu-actions.tsx"],
-    deps: ["@phosphor-icons/react", "clsx", "tailwind-merge"],
-  },
-  topbar: {
-    files: ["topbar.tsx"],
-    deps: ["@phosphor-icons/react", "clsx", "tailwind-merge"],
-  },
-  page: {
-    files: ["page.tsx", "page-scroll.ts"],
-    deps: ["clsx", "tailwind-merge"],
-  },
-  "virtual-grid": {
-    files: ["virtual-grid.tsx", "page-scroll.ts"],
-    deps: ["@tanstack/react-virtual", "clsx", "tailwind-merge"],
-  },
-}
+// Every primitive with the files it needs and the packages they import.
+// catalog.test.ts checks this list against the imports in the source.
+const COMPONENT_REGISTRY = JSON.parse(fs.readFileSync(path.join(__dirname, "registry.json"), "utf8"))
 
 function showHelp() {
   console.log(`
@@ -134,6 +26,8 @@ Commands:
 
 Options:
   --dir <path>       Target directory (default: src/components/ui)
+  --src <path>       What @/ means in your project, for the files the
+                     components share (default: src)
   --help             Show this help menu
 
 Examples:
@@ -153,7 +47,7 @@ function listComponents() {
   console.log(`\nTotal: ${keys.length} components\n`)
 }
 
-async function addComponent(componentName, targetDir) {
+async function addComponent(componentName, targetDir, srcRoot) {
   const component = COMPONENT_REGISTRY[componentName]
   if (!component) {
     console.error(`\nError: Component "${componentName}" not found in registry.`)
@@ -171,16 +65,21 @@ async function addComponent(componentName, targetDir) {
 
   // Copy each file required for this component
   for (const file of component.files) {
-    const srcFile = path.join(srcDir, file)
     const destFile = path.join(destDir, file)
+    fs.copyFileSync(path.join(srcDir, file), destFile)
+    console.log(`  Added ${file} -> ${path.relative(process.cwd(), destFile)}`)
+  }
 
-    if (fs.existsSync(srcFile)) {
-      let content = fs.readFileSync(srcFile, "utf8")
-      // Normalize internal imports if needed
-      content = content.replace(/@\/lib\/utils/g, "@/lib/utils")
-      fs.writeFileSync(destFile, content, "utf8")
-      console.log(`  Added ${file} -> ${path.relative(process.cwd(), destFile)}`)
+  // Files the components share (icons, cn). One you already have stays yours.
+  for (const file of component.support) {
+    const destFile = path.resolve(process.cwd(), srcRoot, file)
+    if (fs.existsSync(destFile)) {
+      console.log(`  Kept ${path.relative(process.cwd(), destFile)}`)
+      continue
     }
+    fs.mkdirSync(path.dirname(destFile), { recursive: true })
+    fs.copyFileSync(path.join(ROOT, "src", file), destFile)
+    console.log(`  Added ${file} -> ${path.relative(process.cwd(), destFile)}`)
   }
 
   if (component.deps.length > 0) {
@@ -217,19 +116,25 @@ async function main() {
       targetDir = args[dirIndex + 1]
     }
 
+    let srcRoot = "src"
+    const srcIndex = args.indexOf("--src")
+    if (srcIndex !== -1 && args[srcIndex + 1]) {
+      srcRoot = args[srcIndex + 1]
+    }
+
     console.log(`\nAutoScene UI Scaffolder\nTarget directory: ${targetDir}\n`)
 
     if (componentName === "all") {
       const allKeys = Object.keys(COMPONENT_REGISTRY)
       for (const name of allKeys) {
         console.log(`\nScaffolding ${name}...`)
-        await addComponent(name, targetDir)
+        await addComponent(name, targetDir, srcRoot)
       }
       console.log("\nAll components successfully scaffolded!\n")
       return
     }
 
-    await addComponent(componentName, targetDir)
+    await addComponent(componentName, targetDir, srcRoot)
     console.log(`\nComponent "${componentName}" successfully added!\n`)
     return
   }

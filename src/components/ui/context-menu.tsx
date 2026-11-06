@@ -1,7 +1,7 @@
 import type * as React from "react"
 import { ContextMenu as M } from "@animate-ui/react/primitives/radix-ui"
 import { Check } from "@/components/icons"
-import { isMac } from "@/lib/platform"
+import { isMac } from "@/lib/ua"
 import { cn } from "@/lib/utils"
 import { afterClose, menuItem, menuSeparator, menuSurface } from "./menu-base"
 
@@ -31,7 +31,7 @@ export function ContextMenuContent({ className, ...props }: React.ComponentProps
   )
 }
 
-/** `shortcut` as key caps, e.g. ["Ctrl", "K"] — shown as "Ctrl+K" (⌘K on macOS). */
+/** `shortcut` as key caps, e.g. ["Ctrl", "K"] - shown as "Ctrl+K" (⌘K on macOS). */
 export function ContextMenuItem({
   className,
   destructive,
@@ -111,7 +111,7 @@ export function ContextMenuLabel({ className, ...props }: React.ComponentProps<t
  * One section of the menu (an element's, the page's, the app's). Sections
  * are set apart by a hairline, drawn only between sections with something
  * in them; separators at a section's edges, or twice in a row, don't show
- * (`styles/index.css`) — conditional items need no bookkeeping.
+ * (`styles/index.css`) - conditional items need no bookkeeping.
  */
 export function ContextMenuSection({ children }: { children: React.ReactNode }) {
   return <M.Group data-menu-section="">{children}</M.Group>

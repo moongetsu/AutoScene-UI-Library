@@ -5,7 +5,7 @@ import type { MenuKit } from "@/components/ui/menu-actions"
 import { castEdit } from "./cast"
 
 /**
- * What a character offers wherever it is shown — its card, its page's hero,
+ * What a character offers wherever it is shown - its card, its page's hero,
  * the ⋯ menu there: open it, its scenepack, the faces to review, rename,
  * choose its picture, merge, hide. `onRename`, `onChoosePicture` and
  * `onMerge` only where those can be done; `open` off on the character's

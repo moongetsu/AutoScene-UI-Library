@@ -26,43 +26,43 @@ const CATEGORIES = [
   { id: "media", title: "Media & Artwork", desc: "Image containers, aspect ratio frames, and hero headers." },
   { id: "cards", title: "Composite Cards", desc: "Cards for character profiles, exports, and video clips." },
   { id: "shell", title: "Shell & Headers", desc: "Navigation rails, brand logos, and app shell headers." },
+  { id: "features", title: "Features", desc: "Whole parts of the AutoScene app, running here on the mock backend with made-up data." },
   { id: "tokens", title: "Colors & Tokens", desc: "Dark background surfaces, gray text hierarchy, and brand gold accents." },
   { id: "playground", title: "Playground", desc: "Interactive button modifier stage with live preview and generated code." },
 ]
 
+// One page per catalog entry and per named look of the showcase (src/registry/catalog.json)
+const catalog = JSON.parse(fs.readFileSync(path.join(rootDir, "src/registry/catalog.json"), "utf-8"))
 const COMPONENTS = [
-  { id: "primary-action-pill", title: "Primary Action Pill", desc: "White glass CTA pill with inner specular glow and spring press state." },
-  { id: "accent-gold-button", title: "Accent Gold Button", desc: "AutoScene brand gold with subtle backdrop glow for focal actions." },
-  { id: "frosted-glass-pill", title: "Frosted Glass Pill", desc: "Translucent backdrop pill designed to float over media footage." },
-  { id: "danger-destructive-pill", title: "Danger Destructive Pill", desc: "Muted crimson border with red glow hover for irreversible deletes." },
-  { id: "segmented-sliding-tabs", title: "Segmented Sliding Tabs", desc: "Spring-animated sliding tab switcher with zero layout shift." },
-  { id: "hardware-switch", title: "Hardware Switch", desc: "High-contrast boolean switch with fluid thumb glide." },
-  { id: "confidence-slider", title: "Confidence Slider", desc: "Continuous drag threshold slider with live numeric chip feedback." },
-  { id: "text-field-input", title: "Glass Form Input", desc: "Controlled text input with border focus states and placeholder styling." },
-  { id: "search-bar-input", title: "Search Bar with Icon", desc: "Search bar with embedded magnifying glass icon and keyboard shortcut." },
-  { id: "character-profile-card", title: "Character Profile Card", desc: "Square actor profile card with clip badge and action menu trigger." },
-  { id: "export-summary-card", title: "Export Summary Card", desc: "Export summary card with playback trigger and video format details." },
-  { id: "status-badges", title: "Status Badges & Tags", desc: "Semantic badge pills designed for status updates and timeline verification." },
-  { id: "linear-progress-bar", title: "Progress Bar", desc: "Determinate percentage progress bar and indeterminate scanning beam." },
-  { id: "keyboard-shortcuts-kbd", title: "Keyboard Shortcut Caps", desc: "Physical specular keyboard shortcut caps for keybinding references." },
-  { id: "dropdown-action-menu", title: "Dropdown Action Menu", desc: "Glass floating context menu with item icons and destructive action separator." },
-  { id: "hero-display-header", title: "Hero Display Header", desc: "Backdrop header designed for project and episode hero banners." },
+  ...catalog.showcase.map((c) => ({ id: c.id, title: c.title, desc: c.description })),
+  ...catalog.entries.map((c) => ({ id: c.id, title: c.name, desc: c.description })),
 ]
+
+const escapeAttribute = (text) => text.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;")
+
+// One meta tag, wherever its attributes break across lines in index.html. A
+// tag that isn't found fails the build rather than leave a page with the
+// site's own description.
+function setMeta(html, attribute, key, value) {
+  const tag = new RegExp(`<meta\\s+${attribute}="${key}"\\s+content="[^"]*"\\s*/?>`)
+  if (!tag.test(html)) throw new Error(`dist/index.html has no <meta ${attribute}="${key}">`)
+  return html.replace(tag, () => `<meta ${attribute}="${key}" content="${escapeAttribute(value)}" />`)
+}
 
 function renderPage(title, desc, relativeUrl) {
   const fullTitle = `${title} | AutoScene UI`
   const canonical = `https://moongetsu.github.io/AutoScene-UI-Library/${relativeUrl}`
 
-  let html = baseHtml
-    .replace(/<title>.*?<\/title>/, `<title>${fullTitle}</title>`)
-    .replace(/<meta property="og:title" content=".*?" \/>/, `<meta property="og:title" content="${fullTitle}" />`)
-    .replace(/<meta property="og:description" content=".*?" \/>/, `<meta property="og:description" content="${desc}" />`)
-    .replace(/<meta property="og:url" content=".*?" \/>/, `<meta property="og:url" content="${canonical}" />`)
-    .replace(/<meta name="twitter:title" content=".*?" \/>/, `<meta name="twitter:title" content="${fullTitle}" />`)
-    .replace(/<meta name="twitter:description" content=".*?" \/>/, `<meta name="twitter:description" content="${desc}" />`)
-    .replace(/<link rel="canonical" href=".*?" \/>/, `<link rel="canonical" href="${canonical}" />`)
-
-  return html
+  let html = baseHtml.replace(/<title>[\s\S]*?<\/title>/, () => `<title>${escapeAttribute(fullTitle)}</title>`)
+  html = setMeta(html, "name", "title", fullTitle)
+  html = setMeta(html, "name", "description", desc)
+  html = setMeta(html, "property", "og:title", fullTitle)
+  html = setMeta(html, "property", "og:description", desc)
+  html = setMeta(html, "property", "og:url", canonical)
+  html = setMeta(html, "name", "twitter:title", fullTitle)
+  html = setMeta(html, "name", "twitter:description", desc)
+  html = setMeta(html, "name", "twitter:url", canonical)
+  return html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, () => `<link rel="canonical" href="${canonical}" />`)
 }
 
 function writeStaticRoute(routePath, html) {

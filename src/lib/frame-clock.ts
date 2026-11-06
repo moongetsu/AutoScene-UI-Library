@@ -8,14 +8,14 @@ import type { FrameMap } from "@/bindings"
  *   rounding in the browser can never land on a neighbour.
  * - The displayed frame is read from `requestVideoFrameCallback`'s
  *   `mediaTime` (the shown frame's own timestamp), with a quarter-frame
- *   tolerance — the same rule the Rust `FrameIndex::frame_at` uses.
+ *   tolerance - the same rule the Rust `FrameIndex::frame_at` uses.
  */
 export class FrameClock {
   readonly frames: number
   /**
    * Frames a second, for what runs by the clock rather than by the picture
    * (playing backwards): the step's for constant-rate media, the map's
-   * nominal rate otherwise — one frame of variable-rate media can last far
+   * nominal rate otherwise - one frame of variable-rate media can last far
    * longer or shorter than the rest.
    */
   readonly fps: number

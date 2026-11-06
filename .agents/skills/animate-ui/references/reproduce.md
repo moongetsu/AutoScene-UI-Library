@@ -14,7 +14,7 @@ The user shows an animation they like (a site, a video, a GIF, a screen recordin
 ## Measuring tips
 
 - **Frame times.** A 25 fps source in a 30 fps file repeats every sixth frame: drop the repeats and count the real frames (40ms each at 25 fps).
-- **Blur.** Measure it on a sharp edge with no text: the 10–90% width of the edge's ramp ÷ 2.56 is the blur's radius (σ), which is CSS's `blur()` value.
+- **Blur.** Measure it on a sharp edge with no text: the 10-90% width of the edge's ramp ÷ 2.56 is the blur's radius (σ), which is CSS's `blur()` value.
 - **Start times.** An element fading in from 0 is invisible for its first frames, so its movement seems to start later than its fade. Before keeping an offset between the two, fit the motion both ways (starting with the fade and later); keep the offset only if starting together fits clearly worse, and say which you chose.
 - **A spring against a token.** Compare natural frequency and damping, not the numbers as written: a `{ visualDuration, bounce }` spring has stiffness `k = (2π / (1.2 · visualDuration))²` and damping ratio `ζ ≈ 1 − bounce`; a token's `stiffness`/`damping` has `ω = √k` and `ζ = damping / (2√k)`. Within about 10% on both, use the token.
 - **Offsets between properties.** Write one transition with a `default` key and one key per property (`{ default: spring, opacity: { duration: 0.3, ease }, filter: { … } }`) and pass it to `useTempoTransition()`: it paces the nested ones too.

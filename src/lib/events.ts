@@ -1,9 +1,12 @@
 import { toast } from "sonner"
-import type { JobInfo } from "@/bindings"
+import type { HardwareInfo, JobInfo } from "@/bindings"
+import { takePackSave } from "@/features/plugins/pack-saves"
+import { pluginToast } from "@/features/plugins/plugin-toast"
 import { isFinished, useActivity } from "@/state/activity"
+import { usePluginReview } from "@/state/plugin-review"
 import { commands, events } from "./ipc"
 import { reveal } from "./os"
-import { exportsQuery, qk, queryClient } from "./queries"
+import { exportsQuery, isMadePack, qk, queryClient } from "./queries"
 
 /**
  * Backend events → React Query invalidation and the activity store. The UI
@@ -17,11 +20,18 @@ import { exportsQuery, qk, queryClient } from "./queries"
  * | media:changed    | media(pid), frameMap(pid, mid), project(pid)       |
  * | analysis:changed | segments(pid, mid)                                 |
  * | cast:changed     | cast(pid) and everything under it (tracks, presence, packs) |
- * | pack:changed     | pack(pid, cid): its settings (an export keeps them) |
+ * | pack:changed     | pack(pid, cid): its settings (an export keeps them), and the shots a plugin's filter judged, once per episode |
  * | export:changed   | exports(pid)                                       |
- * | plugins:changed  | plugins and every plugin's settings; settings when no plugin is named |
+ * | plugins:changed  | plugins and every plugin's settings, the catalog; every pack's preview and plan (its filters, on or off); settings when no plugin is named |
+ * | catalog:changed  | the catalog, the plugins; a toast for each plugin it newly withdrew |
+ * | catalog:progress | the install review's download (progress only)      |
+ * | plugin-page:event | an open plugin page (PluginFrame listens)         |
+ * | hardware:changed | hardware (the graphics the analysis runs on)       |
+ * | plugins:opened   | packages opened from outside (useOpenedPackages listens) |
+ * | accel:progress   | hardware: the bar of NVIDIA's download             |
+ * | accel:finished   | settings; toast unless Settings is open            |
  */
-export function startEventBridge(): () => void {
+export function startEventBridge(where: { goPlugins: () => void }): () => void {
   const unlisten: Promise<() => void>[] = []
 
   unlisten.push(
@@ -80,9 +90,36 @@ export function startEventBridge(): () => void {
     events.pluginsChanged.listen(({ payload }) => {
       // Prefix match: the list and each plugin's settings.
       void queryClient.invalidateQueries({ queryKey: qk.plugins })
+      // What the catalog offers is worked out against what is installed.
+      void queryClient.invalidateQueries({ queryKey: qk.catalog })
+      // A plugin turned on or off, or a setting a filter judges by: the packs, their sizes too, are made again.
+      void queryClient.invalidateQueries({ predicate: isMadePack })
       // None named: the setting may have changed, under a settings save
       // still on its way with the value from before.
       if (payload.pluginId == null) void queryClient.invalidateQueries({ queryKey: qk.settings })
+    }),
+    events.hardwareChanged.listen(() => void queryClient.invalidateQueries({ queryKey: qk.hardware })),
+    events.catalogChanged.listen(({ payload }) => {
+      // A check may offer new versions, and withdraw installed plugins.
+      void queryClient.invalidateQueries({ queryKey: qk.catalog })
+      void queryClient.invalidateQueries({ queryKey: qk.plugins })
+      void tellWithdrawn(payload.withdrawn, where.goPlugins)
+    }),
+    events.catalogProgress.listen(({ payload }) => usePluginReview.getState().progress(payload.pluginId, payload.done, payload.total)),
+    events.accelProgress.listen(({ payload }) => {
+      queryClient.setQueryData<HardwareInfo>(qk.hardware, (hw) =>
+        hw?.accel.row.state === "downloading"
+          ? { ...hw, accel: { ...hw.accel, row: { state: "downloading", done: payload.done, total: payload.total } } }
+          : hw,
+      )
+    }),
+    events.accelFinished.listen(({ payload }) => {
+      // A first download finished switches it on.
+      void queryClient.invalidateQueries({ queryKey: qk.settings })
+      // In Settings the row says so itself.
+      if (window.location.hash.startsWith("#/settings")) return
+      if (payload.error) toast.error("NVIDIA acceleration couldn't be downloaded", { description: payload.error })
+      else toast.success("NVIDIA acceleration is ready")
     }),
   )
   // Snapshot only once the listeners are live, so nothing falls between the two.
@@ -93,17 +130,49 @@ export function startEventBridge(): () => void {
   return () => unlisten.forEach((p) => void p.then((un) => un()))
 }
 
+/** The plugins whose withdrawal was told of this session: each is told once, however many checks name it. */
+const toldWithdrawn = new Set<string>()
+
+/**
+ * Says that AutoScene withdrew the plugins `ids`, one toast each, in
+ * AutoScene's words: the catalog's reason, read from the plugins as they
+ * stand now. A plugin the list doesn't show as withdrawn gets none: the
+ * toast says no more than the list does.
+ */
+async function tellWithdrawn(ids: string[], goPlugins: () => void) {
+  if (ids.every((id) => toldWithdrawn.has(id))) return
+  let plugins
+  try {
+    plugins = await queryClient.fetchQuery({ queryKey: qk.plugins, queryFn: () => commands.pluginsList(), staleTime: 0 })
+  } catch {
+    return
+  }
+  for (const id of ids) {
+    const p = plugins.find((x) => x.id === id)
+    if (p?.withdrawn == null || toldWithdrawn.has(id)) continue
+    toldWithdrawn.add(id)
+    toast.error(`AutoScene withdrew Plugin “${p.name}”`, { description: p.withdrawn, action: { label: "Show", onClick: goPlugins } })
+  }
+}
+
 /**
  * Exports finish in the background; say so wherever the user is. A plugin's
  * job that finishes says its message the same way, named by its plugin. Its
  * name, title and words are all the plugin's own (a plugin may be called
- * "AutoScene"), so the toast starts with a word it can't choose.
+ * "AutoScene"), so the toast starts with a word it can't choose. A pack
+ * saved with a plugin's action says which file, and shows it in its folder.
  */
 function notifyFinished(job: JobInfo) {
   if (job.kind === "plugin") {
-    const from = job.subtitle != null ? `Plugin “${job.subtitle}”` : "A plugin"
-    if (job.state === "failed") toast.error(`${from}: ${job.title} failed`, { description: job.error ?? undefined })
-    else if (job.state === "done" && job.message) toast(`${from}: ${job.title}`, { description: job.message })
+    const saved = isFinished(job) ? takePackSave(job.id) : undefined
+    if (job.state === "failed")
+      pluginToast(job.subtitle, { text: `${job.title} failed`, description: job.error ?? undefined, tone: "error" })
+    else if (job.state === "done" && saved)
+      pluginToast(job.subtitle, {
+        text: `saved ${saved.split(/[\\/]/).pop()}`,
+        action: { label: "Show in folder", onClick: () => reveal(saved) },
+      })
+    else if (job.state === "done" && job.message) pluginToast(job.subtitle, { text: job.title, description: job.message })
     return
   }
   if (job.kind !== "export") {

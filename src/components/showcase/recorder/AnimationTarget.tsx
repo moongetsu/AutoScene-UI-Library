@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Play } from "@phosphor-icons/react"
+import { Play } from "@/components/icons"
 import { Button } from "@/components/ui/button"
 
 export function AnimationTarget() {

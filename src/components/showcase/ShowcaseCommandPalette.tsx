@@ -19,8 +19,10 @@ import {
   ArrowRight,
   X,
   Compass,
-} from "@phosphor-icons/react"
+  SquaresFour,
+} from "@/components/icons"
 import { REGISTRY_COMPONENTS } from "@/data/registry-items"
+import { Tooltip } from "@/components/ui/tooltip"
 
 interface ShowcaseCommandPaletteProps {
   open: boolean
@@ -38,6 +40,7 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
   media: <Image className="size-4 text-accent" />,
   cards: <Cards className="size-4 text-accent" />,
   shell: <Sidebar className="size-4 text-accent" />,
+  features: <SquaresFour className="size-4 text-accent" />,
   tokens: <Palette className="size-4 text-accent" />,
   icons: <Image className="size-4 text-accent" />,
   playground: <SlidersHorizontal className="size-4 text-accent" />,
@@ -45,10 +48,11 @@ const SECTION_ICONS: Record<string, React.ReactNode> = {
 
 const QUICK_LINKS = [
   { id: "buttons", label: "Buttons & Pills", section: "buttons" },
-  { id: "icons", label: "Icons (80+)", section: "icons" },
+  { id: "icons", label: "Icons", section: "icons" },
   { id: "toggles", label: "Toggles & Sliders", section: "toggles" },
   { id: "inputs", label: "Search & Form Inputs", section: "inputs" },
   { id: "cards", label: "Composite Cards", section: "cards" },
+  { id: "features", label: "Features", section: "features" },
   { id: "playground", label: "Button Playground", section: "playground" },
 ]
 
@@ -81,12 +85,12 @@ export function ShowcaseCommandPalette({
     }
   }, [open])
 
-  const navigateTo = (view: "registry" | "showcase", sectionId?: string) => {
+  const navigateTo = (view: "registry" | "showcase", sectionId?: string, itemId?: string) => {
     onOpenChange(false)
     if (view === "registry") {
       window.location.hash = "#/"
     } else {
-      const targetHash = sectionId ? `#/showcase?section=${sectionId}` : "#/showcase"
+      const targetHash = sectionId ? `#/showcase?section=${sectionId}${itemId ? `&item=${itemId}` : ""}` : "#/showcase"
       window.location.hash = targetHash
       if (sectionId && onNavigateSection) {
         onNavigateSection(sectionId)
@@ -168,14 +172,16 @@ export function ShowcaseCommandPalette({
                   placeholder="Search components, documentation, or jump to tabs..."
                   className="w-full bg-transparent text-sm text-fg-1 placeholder:text-fg-3/70 outline-none"
                 />
-                <button
-                  type="button"
-                  onClick={() => onOpenChange(false)}
-                  className="size-6 rounded-full flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer mr-1"
-                  title="Close (Esc)"
-                >
-                  <X className="size-3.5" />
-                </button>
+                <Tooltip label="Close (Esc)">
+                  <button
+                    type="button"
+                    onClick={() => onOpenChange(false)}
+                    className="size-6 rounded-full flex items-center justify-center text-fg-3 hover:text-white hover:bg-white/[0.08] transition-colors cursor-pointer mr-1"
+                    aria-label="Close"
+                  >
+                    <X className="size-3.5" />
+                  </button>
+                </Tooltip>
                 <kbd className="text-[10px] font-mono text-fg-3 bg-white/[0.06] px-1.5 py-0.5 rounded border border-white/[0.08]">
                   ESC
                 </kbd>
@@ -268,7 +274,7 @@ export function ShowcaseCommandPalette({
                       >
                         <Command.Item
                           value={`${item.title} ${item.category} ${item.description}`}
-                          onSelect={() => navigateTo("showcase", item.showcaseSection)}
+                          onSelect={() => navigateTo("showcase", item.showcaseSection, item.category === "Features" ? item.id : undefined)}
                           className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-fg-2 hover:bg-white/[0.06] hover:text-white cursor-pointer data-[selected=true]:bg-white/[0.08] data-[selected=true]:text-white transition-colors group"
                         >
                           <div className="flex items-center gap-2.5 min-w-0">

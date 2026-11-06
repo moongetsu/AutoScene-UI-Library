@@ -1,14 +1,18 @@
 import * as React from "react"
 import { Slot } from "radix-ui"
 import { cva, type VariantProps } from "class-variance-authority"
-import { CircleNotch } from "@phosphor-icons/react"
 import { motion, type HTMLMotionProps } from "motion/react"
+import * as icons from "@/components/icons"
+import { CircleNotch } from "@/components/icons"
 import { cn } from "@/lib/utils"
 
 /**
  * Glass pills. `primary` is the one main action of a screen (bright white
  * glass); `secondary` and `glass` are dark glass that sits back, on the dark
  * and on pictures; `accent` (gold glass) is for what is selected or running.
+ * `cta` is the solid warm-white pill with near-black text (DESIGN.md "The main
+ * action"), for the answer most people give on a surface that leads with a
+ * picture (the first-start notice).
  */
 const buttonVariants = cva(
   [
@@ -20,6 +24,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
+        cta: "bg-cta font-semibold text-on-cta shadow-[0_10px_30px_-12px_rgb(255_255_255/0.5)] hover:bg-cta-hover active:bg-cta/90",
         primary:
           "border border-white/40 bg-white/[0.18] font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-xl hover:border-white/60 hover:bg-white/[0.26] active:bg-white/[0.22]",
         accent:
@@ -40,17 +45,58 @@ const buttonVariants = cva(
         "icon-lg": "size-11 [&_svg]:size-5",
       },
     },
+    compoundVariants: [
+      // A menu opened from a ghost icon: it stays lit while the menu is up.
+      {
+        variant: "ghost",
+        size: ["icon", "icon-sm", "icon-lg"],
+        class: "data-[state=open]:bg-hover data-[state=open]:text-fg-1",
+      },
+    ],
     defaultVariants: { variant: "secondary", size: "md" },
   },
 )
 
 // No `title`: the browser's tooltip isn't the app's (wrap in `Tooltip`).
 export type ButtonProps = Omit<React.ComponentProps<"button">, "title"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-    busy?: boolean
-  }
+  VariantProps<typeof buttonVariants> & { asChild?: boolean; busy?: boolean }
 
+const ICONS = new Set<unknown>(Object.values(icons))
+
+/** A leading icon: one of the library's own (`components/icons`) or a bare `<svg>`. A ring, a badge or a key hint is not one. */
+function isIcon(child: unknown): child is React.ReactElement<{ className?: string }> {
+  return React.isValidElement(child) && (child.type === "svg" || ICONS.has(child.type))
+}
+
+/**
+ * What a busy button shows, at the width it had: the spinner takes the first
+ * icon's place, at its size. Without one, the label stays in the layout and
+ * for screen readers, out of sight, with the spinner over it.
+ */
+function busyChildren(children: React.ReactNode) {
+  const kids = React.Children.toArray(children)
+  const first = kids.findIndex((kid) => typeof kid !== "string" || kid.trim() !== "")
+  const icon = kids[first]
+  if (isIcon(icon)) {
+    kids[first] = <CircleNotch key={icon.key} aria-hidden className={cn("animate-spin", icon.props.className)} />
+    return kids
+  }
+  return (
+    <>
+      <span className="inline-flex items-center gap-2 opacity-0">{children}</span>
+      <span className="absolute inset-0 flex items-center justify-center">
+        <CircleNotch aria-hidden className="animate-spin" />
+      </span>
+    </>
+  )
+}
+
+/**
+ * `busy` says its action is running: a spinner (see `busyChildren`), and
+ * clicks do nothing until it ends (it stays focusable, and lit so the spinner
+ * reads). Not with `asChild`: a link has no running action, and its children
+ * aren't the button's to change.
+ */
 export function Button({
   className,
   variant,
@@ -60,12 +106,14 @@ export function Button({
   busy,
   disabled,
   children,
+  onClick,
   ...props
 }: ButtonProps) {
   if (asChild) {
     return (
       <Slot.Root
         className={cn(buttonVariants({ variant, size }), className)}
+        onClick={onClick}
         {...props}
       >
         {children}
@@ -76,20 +124,24 @@ export function Button({
   return (
     <motion.button
       type={type}
-      disabled={disabled || busy}
-      whileHover={{ scale: 1.025 }}
-      whileTap={{ scale: 0.94 }}
+      disabled={disabled}
+      aria-busy={busy || undefined}
+      aria-disabled={busy || undefined}
+      // Busy is not `disabled`: a focused button that gets disabled drops
+      // focus to the page, and the keyboard loses its place.
+      onClick={busy ? (e: React.MouseEvent) => e.preventDefault() : onClick}
+      whileHover={busy ? undefined : { scale: 1.025 }}
+      whileTap={busy ? undefined : { scale: 0.94 }}
       transition={{
         type: "spring",
         stiffness: 550,
         damping: 24,
         mass: 0.6,
       }}
-      className={cn(buttonVariants({ variant, size }), className)}
+      className={cn(buttonVariants({ variant, size }), busy && "relative cursor-default", className)}
       {...(props as HTMLMotionProps<"button">)}
     >
-      {busy && <CircleNotch className="size-4 animate-spin text-current" />}
-      {children}
+      {busy ? busyChildren(children) : children}
     </motion.button>
   )
 }

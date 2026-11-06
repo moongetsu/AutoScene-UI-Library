@@ -10,29 +10,22 @@ import {
   Cards,
   Sidebar,
   Palette,
-} from "@phosphor-icons/react"
+  SquaresFour,
+} from "@/components/icons"
+import * as Icons from "@/components/icons"
+import { DISCOVERED_COMPONENTS } from "./discovery"
 
 export interface ShowcaseSectionMeta {
   id: string
   label: string
-  group: "Components" | "Feedback" | "Layout & Media" | "Tokens" | "Tools"
+  group: "Components" | "Feedback" | "Layout & Media" | "Features" | "Tokens" | "Tools"
   icon: React.ReactNode
   Component: React.ComponentType
   count?: number
 }
 
-// Map each showcase section to the exact components discovered inside it
-const SECTION_COMPONENTS: Record<string, string[]> = {
-  buttons: ["button"],
-  badges: ["badge"],
-  inputs: ["input", "select", "filter-bar"],
-  toggles: ["switch", "slider", "segmented"],
-  indicators: ["progress", "skeleton", "kbd", "error-state"],
-  overlays: ["dropdown-menu", "context-menu", "dialog", "sheet", "tooltip", "context-area", "menu-actions", "toaster"],
-  media: ["artwork"],
-  cards: ["shelf", "empty-state", "virtual-grid"],
-  shell: ["topbar", "page", "hero"],
-}
+// How many catalog entries show in a section
+const componentsIn = (section: string) => DISCOVERED_COMPONENTS.filter((c) => c.section === section).length
 
 // Map section filenames or ids to clean metadata
 const SECTION_CONFIG: Record<
@@ -48,8 +41,9 @@ const SECTION_CONFIG: Record<
   media: { label: "Media & Artwork", group: "Layout & Media", icon: <Image className="size-4" />, order: 7 },
   cards: { label: "Composite Cards", group: "Layout & Media", icon: <Cards className="size-4" />, order: 8 },
   shell: { label: "Shell & Headers", group: "Layout & Media", icon: <Sidebar className="size-4" />, order: 9 },
-  tokens: { label: "Colors & Tokens", group: "Tokens", icon: <Palette className="size-4" />, order: 10 },
-  icons: { label: "Icons (80+)", group: "Tokens", icon: <Image className="size-4" />, overrideCount: 82, order: 11 },
+  features: { label: "Features", group: "Features", icon: <SquaresFour className="size-4" />, order: 10 },
+  tokens: { label: "Colors & Tokens", group: "Tokens", icon: <Palette className="size-4" />, order: 11 },
+  icons: { label: "Icons", group: "Tokens", icon: <Image className="size-4" />, overrideCount: Object.keys(Icons).length, order: 12 },
 }
 
 /**
@@ -83,7 +77,7 @@ export function getDiscoveredSections(): ShowcaseSectionMeta[] {
     const count =
       typeof config?.overrideCount === "number"
         ? config.overrideCount
-        : SECTION_COMPONENTS[fileName]?.length
+        : componentsIn(fileName) || undefined
 
     sections.push({
       id: fileName,

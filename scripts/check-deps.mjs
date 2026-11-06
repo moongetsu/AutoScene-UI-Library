@@ -12,7 +12,7 @@
 // A pre-release `radix-ui` makes this easy to get wrong: packages that ask for
 // `^1.x` of a primitive can't share its RC, so npm installs both. The fix is
 // an `overrides` entry per duplicated primitive, pinned to the version
-// radix-ui uses (printed below) — and moved along with every radix-ui bump.
+// radix-ui uses (printed below) - and moved along with every radix-ui bump.
 
 import { existsSync, readdirSync, readFileSync } from "node:fs"
 import { join, relative } from "node:path"

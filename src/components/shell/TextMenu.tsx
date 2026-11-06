@@ -35,10 +35,10 @@ const ENTRIES: Entry[] = [
 ]
 
 /**
- * The text fields' menu — Undo, Redo, Cut, Copy, Paste, Delete, Select all —
+ * The text fields' menu - Undo, Redo, Cut, Copy, Paste, Delete, Select all -
  * in the app's glass instead of the browser's. It never takes the focus: the
  * field keeps its caret and its selection (and a field that closes or saves
- * when it loses the focus — the go-to field, a rename — stays as it is). It
+ * when it loses the focus - the go-to field, a rename - stays as it is). It
  * is worked with the mouse, or with keys caught before the field sees them.
  */
 export function TextMenu() {
@@ -174,7 +174,7 @@ function OpenTextMenu({ opened }: { opened: OpenedTextMenu }) {
 
   // A layer like the app's other menus: on top of any dialog (which then
   // ignores clicks on it and its Escape), the rest of the window waiting
-  // until it closes — a click outside closes it, as a native menu's does.
+  // until it closes - a click outside closes it, as a native menu's does.
   return (
     <DismissableLayer.Root
       asChild

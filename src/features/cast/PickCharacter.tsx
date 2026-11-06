@@ -41,7 +41,7 @@ export function PickCharacter({
   const [pending, setPending] = useState<Character | null>(null)
   const q = query.trim().toLowerCase()
   const options = (cast?.characters ?? []).filter((c) => c.id !== exclude && (!q || c.label.toLowerCase().includes(q)))
-  // Enter takes the row the arrows chose, else an exact name — never just
+  // Enter takes the row the arrows chose, else an exact name - never just
   // the first partial match (typing a new name must not pick an old one).
   const exact = options.findIndex((c) => c.label.toLowerCase() === q)
   const selected = active ?? (exact >= 0 ? exact : null)

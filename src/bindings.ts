@@ -36,28 +36,69 @@ export const commands = {
 	 *  to its accelerator, `""` for none. Elsewhere there is no menu.
 	 */
 	menuSetKeys: (keys: { [key in string]: string }) => __TAURI_INVOKE<null>("menu_set_keys", { keys }),
-	/**  The media engine (ffmpeg) found on this machine — Settings → About. */
+	/**  The media engine (ffmpeg) found on this machine - Settings → About. */
 	mediaTools: () => __TAURI_INVOKE<MediaToolsStatus>("media_tools"),
 	/**
 	 *  The AI models AutoScene downloads when an analysis first needs them:
-	 *  what each is for, its licence, and whether it is here — Settings → About.
+	 *  what each is for, its licence, and whether it is here - Settings → About.
 	 */
 	models: () => __TAURI_INVOKE<ModelInfo[]>("models"),
+	/**
+	 *  The scan new projects start with, and why: this computer's graphics and
+	 *  the person's choice (New project, Settings → General, Edit details).
+	 */
+	scanDefaultsGet: () => __TAURI_INVOKE<ScanDefaults>("scan_defaults_get"),
+	/**
+	 *  Choose the scan new projects start with: Automatic follows this computer,
+	 *  On and Off apply to every footage. Only here: `settings_update` keeps it.
+	 */
+	scanDefaultSet: (choice: ScanChoice) => __TAURI_INVOKE<ScanDefaults>("scan_default_set", { choice }),
+	/**
+	 *  "Don't show this again" on the first-start notice about Fast Scan: it
+	 *  isn't shown again in this library, whatever the graphics become.
+	 */
+	scanNoticeDone: () => __TAURI_INVOKE<null>("scan_notice_done"),
+	/**
+	 *  The graphics cards the analysis can run on, the one it runs on and why.
+	 *  The first call of a session starts the engine to ask ONNX Runtime what it
+	 *  finds (its idle exit stops it); later ones answer from what the last
+	 *  engine found.
+	 */
+	hardwareInfo: () => __TAURI_INVOKE<HardwareInfo>("hardware_info"),
+	/**
+	 *  Download NVIDIA's files: the person agreed to NVIDIA's licence. The row
+	 *  follows it (`hardware:changed`, `accel:progress`).
+	 */
+	accelInstall: () => __TAURI_INVOKE<void>("accel_install"),
+	/**  Stop the download of NVIDIA's files. */
+	accelCancel: () => __TAURI_INVOKE<void>("accel_cancel"),
+	/**  Remove NVIDIA's files, once no analysis uses them. */
+	accelRemove: () => __TAURI_INVOKE<null>("accel_remove"),
+	/**  Use NVIDIA's files again after they stopped working. */
+	accelTryAgain: () => __TAURI_INVOKE<null>("accel_try_again"),
+	/**  Open NVIDIA's third-party notices (About). */
+	accelNotices: () => __TAURI_INVOKE<null>("accel_notices"),
 	projectsList: () => __TAURI_INVOKE<ProjectSummary[]>("projects_list"),
 	projectGet: (projectId: ProjectId) => __TAURI_INVOKE<ProjectSummary>("project_get", { projectId }),
-	/**  Create a project from video files and start indexing them. */
-	projectCreate: (req: NewProject) => __TAURI_INVOKE<ProjectSummary>("project_create", { req }),
+	/**
+	 *  Create a project from video files and start indexing them. `fast_scan`
+	 *  is what the New Project dialog's switch shows; `None` (while the dialog
+	 *  hasn't read the defaults yet) takes its footage's default here.
+	 */
+	projectCreate: (req: NewProject, fastScan: boolean | null) => __TAURI_INVOKE<ProjectSummary>("project_create", { req, fastScan }),
 	projectRename: (projectId: ProjectId, title: string) => __TAURI_INVOKE<ProjectSummary>("project_rename", { projectId, title }),
 	/**
 	 *  Say what a project's footage is (live action, 3D animation, mixed; a
 	 *  project never moves to or from anime). Its cast is grouped again for it,
-	 *  and its faces found again when it moves to or from 3D animation.
+	 *  and its faces found again when it moves to or from 3D animation (a
+	 *  faces pass under way starts over at once).
 	 */
 	projectSetContent: (projectId: ProjectId, content: ContentKind) => __TAURI_INVOKE<ProjectSummary>("project_set_content", { projectId, content }),
 	/**
 	 *  Say whether a project's faces are found with Fast Scan (the way the
 	 *  Scener app finds them). Faces found the other way are found again, the
-	 *  user's decisions on them kept, and the cast is grouped again.
+	 *  user's decisions on them kept, and the cast is grouped again. A faces
+	 *  pass under way starts over at once.
 	 */
 	projectSetFastScan: (projectId: ProjectId, fastScan: boolean) => __TAURI_INVOKE<ProjectSummary>("project_set_fast_scan", { projectId, fastScan }),
 	/**
@@ -73,7 +114,9 @@ export const commands = {
 	settingsGet: () => __TAURI_INVOKE<AppSettings>("settings_get"),
 	/**
 	 *  Save the settings. Whether plugins AutoScene hasn't reviewed may run
-	 *  stays as it is: `plugins_allow_unreviewed` changes it.
+	 *  stays as it is: `plugins_allow_unreviewed` changes it. So does Fast Scan's
+	 *  default for new projects: `scan_default_set` changes it. A graphics card
+	 *  chosen, and NVIDIA acceleration switched, apply from the next analysis.
 	 */
 	settingsUpdate: (settings: AppSettings) => __TAURI_INVOKE<AppSettings>("settings_update", { settings }),
 	mediaList: (projectId: ProjectId) => __TAURI_INVOKE<MediaItem[]>("media_list", { projectId }),
@@ -116,7 +159,8 @@ export const commands = {
 	/**
 	 *  Run the analysis of a media again. `redo` clears results from that stage
 	 *  on first (a running analysis of the media is stopped and restarted once
-	 *  it has stopped); `None` continues a stopped or failed run.
+	 *  it has stopped); `None` continues a stopped or failed run. Nothing starts
+	 *  over when an analysis under way does it anyway.
 	 */
 	mediaAnalyze: (projectId: ProjectId, mediaId: MediaId, redo: 
 /**  Shots (and everything built on them: faces). */
@@ -130,7 +174,7 @@ export const commands = {
 	anilistSearchText: (projectId: ProjectId) => __TAURI_INVOKE<string>("anilist_search_text", { projectId }),
 	/**
 	 *  Search AniList (anime), TVmaze (animated series) or Wikidata (animated
-	 *  films, with their Fandom wikis) for `text` — the text the person
+	 *  films, with their Fandom wikis) for `text` - the text the person
 	 *  confirmed is sent as it is. Series the project rejected aren't among the
 	 *  results.
 	 */
@@ -154,7 +198,7 @@ export const commands = {
 	anilistSuggest: (projectId: ProjectId) => __TAURI_INVOKE<AniListSuggestions>("anilist_suggest", { projectId }),
 	/**
 	 *  Apply suggestions made on cast revision `rev` (a regroup or decision
-	 *  since makes them stale — the suggestions are asked for again).
+	 *  since makes them stale - the suggestions are asked for again).
 	 */
 	anilistApply: (projectId: ProjectId, rev: number, names: AniListSuggestion[], merges: AniListMerge[]) => __TAURI_INVOKE<number>("anilist_apply", { projectId, rev, names, merges }),
 	/**  Whether names are given without asking (`anilist.auto`), or set it. */
@@ -192,9 +236,15 @@ export const commands = {
 	mediaPresence: (projectId: ProjectId, mediaId: MediaId) => __TAURI_INVOKE<Presence[]>("media_presence", { projectId, mediaId }),
 	/**
 	 *  Every shot a character is seen in, with its sprite and the character's
-	 *  clearest face there.
+	 *  clearest face there: in episode order, in groups of shots close together
+	 *  in time (a shot far from the others is a group of one).
 	 */
-	characterShots: (projectId: ProjectId, characterId: CharacterId) => __TAURI_INVOKE<CharacterShot[]>("character_shots", { projectId, characterId }),
+	/**
+	 *  What the status looks like with the switches `show`, for Settings: in an
+	 *  episode, in a scenepack.
+	 */
+	discordPreview: (show: DiscordRpcSettings) => __TAURI_INVOKE<DiscordLines[]>("discord_preview", { show }),
+	characterShots: (projectId: ProjectId, characterId: CharacterId) => __TAURI_INVOKE<ShotGroup[]>("character_shots", { projectId, characterId }),
 	exportPresets: () => __TAURI_INVOKE<ExportPreset[]>("export_presets"),
 	/**  Folder exports of this project go to unless the user picks another. */
 	exportDefaultDir: (projectId: ProjectId) => __TAURI_INVOKE<string>("export_default_dir", { projectId }),
@@ -236,8 +286,41 @@ export const commands = {
 	 *  events, results as `export:changed`.
 	 */
 	packExport: (projectId: ProjectId, characterId: CharacterId, req: PackExportRequest) => __TAURI_INVOKE<ExportSummary>("pack_export", { projectId, characterId, req }),
+	/**
+	 *  Ask a plugin's shot filter `filter` (`<pluginId>/<filterId>`) for its
+	 *  verdicts on the shots of the pack `spec` makes that it hasn't judged:
+	 *  `true` while its check waits or runs. One that failed with the settings
+	 *  it has now starts only `again` (the person's Try again). Verdicts arrive
+	 *  an episode at a time, with a `pack:changed` once each run is over; the
+	 *  check shows in Activity.
+	 */
+	packFilterCheck: (projectId: ProjectId, characterId: CharacterId, filter: string, spec: PackSpec, again: boolean) => __TAURI_INVOKE<boolean>("pack_filter_check", { projectId, characterId, filter, spec, again }),
+	/**
+	 *  Save a character's pack, exactly as the preview with `stamp` showed it,
+	 *  with a plugin's pack action `action` (`<pluginId>/<actionId>`): the
+	 *  system's save dialog asks where first, then its run is queued, and the
+	 *  file is there once it ends well. Refused, before anything is asked, as an
+	 *  export of the pack would be: when it changed since it was shown, while a
+	 *  filter it turns on checks shots, or when it takes nothing.
+	 */
+	packActionRun: (projectId: ProjectId, characterId: CharacterId, action: string, spec: PackSpec, naming: PackNaming, stamp: string) => __TAURI_INVOKE<PackActionStart>("pack_action_run", { projectId, characterId, action, spec, naming, stamp }),
 	/**  Every installed plugin, by id (also the broken ones). */
 	pluginsList: () => __TAURI_INVOKE<PluginInfo[]>("plugins_list"),
+	/**
+	 *  A plugin's banner as a `data:` URL, read and checked again as its icon
+	 *  is: none when it has no banner, or one that is no longer the picture its
+	 *  package listed. The list gives only its hash (`PluginInfo.bannerHash`).
+	 */
+	pluginBanner: (pluginId: string) => __TAURI_INVOKE<string | null>("plugin_banner", { pluginId }),
+	/**
+	 *  Open a plugin's source in the person's browser: the `repository` its
+	 *  own plugin.json names, read here (the page hands no link). A plain
+	 *  GitHub repository opens at once; any other link only after the person's
+	 *  yes in the dialog of the system's own that a page's `ui.openExternal`
+	 *  asks in too ([`confirm`]). Whether it opened: a no is `false`, with
+	 *  nothing more to say.
+	 */
+	pluginOpenSource: (pluginId: string) => __TAURI_INVOKE<boolean>("plugin_open_source", { pluginId }),
 	/**
 	 *  Let plugins AutoScene hasn't reviewed be installed and run, or not
 	 *  (`settings_update` never changes it, so a save from a copy of the
@@ -271,14 +354,20 @@ export const commands = {
 	 */
 	pluginDiscard: (ticketId: string) => __TAURI_INVOKE<null>("plugin_discard", { ticketId }),
 	/**
-	 *  Uninstall a plugin, with what it kept when `delete_data`. A folder it was
-	 *  loaded from stays. Refused while it runs; its runs still waiting go.
+	 *  Uninstall a plugin, with the large files it downloaded, and what it kept
+	 *  when `delete_data`. A folder it was loaded from stays. Refused while it
+	 *  runs; its runs still waiting go.
 	 */
 	pluginUninstall: (pluginId: string, deleteData: boolean) => __TAURI_INVOKE<null>("plugin_uninstall", { pluginId, deleteData }),
 	/**  Turn a plugin on or off. Off, its runs stop, and those still waiting go. */
 	pluginSetEnabled: (pluginId: string, enabled: boolean) => __TAURI_INVOKE<PluginInfo>("plugin_set_enabled", { pluginId, enabled }),
 	/**  Turn a plugin's export action on or off for after every export. */
 	pluginSetAfterExport: (pluginId: string, actionId: string, on: boolean) => __TAURI_INVOKE<PluginInfo>("plugin_set_after_export", { pluginId, actionId, on }),
+	/**
+	 *  Turn a plugin's event on or off: on, it runs by itself when what it
+	 *  waits for happens.
+	 */
+	pluginSetEvent: (pluginId: string, eventId: string, on: boolean) => __TAURI_INVOKE<PluginInfo>("plugin_set_event", { pluginId, eventId, on }),
 	/**  A plugin's settings: the person's value of each, else its default. */
 	pluginSettingsGet: (pluginId: string) => __TAURI_INVOKE<{ [key in string]: SettingValue }>("plugin_settings_get", { pluginId }),
 	/**
@@ -292,6 +381,63 @@ export const commands = {
 	 *  when that run waits or runs already. It reports as a job.
 	 */
 	pluginRun: (pluginId: string, actionId: string, kind: ActionKind, projectId: string | null, exportId: string | null) => __TAURI_INVOKE<string | null>("plugin_run", { pluginId, actionId, kind, projectId, exportId }),
+	/**  The catalog as AutoScene holds it. Never the network. */
+	catalogList: () => __TAURI_INVOKE<CatalogView>("catalog_list"),
+	/**
+	 *  Checks the catalog now, also while the daily checks are off. A check
+	 *  that fails is no error: the view says why.
+	 */
+	catalogRefresh: () => __TAURI_INVOKE<CatalogView>("catalog_refresh"),
+	/**
+	 *  Gets the version of `plugin_id` the catalog offers here (newer than the
+	 *  one installed) and checks it, for the review dialog. One at a time per
+	 *  plugin; `catalog_cancel` ends it until its review is ready.
+	 */
+	catalogGet: (pluginId: string) => __TAURI_INVOKE<PluginReview>("catalog_get", { pluginId }),
+	/**
+	 *  Ends the get of `plugin_id` under way (it fails as cancelled). None
+	 *  under way is no error.
+	 */
+	catalogCancel: (pluginId: string) => __TAURI_INVOKE<null>("catalog_cancel", { pluginId }),
+	/**
+	 *  The plugin packages opened from outside AutoScene since the page last
+	 *  asked (a double-click on one, a start with one), oldest first. Each only
+	 *  opens the install review: `plugin_inspect` checks its path again.
+	 */
+	pluginsTakeOpened: () => __TAURI_INVOKE<string[]>("plugins_take_opened"),
+	/**
+	 *  Keep `value` in the system's keychain as a plugin's secret setting
+	 *  `key`, in place of the one before. The value never comes back: the
+	 *  plugin's info says only which are set.
+	 */
+	pluginSecretSet: (pluginId: string, key: string, value: string) => __TAURI_INVOKE<PluginInfo>("plugin_secret_set", { pluginId, key, value }),
+	/**  Remove a plugin's secret setting `key` from the system's keychain. */
+	pluginSecretClear: (pluginId: string, key: string) => __TAURI_INVOKE<PluginInfo>("plugin_secret_clear", { pluginId, key }),
+	/**
+	 *  Open a plugin's page `page_id` for its frame, in the project
+	 *  `project_id` when it is a project page: the session the frame loads it
+	 *  from, and what the page may use. Only while the plugin may run.
+	 */
+	pluginPageOpen: (pluginId: string, pageId: string, projectId: string | null) => __TAURI_INVOKE<PageMount>("plugin_page_open", { pluginId, pageId, projectId }),
+	/**
+	 *  Close a plugin page's session: its frame went away. One that is closed
+	 *  already is no error.
+	 */
+	pluginPageClose: (session: string) => __TAURI_INVOKE<null>("plugin_page_close", { session }),
+	/**
+	 *  A plugin page's call of `method` with `params`, which the app's page
+	 *  hands on with the page's `session`: Rust knows the plugin from it, never
+	 *  from the page. The params come as their JSON, so nothing reads params
+	 *  past their method's cap. Its answer, an effect for the app's page to
+	 *  carry out first, or the page's error; a closed page's call gets `closed`.
+	 */
+	pluginPageCall: (session: string, method: string, params: string) => __TAURI_INVOKE<PageReply>("plugin_page_call", { session, method, params }),
+	/**
+	 *  The app's page is there for the open plugin page `session`: it says so
+	 *  every 2 s on macOS and Linux, where a page that hangs would hang it too,
+	 *  and is asked about once it stops ([`pages::watch`]).
+	 */
+	pluginPageHeartbeat: (session: string) => __TAURI_INVOKE<null>("plugin_page_heartbeat", { session }),
 	/**  Newest first. Live updates arrive as `job:changed` / `job:progress`. */
 	jobsList: () => __TAURI_INVOKE<JobInfo[]>("jobs_list"),
 	jobCancel: (jobId: JobId) => __TAURI_INVOKE<void>("job_cancel", { jobId }),
@@ -319,30 +465,123 @@ export const commands = {
 
 /** Events */
 export const events = {
+	accelFinished: makeEvent<AccelFinished>("accel:finished"),
+	accelProgress: makeEvent<AccelProgress>("accel:progress"),
 	analysisChanged: makeEvent<AnalysisChanged>("analysis:changed"),
 	anilistChanged: makeEvent<AniListChanged>("anilist:changed"),
 	castChanged: makeEvent<CastChanged>("cast:changed"),
+	catalogChanged: makeEvent<CatalogChanged>("catalog:changed"),
+	catalogProgress: makeEvent<CatalogProgress>("catalog:progress"),
 	exportChanged: makeEvent<ExportChanged>("export:changed"),
+	hardwareChanged: makeEvent<HardwareChanged>("hardware:changed"),
 	jobChanged: makeEvent<JobChanged>("job:changed"),
 	jobProgress: makeEvent<JobProgressEvent>("job:progress"),
 	libraryChanged: makeEvent<LibraryChanged>("library:changed"),
 	mediaChanged: makeEvent<MediaChanged>("media:changed"),
 	menuAction: makeEvent<MenuAction>("menu:action"),
 	packChanged: makeEvent<PackChanged>("pack:changed"),
+	pluginPageEvent: makeEvent<PluginPageEvent>("plugin-page:event"),
 	pluginsChanged: makeEvent<PluginsChanged>("plugins:changed"),
+	pluginsOpened: makeEvent<PluginsOpened>("plugins:opened"),
 	portraitsChanged: makeEvent<PortraitsChanged>("portraits:changed"),
 	updateProgress: makeEvent<UpdateProgress>("update:progress"),
 };
 
+/* Constants */
+export const FILE_PARTS = ["series","character"] as const;
+
+export const NAME_PARTS = [["series","Series"],["character","Character"],["episode","Episode"],["index","Number"],["tc","Timecode"],["frame","Frame"]] as const;
+
 /* Types */
+/**
+ *  The download of NVIDIA's files the person asked for ended: `error` says
+ *  why it failed, for the person. Cancelled ones don't say, nor does an
+ *  update that runs by itself: its files come by the next start.
+ */
+export type AccelFinished = {
+	error: string | null,
+};
+
+/**  Settings → General → NVIDIA acceleration. */
+export type AccelInfo = {
+	row: AccelRow,
+	/**  NVIDIA's files are here (About names them). */
+	installed: boolean,
+	/**  Some of them are, finished or not: the row offers to remove them. */
+	removable: boolean,
+	/**  Analysis uses them. */
+	active: boolean,
+	/**  The bytes a download fetches. */
+	downloadBytes: number,
+	/**  NVIDIA's licence, which the person agrees to by downloading. */
+	licence: string,
+	/**  TensorRT for RTX's release (About). */
+	engine: string,
+};
+
+/**  How far the download of NVIDIA's files is, in bytes of `total`. */
+export type AccelProgress = {
+	done: number,
+	total: number,
+};
+
+/**
+ *  What the row shows: the first of these that applies, in this order, but
+ *  for [`AccelRow::Hidden`].
+ */
+export type AccelRow = 
+/**  Nothing: this computer can't use it and has no files of it. */
+{ state: "hidden" } | { state: "downloading"; done: number; total: number } | 
+/**  The last download failed; `message` says why, for the person. */
+{ state: "failed"; message: string } | 
+/**  The files go once the current analysis is done with them. */
+{ state: "removing" } | 
+/**  It can be downloaded (or its new licence has to be agreed to). */
+{ state: "available" } | 
+/**  Another card, or the processor, is chosen. */
+{ state: "notUsed" } | 
+/**
+ *  It failed twice in a row, or doesn't load: analysis runs without it
+ *  until the person tries again.
+ */
+{ state: "stopped" } | 
+/**  It lists no device for this card. */
+{ state: "needsDriver" } | 
+/**  Installed and usable: the switch (`AppSettings::nvidia_acceleration`). */
+{ state: "ready" };
+
 /**  Which of a plugin's contributions a run is for. */
-export type ActionKind = "exportAction" | "command";
+export type ActionKind = "exportAction" | "command" | 
+/**
+ *  One of its events (`contributes.events`), which AutoScene starts by
+ *  itself: never from a menu, the palette or a page.
+ */
+"event" | 
+/**
+ *  A shot filter of the scenepack builder (protocol 2), which judges
+ *  the shots of [`RunMessage::shots`].
+ */
+"shotFilter" | 
+/**
+ *  An entry of a scenepack's menu (protocol 2), which saves
+ *  [`RunMessage::pack`] as [`RunMessage::output`].
+ */
+"packAction";
 
 /**  Analysis results of a media changed (shots or faces found, or reset). */
 export type AnalysisChanged = {
 	projectId: ProjectId,
 	mediaId: MediaId,
 };
+
+/**  What the analysis runs on. */
+export type AnalysisDevice = 
+/**  A graphics card; `name` is empty when the graphics driver picks it. */
+{ kind: "gpu"; name: string } | 
+/**  An Apple chip: its graphics and Neural Engine. */
+{ kind: "chip"; name: string } | 
+/**  The processor. */
+{ kind: "processor" };
 
 /**  A stage of a media's analysis, to run again from scratch. */
 export type AnalysisStage = 
@@ -470,11 +709,12 @@ export type AppSettings = {
 	 */
 	findBodies?: boolean,
 	/**
-	 *  Projects created while this is on find their faces the way the
-	 *  Scener app does (smaller models, a few frames per shot; anime keeps
-	 *  its character models): much faster, less sure who is who. Each
-	 *  project keeps what it was created with (see
-	 *  [`ProjectSummary::fast_scan`]); off by default.
+	 *  Whether new live-action projects start with Fast Scan (smaller face
+	 *  models, a few frames per shot; anime keeps its character models):
+	 *  much faster, less sure who is who. Each project keeps what it was
+	 *  created with (see [`ProjectSummary::fast_scan`]). **Read only**:
+	 *  `settings_update` ignores it; `scan_default_set` chooses, and
+	 *  [`ScanDefaults`] says why.
 	 */
 	fastScan?: boolean,
 	/**
@@ -494,10 +734,29 @@ export type AppSettings = {
 	 *  `plugins_allow_unreviewed`: `settings_update` keeps it as it is.
 	 */
 	allowUnreviewedPlugins?: boolean,
+	/**
+	 *  The graphics the analysis runs on: `""` Automatic (the card DirectML
+	 *  takes by default: the one Windows ranks fastest), `"cpu"` the
+	 *  processor only, or a card's key ([`GpuOption::key`]). Applies from the
+	 *  next analysis; a card that isn't connected leaves Automatic in its
+	 *  place.
+	 */
+	gpu?: string,
+	/**
+	 *  Checks the plugin catalog once a day for new versions and withdrawn
+	 *  plugins. On by default.
+	 */
+	pluginCatalogChecks?: boolean,
+	/**
+	 *  Analysis uses NVIDIA's engine once its files are downloaded: on
+	 *  unless switched off. Applies from the next analysis.
+	 */
+	nvidiaAcceleration?: boolean,	/**  What Discord may show. Everything off until the person turns it on. */
+	discordRpc?: DiscordRpcSettings,
 };
 
 export type AudioCodec = { codec: "none" } | 
-/**  24-bit PCM (MOV only) — what NLEs prefer. */
+/**  24-bit PCM (MOV only) - what NLEs prefer. */
 { codec: "pcm24" } | { codec: "aac"; kbps: number } | 
 /**
  *  The source's samples as they are: PCM at its rate, in its channels
@@ -520,6 +779,28 @@ export type AudioStream = {
 	default: boolean,
 	/**  Director's commentary or audio description, not the programme sound. */
 	commentary: boolean,
+};
+
+/**  What kind of error a call got. */
+export type CallCode = 
+/**  The plugin has no grant for it. */
+"denied" | 
+/**  The call itself is wrong (an unknown method, params that don't fit). */
+"invalid" | "not_found" | 
+/**  Too many calls at once, or the plugin is busy. */
+"busy" | 
+/**  AutoScene couldn't answer it. */
+"failed" | 
+/**  The page that called was closed. */
+"closed" | "cancelled";
+
+/**
+ *  The error a call got: its kind, and a sentence for the plugin's log or
+ *  its page.
+ */
+export type CallError = {
+	code: CallCode,
+	message: string,
 };
 
 /**  The cast of a project. */
@@ -566,6 +847,99 @@ export type CastEdit =
 { op: "body_not_them"; bodies: number[]; characterId: CharacterId } | 
 /**  These bodies aren't people (a coat on a chair, a shadow). */
 { op: "not_a_person"; bodies: number[] };
+
+/**
+ *  AutoScene checked its plugin catalog (at start, once a day, or when the
+ *  person asked): what it offers may have changed. `withdrawn`: the
+ *  installed plugins this check withdrew, whose runs and pages stopped.
+ */
+export type CatalogChanged = {
+	withdrawn: string[],
+};
+
+/**
+ *  What the catalog offers of one plugin: the newest version this AutoScene
+ *  runs here, or the newest it can't. Times are Unix ms.
+ */
+export type CatalogPlugin = {
+	id: string,
+	name: string,
+	summary: string,
+	author: string,
+	license: string | null,
+	version: string,
+	/**  Empty: all. */
+	platforms: string[],
+	permissions: string[],
+	hosts: string[],
+	gpu: boolean,
+	uvScript: boolean,
+	runtime: string,
+	/**  Where the catalog built it from. */
+	repository: string,
+	commit: string,
+	path: string,
+	/**  A `data:` URL the catalog's checks passed. */
+	icon: string | null,
+	sizeBytes: number | null,
+	approved: number | null,
+	/**  The version installed. */
+	installed: string | null,
+	/**  It runs here and is newer than the one installed. */
+	update: boolean,
+	/**  What it asks that the installed one wasn't granted. */
+	addsPermissions: string[],
+	addsHosts: string[],
+	runsHere: boolean,
+	needsNewerApp: boolean,
+	/**
+	 *  What the large files it names take, in bytes: what its first run
+	 *  downloads.
+	 */
+	resourceBytes: number | null,
+	/**
+	 *  Hosts those files come from that the installed version's
+	 *  `plugin.json` doesn't name (all of them when it can't be read).
+	 */
+	addsResourceHosts: string[],
+};
+
+/**
+ *  How far the package of `plugin_id` came from the catalog (`catalog_get`),
+ *  in bytes: at most every 100 ms, and once at the end.
+ */
+export type CatalogProgress = {
+	pluginId: string,
+	done: number | null,
+	total: number | null,
+};
+
+/**  Where AutoScene stands with its catalog. Times are Unix ms. */
+export type CatalogStatus = {
+	/**  This build has the catalog's keys, and this AutoScene owns its row. */
+	ready: boolean,
+	/**  It is checked once a day (the setting). */
+	daily: boolean,
+	published: number | null,
+	expires: number | null,
+	/**  When the index held was last fetched and checked out. */
+	fetchedAt: number | null,
+	/**  When AutoScene last tried. */
+	checkedAt: number | null,
+	/**  There is no index, or it ran out. */
+	outOfDate: boolean,
+	/**  Why the last check failed. */
+	error: string | null,
+	/**  A later AutoScene checked the catalog, or its index needs one. */
+	needsNewerApp: boolean,
+};
+
+/**  The catalog as Settings shows it. */
+export type CatalogView = {
+	status: CatalogStatus,
+	/**  What it offers, by plugin, while its index lives; none otherwise. */
+	plugins: CatalogPlugin[],
+};
 
 /**  A person the analysis found across the project's media. */
 export type Character = {
@@ -634,7 +1008,7 @@ export type CharacterShot = {
 	 */
 	faceless?: boolean,
 	/**
-	 *  Their bodies there, in a shot without their face — every one, so
+	 *  Their bodies there, in a shot without their face - every one, so
 	 *  the user's word on the shot is on all of them.
 	 */
 	bodies?: number[],
@@ -673,6 +1047,30 @@ export type ContentKind =
 /**  Anime / 2D animation (heads, character art). */
 "anime" | "mixed";
 
+/**  The two lines of the status under AutoScene's name. */
+export type DiscordLines = {
+	details: string,
+	state: string | null,
+};
+
+/**
+ *  What AutoScene may tell Discord. All off by default: nothing goes to
+ *  Discord until `enabled`, and a name only with its own switch as well.
+ */
+export type DiscordRpcSettings = {
+	/**  Shows that the person is working in AutoScene on their profile. */
+	enabled?: boolean,
+	/**  The project's title in place of "Working on a project". */
+	showProject?: boolean,
+	/**
+	 *  The open episode's or file's name in place of "Reviewing an episode"
+	 *  or "Reviewing a file".
+	 */
+	showEpisode?: boolean,
+	/**  The open character's name in place of "Making a scenepack". */
+	showCharacter?: boolean,
+};
+
 export type DnxProfile = 
 /**  8-bit 4:2:2. */
 "hq" | 
@@ -690,6 +1088,18 @@ export type ErrorCode = "not_found" |
 "not_ready" | "cancelled" | 
 /**  ffmpeg is missing or failed. */
 "media" | "io" | "update" | "internal";
+
+/**
+ *  What an event waits for. One this AutoScene doesn't know is skipped with
+ *  a warning, so a later AutoScene may add one.
+ */
+export type EventKind = 
+/**
+ *  A project's episodes are all analysed: the last of its analyses
+ *  that had something to do ended, with no indexing or regrouping of
+ *  it left to wait for.
+ */
+"analysisFinished";
 
 /**  An export was created, progressed to another clip, or finished. */
 export type ExportChanged = {
@@ -845,12 +1255,91 @@ export type FrameMap = {
 
 /**  Keyframe spacing for long-GOP codecs. Editors scrub short GOPs far better. */
 export type Gop = 
-/**  About one keyframe per second, no B-frames — smooth scrubbing in NLEs. */
+/**  About one keyframe per second, no B-frames - smooth scrubbing in NLEs. */
 "editing" | 
 /**  Every frame a keyframe (largest files, perfect for Twixtor/AE). */
 "all_intra" | 
 /**  Encoder defaults (smallest files). */
 "delivery";
+
+/**  A graphics card the analysis can run on. */
+export type GpuOption = {
+	/**  What [`AppSettings::gpu`] stores when it is chosen. */
+	key: string,
+	/**  As its driver names it, numbered among identical cards. */
+	name: string,
+};
+
+/**  What this computer's analysis runs on, as Fast Scan's default sees it. */
+export type GraphicsClass = 
+/**
+ *  A separate graphics card built for AI work (matrix units the runtimes
+ *  use): on Automatic, new projects keep the full scan.
+ */
+"forAi" | 
+/**  A separate graphics card without them, or a virtual adapter. */
+"notForAi" | 
+/**  Built-in graphics, every Mac's included. */
+"integrated" | 
+/**  No graphics the analysis can use: it runs on the processor. */
+"processor" | 
+/**  AutoScene couldn't tell: on Automatic, new projects keep the full scan. */
+"unknown";
+
+/**
+ *  What Settings says about the graphics the analysis runs on may have
+ *  changed: an engine named what it found, a choice applies from the next
+ *  analysis or now does, the last analysis ran some steps on the processor,
+ *  or NVIDIA's files came or went (`hardware_info` answers anew).
+ */
+export type HardwareChanged = null;
+
+/**  What can be chosen here. */
+export type HardwareChoice = 
+/**
+ *  Nothing to choose: Linux, or Windows without a graphics card the
+ *  analysis can use. It runs on the processor.
+ */
+"fixed" | 
+/**  Automatic or the processor only: an Apple chip, or one card. */
+"autoOrProcessor" | 
+/**  Automatic, each card, or the processor only. */
+"cards";
+
+/**
+ *  Settings → General → Graphics card: what can be chosen, what is, and
+ *  what the analysis runs on because of it.
+ */
+export type HardwareInfo = {
+	/**
+	 *  The graphics cards found, in the order DirectML takes them
+	 *  (Automatic's first).
+	 */
+	gpus: GpuOption[],
+	choice: HardwareChoice,
+	/**
+	 *  The option chosen: `"auto"`, `"cpu"`, or the key of the card in use
+	 *  (as it is named now, which a driver update may have changed).
+	 */
+	selected: string,
+	/**  What the analysis runs on with that choice. */
+	using: AnalysisDevice,
+	/**  The chosen card isn't connected: Automatic's runs in its place. */
+	missing: boolean,
+	/**
+	 *  The choice changed while an analysis runs on the one before: it
+	 *  applies from the next.
+	 */
+	pending: boolean,
+	/**
+	 *  The last analysis ran some steps on the processor, much slower,
+	 *  because the graphics couldn't take them.
+	 */
+	fellBack: boolean,
+	/**  The ONNX Runtime's version (About). */
+	runtime: string,
+	accel: AccelInfo,
+};
 
 export type HdrKind = "none" | "pq" | "hlg" | "dolby_vision";
 
@@ -1107,8 +1596,39 @@ export type NewProject = {
 };
 
 /**
- *  A character's pack settings changed: an export keeps the ones it was
- *  made with. (Picks by hand answer the grid that made them instead.)
+ *  An entry a plugin adds to a scenepack's ⋯ menu (manifest version 2): its
+ *  program saves the character's pack, as the grid shows it, as one file
+ *  the person places in the system's save dialog, before anything is
+ *  rendered ([`crate::protocol::PackContext`]).
+ */
+export type PackActionSpec = {
+	id: string,
+	/**  Its menu entry ("Save as FCPXML…"), at most 40 characters. */
+	title: string,
+	file: PackFileSpec,
+};
+
+/**  What a click on a pack action did. */
+export type PackActionStart = 
+/**
+ *  Its run waits in Activity as `job`; once it ends well, the file is
+ *  at `path`.
+ */
+{ kind: "queued"; job: JobId; path: string } | 
+/**
+ *  The same pack action of this pack waits or runs already: nothing
+ *  was asked, and nothing queued.
+ */
+{ kind: "waits" } | 
+/**  The person closed the save dialog: nothing runs. */
+{ kind: "cancelled" };
+
+/**
+ *  A character's pack changed: its settings (an export keeps the ones it
+ *  was made with), or a run of a plugin's shot filter on an episode of its
+ *  shots is over (once per run, when its verdicts are kept and its check
+ *  reads what comes next: checking, ready or failed). (Picks by hand answer
+ *  the grid that made them instead.)
  */
 export type PackChanged = {
 	projectId: ProjectId,
@@ -1124,11 +1644,13 @@ export type PackChoice = {
 	byRules: boolean,
 	reason: PackReason | null,
 	manual: boolean | null,
+	/**  See [`PackClip::filter`]. */
+	filter: number | null,
 };
 
 /**
  *  A pack after shots were picked: every clip's choice, in the pack's
- *  order — the rest of the pack is its preview's, when the `shape` is.
+ *  order - the rest of the pack is its preview's, when the `shape` is.
  */
 export type PackChoices = {
 	choices: PackChoice[],
@@ -1160,6 +1682,11 @@ export type PackClip = {
 	reason: PackReason | null,
 	/**  Picked (`true`) or dropped (`false`) by hand. */
 	manual: boolean | null,
+	/**
+	 *  The plugin filter that leaves it out (an index into
+	 *  [`PackPreview::filters`]), picked back in by hand or not.
+	 */
+	filter: number | null,
 };
 
 export type PackExportRequest = {
@@ -1174,6 +1701,53 @@ export type PackExportRequest = {
 	/**  The preview's stamp: the export is refused if the pack changed since. */
 	stamp: string,
 };
+
+/**  The file a pack action saves, as the save dialog offers it. */
+export type PackFileSpec = {
+	/**
+	 *  The name it offers: a plain file name ending in one of `extensions`,
+	 *  where `{character}` stands for the character's name.
+	 */
+	name: string,
+	/**
+	 *  The kinds of file it offers: 1 to 4 extensions without their dot,
+	 *  each of 1 to 10 lowercase letters and digits.
+	 */
+	extensions: string[],
+};
+
+/**  A plugin's shot filter, as the scenepack builder shows it. */
+export type PackFilter = {
+	/**  `<pluginId>/<filterId>`, as [`PackSpec::plugin_filters`] names it. */
+	key: string,
+	title: string,
+	description: string | null,
+	/**  What a shot it leaves out says. */
+	reason: string,
+	/**  Its plugin's name. */
+	plugin: string,
+	/**
+	 *  The character's shots it has judged with its settings as they are,
+	 *  of those it can (in episodes whose files are there).
+	 */
+	checked: number,
+	total: number,
+	state: PackFilterState,
+};
+
+/**  What a plugin's shot filter is doing for a character. */
+export type PackFilterState = 
+/**  Nothing runs: what it judged is in the pack. */
+"ready" | 
+/**  A check of the character's shots waits or runs. */
+"checking" | 
+/**
+ *  Its last check failed or was stopped: it starts again on Try again,
+ *  or once its settings change.
+ */
+"failed" | 
+/**  Its plugin isn't active: the pack ignores it. */
+"off";
 
 /**  A shot of a pack, by its media and first frame. */
 export type PackKey = {
@@ -1225,6 +1799,16 @@ export type PackPreview = {
 	stamp: string,
 	/**  Names its clips, in order, as they are apart from their [`PackChoice`]s. */
 	shape: string,
+	/**
+	 *  The plugins' shot filters it can show: every one of an active
+	 *  plugin, and those its spec turns on whose plugin isn't (`off`).
+	 */
+	filters: PackFilter[],
+	/**
+	 *  Shots a filter turned on hasn't judged yet (with its settings as
+	 *  they are): they are in the pack until it has.
+	 */
+	unchecked: number,
 };
 
 /**  Why a shot is left out of a pack. */
@@ -1236,7 +1820,9 @@ export type PackReason =
 /**  Past the limit. */
 "limit" | 
 /**  Dropped by hand. */
-"removed";
+"removed" | 
+/**  A plugin's shot filter said no ([`PackClip::filter`] names which). */
+"plugin";
 
 /**
  *  Which of a character's shots go into their scenepack. (Filters saved by
@@ -1265,6 +1851,12 @@ export type PackSpec = {
 	limit: number | null,
 	/**  Extra frames before and after each shot (within the episode). */
 	handles: number,
+	/**
+	 *  Plugins' shot filters turned on (`<pluginId>/<filterId>`): each
+	 *  leaves out the shots its plugin says no to. One of a plugin that
+	 *  isn't active is ignored.
+	 */
+	pluginFilters?: string[],
 };
 
 /**  A character's pack settings, as last used. */
@@ -1277,6 +1869,90 @@ export type PackTotals = {
 	clips: number,
 	frames: number | null,
 	seconds: number | null,
+};
+
+/**  What a page's call asks the app's page to do. */
+export type PageEffect = 
+/**
+ *  A toast. `title` is its whole first line, `Plugin “<name>”: <text>`:
+ *  the app's page shows it as it is.
+ */
+{ type: "toast"; title: string; description: string | null; tone: ToastTone } | 
+/**  The path inside the page becomes `path` (the route's splat). */
+{ type: "navigate"; path: string; replace: boolean };
+
+/**  What became of an open plugin page, or of its plugin's service. */
+export type PageEvent = 
+/**  An event its plugin's service emitted. */
+{ type: "service"; name: string; data: unknown } | 
+/**
+ *  What its plugin's service is doing: starting (`message` is how far),
+ *  ready, or stopped (`message` says why).
+ */
+{ type: "serviceState"; state: ServiceStatus; message: string | null } | 
+/**  Its plugin's settings or secrets changed: it may read them again. */
+{ type: "settings" } | 
+/**
+ *  It was closed (its plugin was turned off, is being updated or
+ *  uninstalled, may no longer run unreviewed, or too many pages were
+ *  open): `reason` says so, for the person.
+ */
+{ type: "closed"; reason: string };
+
+/**  An open page, for its frame: where it loads from, and what it may use. */
+export type PageMount = {
+	/**  Its session, which the page's calls name. */
+	session: string,
+	/**  The frame's address: `B/<session>/<entry>`. */
+	src: string,
+	plugin: PageMountPlugin,
+	page: PageSpec,
+	/**  The project it is open in (a project page's). */
+	projectId: string | null,
+	/**  What it may use, for its start. */
+	permissions: Permission[],
+	hosts: string[],
+	/**  Its plugin runs a service. */
+	service: boolean,
+	/**  The protocol its plugin declared. */
+	protocol: number,
+};
+
+/**  The plugin of an open page, as its frame's bar shows it. */
+export type PageMountPlugin = {
+	id: string,
+	name: string,
+	version: string,
+	trust: Trust,
+	source: PluginSource,
+	/**  A `data:` URL of its icon, when it has a sound one. */
+	icon: string | null,
+};
+
+/**
+ *  What an open page's call gets: its answer; an effect the app's page
+ *  carries out, then answers with `result`; or an error.
+ */
+export type PageReply = { kind: "ok"; result: unknown } | 
+/**  The app's page does `effect`, then answers the page with `result`. */
+{ kind: "effect"; effect: PageEffect; result: unknown } | { kind: "err"; error: CallError };
+
+/**  Where a page opens: on its own, or in a project, which it may then read. */
+export type PageScope = "global" | "project";
+
+/**
+ *  A page a plugin adds: one of its files, which AutoScene shows full screen
+ *  in a sandboxed frame, from the rail (a global page) or a project's bar.
+ */
+export type PageSpec = {
+	id: string,
+	title: string,
+	description: string | null,
+	/**  Its file: the package path of an `.html` file under `ui/`. */
+	entry: string,
+	scope: PageScope,
+	/**  It has a tile in the rail (global pages only). */
+	rail: boolean,
 };
 
 /**
@@ -1295,6 +1971,17 @@ export type Permission =
 
 export type Platform = "windows" | "macos" | "linux";
 
+/**  A moment a plugin may run on by itself. */
+export type PluginEvent = {
+	id: string,
+	title: string,
+	description: string | null,
+	/**  What it waits for. */
+	on: EventKind,
+	/**  The person turned it on: it runs when that happens. */
+	turnedOn: boolean,
+};
+
 /**  An entry a plugin adds to each export's menu. */
 export type PluginExportAction = {
 	id: string,
@@ -1302,9 +1989,14 @@ export type PluginExportAction = {
 	description: string | null,
 	/**  It runs after every export that finishes. */
 	afterExport: boolean,
+	/**
+	 *  Turned on for after every export, it also runs after one that failed
+	 *  or made only some of its clips.
+	 */
+	afterFailed: boolean,
 };
 
-/**  An installed plugin, as Settings → Plugins shows it. */
+/**  An installed plugin, as Plugins shows it. */
 export type PluginInfo = {
 	id: string,
 	name: string,
@@ -1334,7 +2026,15 @@ export type PluginInfo = {
 	 *  needs another AutoScene.
 	 */
 	broken: string | null,
-	/**  What it says it does: declared by its author, not enforced. */
+	/**
+	 *  Why AutoScene withdrew its version, in the catalog's words: it
+	 *  doesn't run, whatever else it is.
+	 */
+	withdrawn: string | null,
+	/**
+	 *  What it says it does: declared by its author, and enforced only for
+	 *  a plugin that runs in the sandbox (`sandbox`).
+	 */
 	permissions: Permission[],
 	networkHosts: string[],
 	/**  It uses the GPU, so its runs wait for the analysis. */
@@ -1347,13 +2047,60 @@ export type PluginInfo = {
 	uvScript: boolean,
 	exportActions: PluginExportAction[],
 	commands: CommandSpec[],
+	/**  What it saves a character's scenepack as, from the pack's ⋯ menu. */
+	packActions: PackActionSpec[],
 	settings: SettingSpec[],
+	/**  What it may run on by itself, once the person turns it on. */
+	events: PluginEvent[],
+	/**
+	 *  How it runs: a program for each run, a WebAssembly component in
+	 *  AutoScene's sandbox, or none (it has only pages).
+	 */
+	runtime: RuntimeKind,
+	/**
+	 *  What a run may use, when it runs in AutoScene's sandbox (a
+	 *  WebAssembly plugin): its permissions are then enforced.
+	 */
+	sandbox: PluginSandbox | null,
+	/**
+	 *  The protocol its program speaks (`engines.protocol`), which its
+	 *  pages see too.
+	 */
+	protocol: number,
+	pages: PageSpec[],
+	/**
+	 *  The keys of its secret settings that have a value in the system's
+	 *  keychain. Never the values.
+	 */
+	secretsSet: string[],
 	/**  A `data:` URL of its icon (PNG or SVG), when it has a sound one. */
 	icon: string | null,
+	/**
+	 *  What tells its banner from another, when it has one: the SHA-256 of
+	 *  its file. The list never carries the picture: `plugin_banner` gives
+	 *  it, once for each hash.
+	 */
+	bannerHash: string | null,
 	/**  Where its runs write their log. */
 	logPath: string,
+	/**  Where its service writes its log, when it runs one. */
+	serviceLogPath: string | null,
 	/**  What was skipped or changed in its `plugin.json`. */
 	warnings: string[],
+	/**
+	 *  What the large files its `plugin.json` names take on the disk now,
+	 *  in bytes (by their sizes; 0 for one that names none or got none yet).
+	 */
+	resourceBytes: number | null,
+};
+
+/**
+ *  Something for one open plugin page (its session): that its plugin's
+ *  settings changed, or that it was closed. Sent to the main webview only.
+ */
+export type PluginPageEvent = {
+	session: string,
+	event: PageEvent,
 };
 
 /**
@@ -1373,8 +2120,45 @@ export type PluginReview = {
 	needsUnreviewed: boolean,
 	/**  It may be installed now (reviewed, or the setting is on). */
 	allowed: boolean,
-	/**  It is a uv script, and uv isn't installed: it won't run until it is. */
+	/**
+	 *  It is a uv script, and AutoScene's uv isn't here yet: its first run
+	 *  gets it.
+	 */
 	uvMissing: boolean,
+	/**  What getting uv downloads at most, in bytes. */
+	uvBytes: number | null,
+	/**
+	 *  What its first run still downloads of the large files it names, in
+	 *  bytes: 0 when it names none, or AutoScene keeps them all already.
+	 */
+	resourceBytes: number | null,
+	/**
+	 *  Where those files come from: the hosts of their addresses, each
+	 *  once, as it names them.
+	 */
+	resourceHosts: string[],
+	/**
+	 *  Where AutoScene's catalog says the plugin was built from, when the
+	 *  catalog reviewed it.
+	 */
+	catalog: ReviewCatalog | null,
+	/**
+	 *  What the check of a WebAssembly plugin's component found that may
+	 *  surprise its author (its plugin.json's skipped parts are the
+	 *  plugin's `warnings`).
+	 */
+	componentWarnings: string[],
+};
+
+/**
+ *  What a run of a plugin in AutoScene's sandbox may use before it is
+ *  stopped.
+ */
+export type PluginSandbox = {
+	/**  The memory of all its memories together, in MB. */
+	memoryMb: number,
+	/**  How long a run may take, in minutes. */
+	minutes: number,
 };
 
 /**  Where a plugin's files are. */
@@ -1396,6 +2180,29 @@ export type PluginUpdate = {
 	/**  Permissions it says it needs that the installed version didn't. */
 	addedPermissions: Permission[],
 	addedHosts: string[],
+	/**  The ids of the pages it adds. */
+	addedPages: string[],
+	/**
+	 *  It runs a program, and the installed version, as the person agreed
+	 *  to it, runs none: from now on it runs with their user rights.
+	 */
+	startsProgram: boolean,
+	/**
+	 *  It keeps its program running while its page is open, and the
+	 *  installed version, as the person agreed to it, doesn't.
+	 */
+	becomesService: boolean,
+	/**
+	 *  The installed version, as the person agreed to it, runs in the
+	 *  sandbox, and this one runs a program outside it: with their user
+	 *  rights. One of pages only isn't said to: its pages run in theirs.
+	 */
+	leavesSandbox: boolean,
+	/**
+	 *  Hosts its large files come from that the installed version's
+	 *  `plugin.json` doesn't name (all of them when that can't be read).
+	 */
+	addedResourceHosts: string[],
 };
 
 /**
@@ -1408,6 +2215,13 @@ export type PluginsChanged = {
 };
 
 /**
+ *  Plugin packages were opened from outside AutoScene (a double-click, a
+ *  start with one): the page takes them with `plugins_take_opened` and
+ *  opens the install review of each.
+ */
+export type PluginsOpened = Record<string, never>;
+
+/**
  *  Character covers of a project got sharp portraits (the cast itself is
  *  unchanged: its lists needn't be fetched again).
  */
@@ -1418,7 +2232,7 @@ export type PortraitsChanged = {
 /**  Where characters are on screen in one media. */
 export type Presence = {
 	characterId: CharacterId,
-	/**  The face track — or, with `body`, the body track. */
+	/**  The face track - or, with `body`, the body track. */
 	trackId: number,
 	start: number,
 	end: number,
@@ -1509,12 +2323,76 @@ export type RelinkSummary = {
 	missing: number,
 };
 
+/**  What AutoScene's catalog says of a plugin it reviewed. */
+export type ReviewCatalog = {
+	/**  When the catalog that lists it was published (Unix ms). */
+	published: number | null,
+	/**  The repository it was built from: `https://github.com/<owner>/<repo>`. */
+	repository: string,
+	/**  The commit it was built from, 40 hex digits. */
+	commit: string,
+	/**  Its folder in the repository; empty or `.` for the top. */
+	path: string,
+};
+
+/**
+ *  How a plugin runs. This AutoScene installs `process` plugins and, from
+ *  manifest version 2, `service` and `none` ones; it reads `wasm` ones,
+ *  which a later AutoScene runs. Also what the person agreed to at install
+ *  ([`crate::store::Extra`]).
+ */
+export type RuntimeKind = 
+/**  Starts for each run and ends with it. */
+"process" | 
+/**  Also starts in service mode while one of its pages is open (protocol 2). */
+"service" | 
+/**  Runs no program: pages only. */
+"none" | 
+/**  Runs its WebAssembly component in AutoScene's sandbox, for each run. */
+"wasm";
+
 /**  An export's clips saved as a list (see [`ListFormat`]). */
 export type SavedList = {
 	/**  Where it was saved. */
 	path: string,
 	/**  Clips left out: their episode was removed from the project. */
 	leftOut: number,
+};
+
+/**  What a new project of one footage starts with. */
+export type ScanAdvice = {
+	content: ContentKind,
+	/**  Fast Scan, else the full scan. */
+	fast: boolean,
+};
+
+/**
+ *  The person's default for new projects: follow this computer, or always
+ *  one scan.
+ */
+export type ScanChoice = 
+/**  Automatic: Fast Scan where the graphics aren't built for AI work. */
+"auto" | 
+/**  Every new project starts with Fast Scan, 3D animation too. */
+"fast" | 
+/**  Every new project starts with the full scan. */
+"full";
+
+/**
+ *  The scan new projects start with, and why: what the New Project dialog,
+ *  Settings, Edit details and the first-start notice say about Fast Scan.
+ */
+export type ScanDefaults = {
+	computer: ThisComputer,
+	choice: ScanChoice,
+	/**  One entry per footage: live action, mixed, 3D animation, anime. */
+	footage: ScanAdvice[],
+	/**
+	 *  The first-start notice is due: the choice is Automatic, this
+	 *  computer's graphics get Fast Scan, and the notice isn't done for this
+	 *  library ("Don't show this again", or a default met in Settings).
+	 */
+	notice: boolean,
 };
 
 /**
@@ -1546,9 +2424,16 @@ export type SelectOption = {
 	label: string,
 };
 
-export type SettingKind = { type: "string"; default: string | null; placeholder: string | null; maxLength: number } | { type: "number"; default: number | null; min: number | null; max: number | null; step: number | null; integer: boolean } | { type: "boolean"; default: boolean } | { type: "select"; options: SelectOption[]; default: string | null };
+/**  What a plugin's service is doing. */
+export type ServiceStatus = "starting" | "ready" | "stopped";
 
-/**  A setting AutoScene shows on the plugin's page and hands to each run. */
+/**
+ *  What a setting holds. A `secret` (manifest version 2) is kept in the
+ *  system's keychain, never as a value, and has no default.
+ */
+export type SettingKind = { type: "string"; default: string | null; placeholder: string | null; maxLength: number } | { type: "number"; default: number | null; min: number | null; max: number | null; step: number | null; integer: boolean } | { type: "boolean"; default: boolean } | { type: "select"; options: SelectOption[]; default: string | null } | { type: "secret"; placeholder: string | null };
+
+/**  A setting AutoScene shows in the plugin's settings and hands to each run. */
 export type SettingSpec = {
 	key: string,
 	title: string,
@@ -1573,6 +2458,15 @@ export type Shortcuts = {
 	keys?: { [key in string]: KeyBinding[] },
 };
 
+/**
+ *  Shots of a character close together in time, in time order: each
+ *  starts at most 6 s after the one before it ends, with no fade or black
+ *  between. A shot far from the others is a group of one.
+ */
+export type ShotGroup = {
+	shots: CharacterShot[],
+};
+
 /**  How big a face is in a shot, from its height in the frame. */
 export type ShotSize = "extreme_close_up" | "close_up" | "medium_close_up" | "medium" | "wide";
 
@@ -1594,6 +2488,21 @@ export type SubtitleStream = {
 	/**  Text subtitles (SRT/ASS/…) can feed dialogue search; bitmap ones can't. */
 	textBased: boolean,
 };
+
+/**
+ *  This computer, as Settings and the New Project dialog speak of it. The
+ *  system it runs is [`AppInfo::platform`].
+ */
+export type ThisComputer = {
+	class: GraphicsClass,
+	/**
+	 *  The graphics as their driver names them ("Intel Iris Xe Graphics",
+	 *  "Apple M2"); empty for the processor and when nothing names them.
+	 */
+	name: string,
+};
+
+export type ToastTone = "neutral" | "error";
 
 /**  How a face track got to its character. */
 export type TrackAssign = 
@@ -1619,7 +2528,7 @@ export type TrackFilter =
 
 /**  Who stands behind a plugin. */
 export type Trust = 
-/**  AutoScene reviewed it: an AutoScene Plugins key signed it. */
+/**  AutoScene reviewed it: its catalog lists the package's lock. */
 "reviewed" | 
 /**  Its author signed it, with the key its first install pinned. */
 "pinned" | 

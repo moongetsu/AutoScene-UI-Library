@@ -8,8 +8,8 @@ export type { AreaKind, MenuContent }
 /**
  * Says what a right-click on its child offers (`menu`). It adds no element
  * of its own: props and ref go to the child. The window's one menu
- * (`AppMenu`) gathers every area the click went through — the innermost
- * first — and adds the app's own entries below them.
+ * (`AppMenu`) gathers every area the click went through - the innermost
+ * first - and adds the app's own entries below them.
  *
  * `tail={false}`: no app entries under this element's (the rail's tiles,
  * the window buttons). `disabled`: nothing to offer right now. `only`: offer

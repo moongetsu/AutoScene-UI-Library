@@ -51,8 +51,8 @@ export async function setHiddenAll(pid: string, ids: string[], hidden: boolean):
 
 /**
  * A click on a cast card (`ids`: the cards in the order shown). A plain
- * one opens the character: `null`. With Ctrl/⌘ or Shift — or any click
- * once something is selected — it selects as a grid of faces does
+ * one opens the character: `null`. With Ctrl/⌘ or Shift - or any click
+ * once something is selected - it selects as a grid of faces does
  * (`clickSelect`); a range starts only from a card of the selection now.
  */
 export function cardClick(
@@ -166,8 +166,8 @@ export function findCharacters(characters: Character[], find: CastFind): Charact
 
 /**
  * A character's faces to choose their picture from: the one it is now
- * first (`current`: its thumbnail), then the clearest — of two as clear,
- * the bigger face — at most `n`.
+ * first (`current`: its thumbnail), then the clearest - of two as clear,
+ * the bigger face - at most `n`.
  */
 export function pictureChoices(tracks: FaceTrackItem[], current: string | null, n: number): FaceTrackItem[] {
   const now = current == null ? undefined : tracks.find((t) => t.thumb === current)

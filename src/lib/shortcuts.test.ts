@@ -145,7 +145,7 @@ describe("the keymap", () => {
     expect(capGroups(shortcutOf("player.shuttle"))).toEqual([["J", "K", "L"]])
     expect(slotCaps(shortcutOf("global.palette"), 0)).toEqual(["Ctrl", "K"])
     expect(slotCaps(shortcutOf("player.zoomOut"), 0)).toEqual(["−"])
-    expect(capGroups(shortcutOf("review.pick"))).toEqual([["1 – 9"]])
+    expect(capGroups(shortcutOf("review.pick"))).toEqual([["1 - 9"]])
     setKeymap({ preset: "autoscene", own: { "player.second.1": [{ key: "." }] } })
     expect(capGroups(second)).toEqual([["Shift", "←"], ["."]])
     // A key taken away keeps its place, so the other still reads as "next".

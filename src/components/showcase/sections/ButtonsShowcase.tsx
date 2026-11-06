@@ -1,5 +1,6 @@
-import { Play, DownloadSimple, Trash, Plus } from "@/components/icons"
+import { Copy, DotsThree, Play, DownloadSimple, Trash, Plus } from "@/components/icons"
 import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
@@ -81,13 +82,17 @@ import { Play, Plus, DownloadSimple, Trash } from "@phosphor-icons/react"
       {/* 3. States */}
       <ShowcaseSectionStage
         title="Interactive States"
-        description="Built-in busy spinner states and accessible disabled styles."
+        description="busy swaps the first icon for a spinner, or adds one in front of a label with no icon, and disables the button."
         code={`<Button variant="primary" busy>Saving...</Button>
+<Button variant="danger" busy><Trash /> Uninstall</Button>
 <Button variant="secondary" busy>Processing</Button>
 <Button variant="accent" disabled>Disabled Accent</Button>`}
       >
         <Button variant="primary" busy>
           Saving...
+        </Button>
+        <Button variant="danger" busy>
+          <Trash /> Uninstall
         </Button>
         <Button variant="secondary" busy>
           Processing
@@ -95,6 +100,33 @@ import { Play, Plus, DownloadSimple, Trash } from "@phosphor-icons/react"
         <Button variant="accent" disabled>
           Disabled Accent
         </Button>
+      </ShowcaseSectionStage>
+
+      {/* Ghost icon with a menu */}
+      <ShowcaseSectionStage
+        title="Ghost Icon, Menu Open"
+        description="A ghost icon button that opened a menu stays lit while the menu is up."
+        code={`<DropdownMenu>
+  <DropdownMenuTrigger asChild>
+    <Button variant="ghost" size="icon" aria-label="More">
+      <DotsThree weight="bold" />
+    </Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent>...</DropdownMenuContent>
+</DropdownMenu>`}
+      >
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" aria-label="More">
+              <DotsThree weight="bold" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>
+              <Copy /> Copy the name
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </ShowcaseSectionStage>
     </div>
   )

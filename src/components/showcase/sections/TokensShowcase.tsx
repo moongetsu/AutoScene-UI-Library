@@ -150,7 +150,7 @@ export function TokensShowcase() {
               <p className="text-xs text-fg-3 mt-1">Cinematic display font for headers, project titles, and hero callouts.</p>
             </div>
             <div className="font-serif italic text-base text-fg-1 tracking-normal shrink-0">
-              The Mentalist: Patrick Jane
+              Tears of Steel: Thom
             </div>
           </div>
 

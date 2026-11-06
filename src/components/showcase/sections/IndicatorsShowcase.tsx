@@ -1,11 +1,22 @@
+import { useState } from "react"
+import { CheckCircle, PuzzlePiece, ShieldWarning, Warning } from "@/components/icons"
+import { Banner } from "@/components/ui/banner"
+import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { EmptyState } from "@/components/ui/empty-state"
+import { ErrorState } from "@/components/ui/error-state"
 import { Kbd } from "@/components/ui/kbd"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ShowcasePageHeader } from "../ShowcasePageHeader"
 import { ShowcaseSectionStage } from "../ShowcaseSectionStage"
 
 export function IndicatorsShowcase() {
+  const [retrying, setRetrying] = useState(false)
+  const retry = () => {
+    setRetrying(true)
+    window.setTimeout(() => setRetrying(false), 1500)
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <ShowcasePageHeader
@@ -128,6 +139,65 @@ export function IndicatorsShowcase() {
             </div>
           </div>
         </div>
+      </ShowcaseSectionStage>
+
+      {/* Banner */}
+      <ShowcaseSectionStage
+        title="Banner"
+        description="Something the person has to know, at the top of the view it is about. Gold asks for an action, red says something is wrong."
+        code={`<Banner
+  tone="accent"
+  icon={<Warning weight="fill" />}
+  title="1 episode can't be found"
+  description="Moved, renamed, or on a drive that isn't connected."
+  actions={<Button>Locate folder…</Button>}
+/>`}
+      >
+        <div className="flex w-full max-w-2xl flex-col gap-3">
+          <Banner
+            tone="accent"
+            icon={<Warning weight="fill" />}
+            title="1 episode can't be found"
+            description="Moved, renamed, or on a drive that isn't connected."
+            actions={<Button>Locate folder…</Button>}
+          />
+          <Banner
+            tone="danger"
+            icon={<ShieldWarning weight="fill" />}
+            title="AutoScene withdrew this plugin"
+            description="It doesn't run any more. You can uninstall it."
+            actions={<Button variant="danger">Uninstall…</Button>}
+          />
+          <Banner
+            tone="neutral"
+            icon={<CheckCircle weight="fill" />}
+            title="Every episode is ready"
+            description="This one says how things stand when nothing is wrong."
+          />
+        </div>
+      </ShowcaseSectionStage>
+
+      {/* Error state */}
+      <ShowcaseSectionStage
+        title="Error State"
+        description="A view whose data couldn't be loaded: what went wrong in plain words and a way to try again. retrying holds Try again while it runs, icon says what failed, actions are other ways out."
+        code={`<ErrorState
+  title="The plugin list couldn't be loaded"
+  error={error}
+  icon={<PuzzlePiece />}
+  onRetry={retry}
+  retrying={retrying}
+  actions={<Button>Go to Plugins</Button>}
+/>`}
+      >
+        <ErrorState
+          title="The plugin list couldn't be loaded"
+          error={{ code: "not_found", message: "The list isn't where it should be." }}
+          icon={<PuzzlePiece />}
+          onRetry={retry}
+          retrying={retrying}
+          actions={<Button>Go to Plugins</Button>}
+        />
       </ShowcaseSectionStage>
     </div>
   )

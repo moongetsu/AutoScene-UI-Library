@@ -174,7 +174,7 @@ export function AniListDialog({
           <>
             <p className="text-md text-fg-2">
               {chain.length > 1
-                ? `The whole chain is kept (${chain.length} series — sequels share their cast):`
+                ? `The whole chain is kept (${chain.length} series - sequels share their cast):`
                 : "Its cast is matched to your characters:"}
             </p>
             <ul className="mt-3 space-y-1">

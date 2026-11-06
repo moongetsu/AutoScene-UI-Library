@@ -1,0 +1,185 @@
+/*
+ * The page's own rules: type, selection, focus, scrollbars, menu sections.
+ * Plain CSS on the tokens only (no Tailwind), so plugin pages get the same
+ * through the kit's theme.css. The library's differences from the app: the
+ * page scrolls, its text can be selected, and clickable things get the hand.
+ */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--line-hairline);
+  }
+
+  html,
+  body {
+    min-height: 100%;
+  }
+
+  #root {
+    min-height: 100%;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 22px;
+    font-optical-sizing: auto;
+    font-feature-settings: "cv11", "ss03";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg-canvas);
+    color: var(--fg-1);
+  }
+
+  /* The hand on everything a click acts on: buttons, links, and every element
+     that says it is a control (tabs, switches, checkboxes, radios, sliders) or
+     a label that works one. A disabled one keeps the arrow, and so do the
+     entries of menus and lists, where the highlight under the pointer already
+     says what a click picks (as in native menus). Text fields keep the
+     browser's text cursor. */
+  :where(
+    a[href],
+    button,
+    select,
+    summary,
+    input:is([type="checkbox"], [type="radio"], [type="range"], [type="color"], [type="file"], [type="button"], [type="submit"], [type="reset"]),
+    label:has(:is([role="switch"], [role="checkbox"], [role="radio"], input[type="checkbox"], input[type="radio"]):enabled),
+    label[for]:has(+ :is([role="switch"], [role="checkbox"], [role="radio"], input[type="checkbox"], input[type="radio"]):enabled),
+    label[for]:has(+ * > :is([role="switch"], [role="checkbox"], [role="radio"], input[type="checkbox"], input[type="radio"]):enabled),
+    [role="button"], [role="link"], [role="tab"],
+    [role="switch"], [role="checkbox"], [role="radio"], [role="slider"]
+  ):not([role="option"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"]) {
+    cursor: pointer;
+
+    /* A control may carry data-disabled="false" (cmdk writes it on working entries) and still work. */
+    &:is(:disabled, [aria-disabled="true"], [data-disabled]:not([data-disabled="false"])) {
+      cursor: default;
+    }
+  }
+
+  /* Pictures and links don't drag out as the browser's ghost (a link would show its URL). */
+  img,
+  a {
+    -webkit-user-drag: none;
+  }
+
+  /* Text the user may want to copy stays selectable. */
+  input,
+  textarea,
+  [data-selectable],
+  code,
+  pre {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  ::selection {
+    background: rgb(224 180 92 / 0.35);
+    color: var(--fg-1);
+  }
+
+  input,
+  textarea {
+    caret-color: var(--accent);
+  }
+
+  /* Menu sections (an element's, the page's, the app's): a hairline between
+     sections with something in them; a separator at a section's edge, or
+     right after another, doesn't show, so conditional entries need no care. */
+  [data-menu-section]:empty {
+    display: none;
+  }
+  [data-menu-section]:not(:empty) ~ [data-menu-section]:not(:empty)::before {
+    content: "";
+    display: block;
+    height: 1px;
+    margin: 6px 8px;
+    background: var(--line-hairline);
+  }
+  [data-menu-section] > [role="separator"]:first-child,
+  [data-menu-section] > [role="separator"]:last-child,
+  [data-menu-section] > [role="separator"] + [role="separator"] {
+    display: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--line-focus);
+    outline-offset: 2px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.015em;
+    font-weight: 600;
+  }
+
+  /* Thin, quiet scrollbars: a pill on a clear track. Chromium (121+) drops
+     every ::-webkit-scrollbar rule as soon as an element has scrollbar-width
+     or scrollbar-color, so those are only for engines without the pills. */
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: rgb(255 255 255 / 0.16) transparent;
+    }
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 0.14);
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(255 255 255 / 0.26);
+  }
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 1ms !important;
+      /* Once: a loop at 1 ms would jump to a new place every frame. */
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+    }
+    /* What says "working" keeps saying it without moving: a slow fade. Longhands only,
+       so an inline animation-play-state still pauses a hidden sweep or spinner.
+       .as-skeleton is the plugin kit's (plugin-kit/kit.css): this layer's !important
+       beats its unlayered animation, so plugin pages fade too. */
+    .animate-spin,
+    .animate-ping,
+    .animate-indeterminate,
+    .skeleton,
+    .as-skeleton {
+      animation-name: busy !important;
+      animation-duration: 2s !important;
+      animation-timing-function: var(--ease-in-out) !important;
+      animation-iteration-count: infinite !important;
+    }
+  }
+
+  @keyframes busy {
+    50% {
+      opacity: 0.4;
+    }
+  }
+}

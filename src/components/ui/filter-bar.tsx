@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "./dropdown-menu"
-import { MagnifyingGlass, Funnel, ArrowsDownUp, X } from "@phosphor-icons/react"
+import { MagnifyingGlass, Funnel, ArrowsDownUp, X } from "@/components/icons"
 import { motion, AnimatePresence } from "motion/react"
 import { cn } from "@/lib/utils"
 

@@ -7,8 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog"
 import { Field, Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
+import { fastScanHint } from "@/lib/fast-scan"
 import { footageBlurb } from "@/lib/footage"
 import { commands, errorMessage } from "@/lib/ipc"
+import { stopsFirst } from "@/lib/jobs"
+import { useScanDefaults } from "@/lib/queries"
+import { unfinishedJobs } from "@/state/activity"
 import { FootagePicker } from "./FootagePicker"
 
 /** A project's title, what its footage is, and how its faces are found. */
@@ -29,26 +33,14 @@ export function ProjectDetailsDialog({
 /** Anime is analysed differently from the start (see `Project::set_content`). */
 const ANIME_APART = "Anime is analysed differently from the start. Add the videos as a new anime project instead."
 
-/** What Fast Scan does to a project's footage: anime keeps its character models (see `Project::faces_plan`). */
-function fastScanHint(anime: boolean, rescanned: boolean, fast: boolean) {
-  if (anime) {
-    if (rescanned) return "Characters are found again this way, then regrouped. Your names and decisions stay."
-    return fast
-      ? "Characters are found with the anime models in only a few frames of each shot: much faster, less sure who is who."
-      : "Characters are found with the anime models every few frames."
-  }
-  if (rescanned) return "Faces are found again this way, then the characters regrouped. Your names and decisions stay."
-  return fast
-    ? "Faces are found the way the Scener app does: much faster, less sure who is who."
-    : "Faces are found in full: every few frames, with the larger face models (for non-commercial use only)."
-}
-
 function DetailsForm({ project, onDone }: { project: ProjectSummary; onDone: () => void }) {
   const [title, setTitle] = useState(project.title)
   const [content, setContent] = useState<ContentKind>(project.content)
   const wasFast = project.fastScan ?? false
   const [fast, setFast] = useState(wasFast)
   const [busy, setBusy] = useState(false)
+  // Says when Fast Scan would suit this computer's graphics.
+  const { data: scanDefaults } = useScanDefaults()
   const retitled = title.trim() !== project.title
   const refilmed = content !== project.content
   // Fast Scan finds faces with other models: they are all found again.
@@ -109,7 +101,7 @@ function DetailsForm({ project, onDone }: { project: ProjectSummary; onDone: () 
         <Field
           label="Fast Scan"
           htmlFor="details-fast-scan"
-          hint={fastScanHint(content === "anime", rescanned, fast)}
+          hint={fastScanHint(content, rescanned, fast, scanDefaults)}
           className="mt-4 items-start"
         >
           <Switch id="details-fast-scan" checked={fast} onCheckedChange={setFast} />
@@ -145,6 +137,9 @@ export function DeleteProjectDialog({
 function DeleteForm({ project, onDone }: { project: ProjectSummary; onDone: () => void }) {
   const [deleteFiles, setDeleteFiles] = useState(true)
   const [busy, setBusy] = useState(false)
+  // Its exports and plugin runs stop too, which would otherwise go without a
+  // word. Said once, as it opens, so the dialog never moves under the pointer.
+  const [stops] = useState(() => stopsFirst(unfinishedJobs((j) => j.projectId === project.id).map((j) => j.kind)))
   const navigate = useNavigate()
   const inProject = useRouterState({ select: (s) => s.location.pathname.startsWith(`/p/${project.id}`) })
   const remove = async () => {
@@ -163,7 +158,7 @@ function DeleteForm({ project, onDone }: { project: ProjectSummary; onDone: () =
   return (
     <DialogContent
       title={`Remove “${project.title}”?`}
-      description="Your source videos and exported clips are never touched."
+      description={`Your source videos and exported clips are never touched.${stops ? ` ${stops}` : ""}`}
     >
       <label className="flex items-center justify-between gap-4 rounded-lg border border-hairline bg-inset px-3.5 py-3">
         <span>

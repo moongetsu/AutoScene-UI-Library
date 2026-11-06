@@ -19,11 +19,14 @@ import { Segmented } from "@/components/ui/segmented"
 import { TopBar } from "@/components/ui/topbar"
 import { VirtualGrid } from "@/components/ui/virtual-grid"
 import { castEdit, plural } from "@/features/cast/cast"
+import { PluginIcon } from "@/features/plugins/PluginIcon"
+import { runPackAction } from "@/features/plugins/plugin-actions"
+import { type PackActionItem, packActionItems } from "@/features/plugins/plugin-items"
 import { ProjectLoadError } from "@/features/project/ProjectLoadError"
 import { EXPORT_REQUEST } from "@/lib/actions"
 import { shortFormatName } from "@/lib/format"
 import { exportWithMenu } from "@/lib/keymap"
-import { firstFailure, useCast, useMediaList, usePresets, useSettings } from "@/lib/queries"
+import { firstFailure, useCast, useMediaList, usePlugins, usePresets, useSettings } from "@/lib/queries"
 import { PACK_SHORTCUTS, useShortcutKeys, useShortcuts } from "@/lib/shortcuts"
 import { type BodyVerdict } from "@/features/shots/shots"
 import { useUi } from "@/state/ui"
@@ -31,7 +34,7 @@ import { PackCard } from "./PackCard"
 import { PackExportDialog } from "./PackExportDialog"
 import { PackFilters } from "./PackFilters"
 import { PackFooter } from "./PackFooter"
-import { type Show, between, handPicked, keyOf, shown } from "./spec"
+import { type Show, between, exportable, handPicked, keyOf, savable, shown } from "./spec"
 import { usePack, usePackExport } from "./use-pack"
 
 const NO_CLIPS: PackClip[] = []
@@ -85,7 +88,8 @@ function PackView({ pid, cid }: { pid: string; cid: string }) {
   return <Builder pid={pid} cid={cid} character={character} media={media} mediaById={mediaById} pack={pack} toolbar={toolbar} />
 }
 
-function Builder({
+// Exported for its test: the page's wiring (what a menu entry asks for) is all here.
+export function Builder({
   pid,
   cid,
   character,
@@ -106,6 +110,7 @@ function Builder({
   const navigate = useNavigate()
   const { data: settings } = useSettings()
   const { data: presets } = usePresets()
+  const { data: plugins } = usePlugins()
   const [show, setShow] = useState<Show>("all")
   const [exportOpen, setExportOpen] = useState(false)
   const clips = pack.preview.data?.clips ?? NO_CLIPS
@@ -115,7 +120,29 @@ function Builder({
   const taken = totals.clips
   // One export of the pack at a time: the button shows the one under way.
   const exporting = usePackExport(pid, cid)
-  const canExport = taken > 0 && pack.current && character != null && !exporting
+  // While a plugin's filter checks shots the pack is not final: Export waits (a failed check doesn't hold it up).
+  const canExport = exportable({
+    taken,
+    current: pack.current,
+    character: character != null,
+    exporting: exporting != null,
+    check: pack.check,
+  })
+  // A pack action saves a file, so a pack that is being exported can be saved too.
+  const canSave = savable({ taken, current: pack.current, character: character != null, check: pack.check })
+  const saves = useMemo(() => packActionItems(plugins), [plugins])
+  const packState = pack.state
+  const stamp = pack.preview.data?.stamp
+  // An entry already open when a check starts still asks: the backend refuses
+  // it with its own words (a toast), instead of an entry that does nothing.
+  const save = useCallback(
+    (action: PackActionItem) => {
+      if (!packState || stamp == null) return
+      void runPackAction(action, pid, cid, packState.spec, packState.naming, stamp)
+    },
+    [packState, stamp, pid, cid],
+  )
+  const filters = pack.filters
   const bytes = pack.plan.data?.sizes.find((s) => s.presetId === settings?.exportPresetId)?.bytes ?? null
   const format = presets?.find((p) => p.id === settings?.exportPresetId)?.name
 
@@ -205,6 +232,19 @@ function Builder({
           <ArrowCounterClockwise /> Hand every shot back to the filters
         </ContextMenuItem>
       )}
+      {/* Plugins save the pack as a file of theirs, before anything is rendered: a group of their own, after the app's. */}
+      {saves.length > 0 && (
+        <>
+          <ContextMenuSeparator />
+          <ContextMenuLabel>Save with a plugin</ContextMenuLabel>
+          {saves.map((a) => (
+            <ContextMenuItem key={a.key} disabled={!canSave} onSelect={() => save(a)}>
+              <PluginIcon src={a.icon} /> {a.title}
+              <span className="ml-auto pl-4 text-xs text-fg-3">{a.pluginName}</span>
+            </ContextMenuItem>
+          ))}
+        </>
+      )}
       <ContextMenuSeparator />
       <ContextMenuLabel>Show</ContextMenuLabel>
       <ContextMenuRadioGroup value={show} onValueChange={(v) => setShow(v as Show)}>
@@ -220,7 +260,14 @@ function Builder({
       <Page topbar={toolbar} menu={pageMenu}>
         <Header character={character} shots={clips.length} />
         {pack.state ? (
-          <PackFilters spec={pack.state.spec} media={media} faceless={faceless} onChange={pack.setSpec} />
+          <PackFilters
+            spec={pack.state.spec}
+            media={media}
+            faceless={faceless}
+            filters={filters}
+            plugins={plugins}
+            onChange={pack.setSpec}
+          />
         ) : (
           <div className="h-[57px] border-b border-hairline" />
         )}
@@ -272,6 +319,7 @@ function Builder({
                   index={i}
                   media={mediaById.get(c.shot.mediaId)}
                   name={character?.label}
+                  filter={c.filter != null ? filters?.[c.filter] : undefined}
                   onToggle={toggle}
                   onOpen={open}
                   onWatch={onWatch}
@@ -294,7 +342,12 @@ function Builder({
           picks={picks.length}
           canExport={canExport}
           exporting={exporting}
+          check={pack.check}
+          actions={saves}
+          canSave={canSave}
+          onSave={save}
           onClearPicks={() => void pack.clearPicks(picks)}
+          onTryAgain={pack.tryAgain}
           onExport={() => setExportOpen(true)}
           onShowExport={() => useUi.getState().setActivityOpen(true)}
         />

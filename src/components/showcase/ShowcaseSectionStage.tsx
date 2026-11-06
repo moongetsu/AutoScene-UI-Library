@@ -1,6 +1,7 @@
 import * as React from "react"
-import { Check, Copy, Code, Eye, TerminalWindow } from "@phosphor-icons/react"
+import { Check, Copy, Code, Eye, TerminalWindow } from "@/components/icons"
 import { cn } from "@/lib/utils"
+import { Tooltip } from "@/components/ui/tooltip"
 
 interface ShowcaseSectionStageProps {
   title: string
@@ -126,29 +127,30 @@ export function ShowcaseSectionStage({
         <div className="flex items-center gap-2.5 self-end sm:self-auto">
           {/* Always-visible permanent Copy button when code exists */}
           {code && (
-            <button
-              type="button"
-              onClick={handleCopy}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer",
-                copied
-                  ? "bg-accent/15 border-accent/40 text-accent shadow-sm"
-                  : "bg-white/[0.03] hover:bg-white/[0.07] border-white/[0.08] text-fg-2 hover:text-white"
-              )}
-              title="Copy component code"
-            >
-              {copied ? (
-                <>
-                  <Check className="size-3.5 text-accent shrink-0 animate-pop-in" />
-                  <span className="font-semibold text-accent">Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="size-3.5 text-fg-3 shrink-0" />
-                  <span>Copy</span>
-                </>
-              )}
-            </button>
+            <Tooltip label="Copy component code">
+              <button
+                type="button"
+                onClick={handleCopy}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer",
+                  copied
+                    ? "bg-accent/15 border-accent/40 text-accent shadow-sm"
+                    : "bg-white/[0.03] hover:bg-white/[0.07] border-white/[0.08] text-fg-2 hover:text-white"
+                )}
+              >
+                {copied ? (
+                  <>
+                    <Check className="size-3.5 text-accent shrink-0 animate-pop-in" />
+                    <span className="font-semibold text-accent">Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="size-3.5 text-fg-3 shrink-0" />
+                    <span>Copy</span>
+                  </>
+                )}
+              </button>
+            </Tooltip>
           )}
 
           {/* Preview / Code Tab Switcher */}

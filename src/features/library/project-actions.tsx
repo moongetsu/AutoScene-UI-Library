@@ -8,7 +8,7 @@ import { useShortcutKeys } from "@/lib/shortcuts"
 import { useNewProject } from "@/state/new-project"
 
 /**
- * What a project offers wherever it is shown — its card, its rail tile, its
+ * What a project offers wherever it is shown - its card, its rail tile, its
  * ⋯ menu: open it or one of its places, its folder, rename, remove.
  */
 export function ProjectItems({

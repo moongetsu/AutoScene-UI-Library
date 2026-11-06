@@ -1,5 +1,5 @@
 /**
- * The few things the app asks of the system: copying text (natively — the
+ * The few things the app asks of the system: copying text (natively - the
  * webview's clipboard API needs a user gesture or a permission prompt),
  * reading the clipboard's text for Paste, and showing a file or folder in
  * Explorer / Finder. Failures say so in a toast.

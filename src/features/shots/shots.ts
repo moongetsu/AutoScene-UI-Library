@@ -30,12 +30,12 @@ export function formatShotLength(sec: number): string {
 /**
  * Show cell `cell` of a sprite of `cells` cells, each `aspect` wide per unit
  * of height, centred in a card: wider cells fill its width (bars above and
- * below), taller ones (4:3) its height (bars at the sides) — never cropped.
+ * below), taller ones (4:3) its height (bars at the sides) - never cropped.
  */
 export function spriteStyle(cells: number, cell: number, aspect: number): CSSProperties {
   // The strip's centre sits on the card's; move it so cell `cell`'s does.
   const shift = ((cells / 2 - cell - 0.5) * 100) / cells
-  // (A little narrower than 16:9 — rounded image sizes — still fills the width.)
+  // (A little narrower than 16:9 - rounded image sizes - still fills the width.)
   const fit = aspect >= CARD_ASPECT * 0.95 ? { width: `${cells * 100}%` } : { height: "100%" }
   return { ...fit, transform: `translate(calc(-50% + ${shift}%), -50%)` }
 }
