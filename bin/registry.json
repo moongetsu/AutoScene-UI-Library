@@ -366,6 +366,18 @@
       "tailwind-merge"
     ]
   },
+  "scan-sweep": {
+    "files": [
+      "scan-sweep.tsx"
+    ],
+    "support": [
+      "lib/utils.ts"
+    ],
+    "deps": [
+      "clsx",
+      "tailwind-merge"
+    ]
+  },
   "search-field": {
     "files": [
       "search-field.tsx",

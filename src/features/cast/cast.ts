@@ -190,3 +190,6 @@ export function useProjectAnalysis(pid: string): JobInfo[] {
     [jobs, order, pid],
   )
 }
+
+/** What a character is called (the app works it out from their name and number; here it comes with them). */
+export const characterLabel = (c: Pick<Character, "label">) => c.label
