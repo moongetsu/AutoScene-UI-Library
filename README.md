@@ -74,7 +74,7 @@ export default function App() {
 
 ## Components
 
-The catalog lists 62 entries: 41 primitives and 21 feature components. It is one file, `src/registry/catalog.json`: the registry, the showcase counts, the command palette and the static pages all read it.
+The catalog lists 63 entries: 41 primitives and 22 feature components. It is one file, `src/registry/catalog.json`: the registry, the showcase counts, the command palette and the static pages all read it.
 
 ### Primitives
 
@@ -103,6 +103,7 @@ Whole parts of the app, listed under Features in the registry and in the showcas
 
 | Where | Components |
 | :--- | :--- |
+| **Export** | `ExportOptionRows` |
 | **Plugins** | `PluginArt`, `PluginCard`, `PluginSkeletons`, `PluginsPage`, `PluginSettingsPage`, `UninstallDialog`, `WithdrawnBanner`, `CatalogCard`, `BrowseView` |
 | **Player** | `DetailsPanel`, `CastTab`, `FileTab`, `TabBody`, `ShotHeader`, `PlayerKeysDialog` |
 | **Library, Cast** | `ProjectCard`, `CharacterCard` |

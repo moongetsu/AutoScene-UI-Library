@@ -692,11 +692,24 @@ export type AppInfo = {
 };
 
 /**  User preferences stored in `library.db`. */
+/**
+ *  What an export changes of its clips beyond their format. Bit-Perfect
+ *  exports change nothing.
+ */
+export type ExportOptions = {
+	/**  Take the black bars the picture was mastered with off the clips. */
+	removeBars?: boolean,
+	/**  Bring every clip to the same loudness. */
+	matchLoudness?: boolean,
+};
+
 export type AppSettings = {
 	/**  Folder that holds `<Title>.autoscene` project folders. */
 	libraryRoot: string,
 	/**  Preset preselected in the export dialog. */
 	exportPresetId: string,
+	/**  The options the export dialogs last had. */
+	exportOptions?: ExportOptions,
 	/**
 	 *  Audio language picked automatically for new episodes (ISO 639-2 code,
 	 *  e.g. `eng`); empty = use each file's default track.
@@ -1158,6 +1171,10 @@ export type ExportPreset = {
 	/**  Mix surround sound down to stereo (phone editors don't handle 5.1). */
 	stereo?: boolean,
 	builtin: boolean,
+	/**  Take the black bars the picture was mastered with off the clips. */
+	removeBars?: boolean,
+	/**  Bring every clip to the same loudness. */
+	matchLoudness?: boolean,
 };
 
 export type ExportRequest = {
@@ -1172,6 +1189,7 @@ export type ExportRequest = {
 	 *  a chapter per clip named after it; `None`: a file per clip.
 	 */
 	merge?: string | null,
+	options?: ExportOptions,
 };
 
 export type ExportStatus = "queued" | "running" | "done" | "failed" | "cancelled";
@@ -1700,6 +1718,7 @@ export type PackExportRequest = {
 	outDir: string | null,
 	/**  The preview's stamp: the export is refused if the pack changed since. */
 	stamp: string,
+	options?: ExportOptions,
 };
 
 /**  The file a pack action saves, as the save dialog offers it. */

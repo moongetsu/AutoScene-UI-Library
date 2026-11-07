@@ -1,7 +1,7 @@
 import * as React from "react"
 import { createMemoryHistory, createRootRoute, createRoute, createRouter, Outlet, RouterProvider, useRouter } from "@tanstack/react-router"
 import { toast } from "sonner"
-import type { PluginInfo } from "@/bindings"
+import type { ExportPreset, PluginInfo } from "@/bindings"
 import { Copy, Keyboard, PuzzlePiece, Trash } from "@/components/icons"
 import { FastScanArt, FastScanNotice } from "@/components/shell/FastScanNotice"
 import { FeatureFrame } from "@/components/showcase/FeatureFrame"
@@ -10,6 +10,8 @@ import { ContextMenuItem } from "@/components/ui/context-menu"
 import { Kbd } from "@/components/ui/kbd"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CharacterCard } from "@/features/cast/CharacterCard"
+import { NO_EXPORT_OPTIONS } from "@/features/export/export"
+import { ExportOptionRows } from "@/features/export/ExportOptionRows"
 import { ProjectCard } from "@/features/library/ProjectCard"
 import { CastTab } from "@/features/player/panels/CastTab"
 import { DetailsPanel } from "@/features/player/panels/DetailsPanel"
@@ -284,6 +286,12 @@ function DetailsPanelDemo() {
   )
 }
 
+function ExportOptionRowsDemo() {
+  const [options, setOptions] = React.useState(NO_EXPORT_OPTIONS)
+  const preset = { id: "h264-edit", video: { codec: "h264" } } as unknown as ExportPreset
+  return <ExportOptionRows preset={preset} options={options} onChange={setOptions} />
+}
+
 function ShotHeaderDemo() {
   return (
     <ShotHeader
@@ -422,6 +430,11 @@ export const FEATURE_PREVIEWS: Record<string, (handlers?: any) => React.ReactNod
   "plugin-skeletons": () => (
     <FeatureFrame id="plugin-skeletons" width={760} minWidth={640}>
       <PluginSkeletons />
+    </FeatureFrame>
+  ),
+  "export-option-rows": () => (
+    <FeatureFrame id="export-option-rows" width={480}>
+      <ExportOptionRowsDemo />
     </FeatureFrame>
   ),
   "shot-stack": () => (
