@@ -74,7 +74,7 @@ export default function App() {
 
 ## Components
 
-The catalog lists 62 entries: 41 primitives and 21 feature components. It is one file, `src/registry/catalog.json`: the registry, the showcase counts, the command palette and the static pages all read it.
+The catalog lists 68 entries: 42 primitives and 26 feature components. It is one file, `src/registry/catalog.json`: the registry, the showcase counts, the command palette and the static pages all read it.
 
 ### Primitives
 
@@ -106,6 +106,7 @@ Whole parts of the app, listed under Features in the registry and in the showcas
 | **Plugins** | `PluginArt`, `PluginCard`, `PluginSkeletons`, `PluginsPage`, `PluginSettingsPage`, `UninstallDialog`, `WithdrawnBanner`, `CatalogCard`, `BrowseView` |
 | **Player** | `DetailsPanel`, `CastTab`, `FileTab`, `TabBody`, `ShotHeader`, `PlayerKeysDialog` |
 | **Library, Cast** | `ProjectCard`, `CharacterCard` |
+| **Rescan** | `LikenessCard`, `FaceLane`, `ChoiceFace`, `RescanFaceTile`, `RescanBar` |
 | **Shots** | `ShotStack` (with `ShotBand`) |
 | **Settings** | `HardwareGroup`, `DiscordSection` |
 | **Shell** | `FastScanNotice` |
@@ -124,7 +125,7 @@ Whole parts of the app, listed under Features in the registry and in the showcas
 
 ### Syncing with the app
 
-The primitives, `styles/` and `lib/grid` match AutoScene at ac74138. The rest of `src/` stays at cac9adb, the commit before the app moved its words into a catalog, apart from the entries added since: `ShotStack` and the shots around it, `DiscordSection`, `PluginSkeletons`, and the shots shortcuts. The library has no catalog of words (i18next): what is copied from the app has its English written in place, so a copied `t("...")` becomes the sentence from the app's `locales/en`. `bindings.ts` is at cac9adb with the Discord types added.
+The primitives, `styles/` and `lib/grid` match AutoScene at ac74138. The rest of `src/` stays at cac9adb, the commit before the app moved its words into a catalog, apart from the entries added since: `ShotStack` and the shots around it, `DiscordSection`, `PluginSkeletons`, the shots shortcuts, and the Rescan components (AutoScene ec1bc46). The library has no catalog of words (i18next): what is copied from the app has its English written in place, so a copied `t("...")` becomes the sentence from the app's `locales/en`. `bindings.ts` is at cac9adb with the Discord types added.
 
 Most of `src/` mirrors the AutoScene app and can be copied over. These files are the library's own forks: **a sync must merge into them, never overwrite them.**
 

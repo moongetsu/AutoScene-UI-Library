@@ -20,6 +20,7 @@ import { Segmented } from "@/components/ui/segmented"
 import { Kbd } from "@/components/ui/kbd"
 import { FilterBar } from "@/components/ui/filter-bar"
 import { Progress } from "@/components/ui/progress"
+import { ScanSweep } from "@/components/ui/scan-sweep"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Select } from "@/components/ui/select"
 import { Tooltip, TooltipProvider } from "@/components/ui/tooltip"
@@ -109,6 +110,21 @@ export interface ComponentCardData {
  * Previews for each discovered component.
  * Custom crafted previews tailored to video editing & creator workflows.
  */
+/** The sweep crosses once when it mounts: a click runs it again. */
+function ScanSweepLook() {
+  const [run, setRun] = React.useState(0)
+  return (
+    <button
+      type="button"
+      onClick={() => setRun((n) => n + 1)}
+      className="relative h-32 w-44 overflow-hidden rounded-xl bg-white/[0.06] picture-edge text-sm text-fg-2"
+    >
+      Click to read it
+      <ScanSweep key={run} />
+    </button>
+  )
+}
+
 export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.ReactNode> = {
   button: () => (
     <Button variant="primary" size="md" onClick={() => toast.success("Built scene pack")}>
@@ -223,6 +239,7 @@ export const COMPONENT_DEMO_PREVIEWS: Record<string, (handlers?: any) => React.R
       <Progress value={68} />
     </div>
   ),
+  "scan-sweep": () => <ScanSweepLook />,
   skeleton: () => (
     <div className="flex items-center gap-3 w-full max-w-xs">
       <Skeleton className="size-12 rounded-xl shrink-0" />

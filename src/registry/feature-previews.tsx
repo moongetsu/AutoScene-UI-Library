@@ -10,6 +10,11 @@ import { ContextMenuItem } from "@/components/ui/context-menu"
 import { Kbd } from "@/components/ui/kbd"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CharacterCard } from "@/features/cast/CharacterCard"
+import { ChoiceFace } from "@/features/cast/ChoiceFace"
+import { FaceLane } from "@/features/cast/FaceLane"
+import { LikenessCard } from "@/features/cast/LikenessCard"
+import { RescanBar } from "@/features/cast/RescanBar"
+import { RescanFaceTile } from "@/features/cast/RescanFaceTile"
 import { ProjectCard } from "@/features/library/ProjectCard"
 import { CastTab } from "@/features/player/panels/CastTab"
 import { DetailsPanel } from "@/features/player/panels/DetailsPanel"
@@ -34,10 +39,15 @@ import { ShotBand, ShotStack } from "@/features/shots/ShotStack"
 import { copyText } from "@/lib/os"
 import { qk, queryClient, useCatalog, usePlugins, useScanDefaults } from "@/lib/queries"
 import { PLAYER_SHORTCUTS, capGroups, useKeymap } from "@/lib/shortcuts"
+import { useActivity } from "@/state/activity"
 import { useFastScanNotice } from "@/state/fast-scan-notice"
+import { useRescan } from "@/state/rescan"
 import {
   DEMO_BANNER,
   DEMO_CHARACTERS,
+  DEMO_PAIR,
+  DEMO_RESCAN_CHOICE,
+  DEMO_RESCAN_FACES,
   DEMO_COMPUTER,
   DEMO_FPS,
   DEMO_FRAMES,
@@ -340,12 +350,75 @@ function PlayerKeysDemo() {
 }
 
 /** Previews of the feature components (the `Features` entries of the catalog). */
+const noop = () => {}
+
+/** A rescan half way, held in a frame of its own: the bar is fixed to what holds it. */
+function RescanBarLook() {
+  React.useEffect(() => {
+    const job = { id: "demo-rescan", kind: "rescan", state: "running", projectId: DEMO_PROJECT.id, rev: Date.now() }
+    useActivity.getState().upsert(job as unknown as Parameters<ReturnType<typeof useActivity.getState>["upsert"]>[0])
+    useRescan.getState().started(DEMO_PROJECT.id, [DEMO_CHARACTERS[0].id, DEMO_CHARACTERS[1].id])
+    useRescan.getState().progress(DEMO_PROJECT.id, [], 48, 120)
+    return () => {
+      useActivity.getState().upsert({ ...job, state: "done" } as unknown as Parameters<ReturnType<typeof useActivity.getState>["upsert"]>[0])
+      useRescan.getState().ended(DEMO_PROJECT.id)
+    }
+  }, [])
+  return (
+    <div className="relative h-20 [transform:translateZ(0)]">
+      <RescanBar pid={DEMO_PROJECT.id} />
+    </div>
+  )
+}
+
 export const FEATURE_PREVIEWS: Record<string, (handlers?: any) => React.ReactNode> = {
   "project-card": () => (
     <FeatureFrame id="project-card" width={420} credit={STILL_CREDIT}>
       <PreviewRoutes>
         <ProjectCard project={DEMO_PROJECT} onRename={nothing} onDelete={nothing} />
       </PreviewRoutes>
+    </FeatureFrame>
+  ),
+  "likeness-card": () => (
+    <FeatureFrame id="likeness-card" width={900} minWidth={720} credit={STILL_CREDIT}>
+      <LikenessCard pair={DEMO_PAIR} a={DEMO_CHARACTERS[0]} b={DEMO_CHARACTERS[1]} onSame={noop} onApart={noop} />
+    </FeatureFrame>
+  ),
+  "face-lane": () => (
+    <FeatureFrame id="face-lane" width={760} minWidth={560} credit={STILL_CREDIT}>
+      <FaceLane
+        pid={DEMO_PROJECT.id}
+        who={DEMO_CHARACTERS[0]}
+        heading="Thom"
+        about="4 faces look like Thom"
+        faces={DEMO_RESCAN_FACES}
+        from={(f) => (f.verdict === "elsewhere" ? DEMO_CHARACTERS[1] : undefined)}
+        yes="Yes, it's Thom"
+        no="Not Thom"
+        onYes={noop}
+        onNo={noop}
+        actions={
+          <>
+            <Button variant="ghost">Leave them</Button>
+            <Button variant="accent">All are Thom</Button>
+          </>
+        }
+      />
+    </FeatureFrame>
+  ),
+  "choice-face": () => (
+    <FeatureFrame id="choice-face" width={480} credit={STILL_CREDIT}>
+      <ChoiceFace pid={DEMO_PROJECT.id} face={DEMO_RESCAN_CHOICE} a={DEMO_CHARACTERS[0]} b={DEMO_CHARACTERS[1]} onPick={noop} onNeither={noop} />
+    </FeatureFrame>
+  ),
+  "rescan-face-tile": () => (
+    <FeatureFrame id="rescan-face-tile" width={160} credit={STILL_CREDIT}>
+      <RescanFaceTile pid={DEMO_PROJECT.id} face={DEMO_RESCAN_FACES[0].face} />
+    </FeatureFrame>
+  ),
+  "rescan-bar": () => (
+    <FeatureFrame id="rescan-bar" width={420}>
+      <RescanBarLook />
     </FeatureFrame>
   ),
   "character-card": () => (

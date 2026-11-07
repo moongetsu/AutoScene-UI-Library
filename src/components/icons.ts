@@ -81,6 +81,7 @@ export {
   Scissors,
   SelectionAll,
   ShieldCheck,
+  Stop,
   ShieldWarning,
   Sidebar,
   SidebarSimple,

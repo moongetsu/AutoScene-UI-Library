@@ -1,4 +1,4 @@
-import type { Character, CharacterShot, MediaItem, PluginInfo, ProjectSummary, Rational, Segment, ThisComputer } from "@/bindings"
+import type { Character, CharacterShot, MediaItem, PluginInfo, ProjectSummary, Rational, Segment, ThisComputer, FaceTrackItem, RescanFace, RescanPair, RescanVerdict } from "@/bindings"
 import { FrameStore } from "@/features/player/frame-store"
 import { type StackCard, stackCards } from "@/features/shots/groups"
 import { footageStill } from "@/lib/footage"
@@ -184,3 +184,47 @@ export const DEMO_STACK: StackCard = stackCards([
   { shots: [shot(7512, "live-1.webp", 0.2), shot(7572, "live-2.webp", 0.5), shot(7632, "live-3.webp", 0.3)] },
 ])[0]
 export const DEMO_SHOT = shot(9120, "live-3.webp", 0.4)
+
+/** A face of the demo, as Rescan shows it. */
+const demoFace = (id: number, file: string): FaceTrackItem => ({
+  id,
+  mediaId: DEMO_MEDIA.id,
+  start: id * 100,
+  end: id * 100 + 60,
+  quality: 0.3,
+  faceHeight: 0.2,
+  thumb: still(file),
+  characterId: null,
+  assign: "none",
+  score: 0.3,
+})
+
+const suggestion = (id: number, file: string, verdict: RescanVerdict): RescanFace => ({
+  face: demoFace(id, file),
+  verdict,
+  target: DEMO_CHARACTERS[0].id,
+  other: verdict === "between" ? DEMO_CHARACTERS[1].id : null,
+  score: 0.6,
+  score2: 0.3,
+  read: true,
+})
+
+export const DEMO_RESCAN_FACES: RescanFace[] = [
+  suggestion(901, "live-2.webp", "newly"),
+  suggestion(902, "live-3.webp", "elsewhere"),
+  suggestion(903, "live-2.webp", "maybe"),
+  suggestion(904, "live-3.webp", "newly"),
+]
+
+export const DEMO_RESCAN_CHOICE = suggestion(905, "live-3.webp", "between")
+
+export const DEMO_PAIR: RescanPair = {
+  a: DEMO_CHARACTERS[0].id,
+  b: DEMO_CHARACTERS[1].id,
+  likeness: "likely",
+  main: 0.71,
+  secondAgrees: true,
+  together: 0,
+  aFaces: [1, 2, 3, 4, 5, 6].map((n) => demoFace(n, "live-2.webp")),
+  bFaces: [7, 8, 9, 10, 11, 12].map((n) => demoFace(n, "live-3.webp")),
+}

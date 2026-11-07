@@ -1403,7 +1403,7 @@ export type JobInfo = {
 	rev: number,
 };
 
-export type JobKind = "ingest" | "proxy" | "export" | 
+export type JobKind = "rescan" | "ingest" | "proxy" | "export" | 
 /**  AI analysis of a media: shots, then faces and characters. */
 "analyze" | 
 /**  Posters of a project made again at the current sizes. */
@@ -2616,3 +2616,28 @@ function makeEvent<T>(name: string, serialize?: (payload: T) => unknown, deseria
     return Object.assign(fn, base);
 }
 
+
+export type RescanVerdict = "elsewhere" | "newly" | "maybe" | "between" | "doubt" | "no_face"
+
+export type RescanFace = {
+	face: FaceTrackItem,
+	verdict: RescanVerdict,
+	target: CharacterId | null,
+	other: CharacterId | null,
+	score: number,
+	score2: number,
+	read: boolean,
+}
+
+export type RescanLikeness = "likely" | "maybe"
+
+export type RescanPair = {
+	a: CharacterId,
+	b: CharacterId,
+	likeness: RescanLikeness,
+	main: number,
+	secondAgrees: boolean | null,
+	together: number,
+	aFaces: FaceTrackItem[],
+	bFaces: FaceTrackItem[],
+}

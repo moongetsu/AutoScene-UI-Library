@@ -46,6 +46,7 @@ const KIND_ICON: Record<JobInfo["kind"], React.ReactNode> = {
   portraits: <UserFocus />,
   regroup: <Users />,
   plugin: <PuzzlePiece />,
+  rescan: <Scan />,
 }
 
 /** Global view of background work (indexing, previews, analysis, exports, plugins). */
